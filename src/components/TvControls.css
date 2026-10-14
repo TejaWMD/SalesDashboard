@@ -30,13 +30,13 @@
 .tv-controls__label {
   font-size: 0.725rem;
   font-weight: 800;
-  color: var(--color-amber);
+  color: var(--color-lemon);
   letter-spacing: 0.05em;
 }
 
 .tv-controls__select {
   background: var(--bg-card-elevated);
-  border: 1px solid rgba(251, 180, 60, 0.35);
+  border: 1px solid rgba(248, 245, 75, 0.35);
   color: #ffffff;
   padding: 5px 12px;
   border-radius: 8px;
@@ -48,8 +48,8 @@
 }
 
 .tv-controls__select:hover, .tv-controls__select:focus {
-  border-color: var(--color-amber);
-  box-shadow: 0 0 10px rgba(251, 180, 60, 0.25);
+  border-color: var(--color-lemon);
+  box-shadow: 0 0 10px rgba(248, 245, 75, 0.3);
 }
 
 /* View Switcher */
@@ -106,8 +106,8 @@
 }
 
 .tv-controls__live-dot.pulsing {
-  background-color: var(--color-amber);
-  box-shadow: 0 0 10px var(--color-amber);
+  background-color: var(--color-lemon);
+  box-shadow: 0 0 10px var(--color-lemon);
   animation: pulse 1s infinite;
 }
 
@@ -135,15 +135,15 @@
 }
 
 .tv-btn--refresh:hover:not(:disabled) {
-  background: rgba(0, 155, 214, 0.18);
+  background: rgba(0, 155, 214, 0.2);
   border-color: var(--color-blue);
   color: #ffffff;
   box-shadow: 0 0 10px rgba(0, 155, 214, 0.3);
 }
 
 .tv-btn--fullscreen:hover {
-  background: rgba(251, 180, 60, 0.15);
-  border-color: var(--color-amber);
+  background: rgba(248, 245, 75, 0.15);
+  border-color: var(--color-lemon);
   color: #ffffff;
 }
 

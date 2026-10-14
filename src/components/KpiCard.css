@@ -16,7 +16,7 @@
 .kpi-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(12, 11, 12, 0.35);
-  border-color: rgba(251, 180, 60, 0.3);
+  border-color: rgba(248, 245, 75, 0.35);
 }
 
 .kpi-card::before {
@@ -38,7 +38,7 @@
 }
 
 .kpi-card--warning::before {
-  background: linear-gradient(90deg, #fbb43c, #ff9900);
+  background: linear-gradient(90deg, #f8f54b, #e0dc28);
 }
 
 .kpi-card--danger::before {
@@ -106,9 +106,9 @@
 }
 
 .kpi-card__badge--warning {
-  background: rgba(251, 180, 60, 0.2);
-  color: #fbb43c;
-  border: 1px solid rgba(251, 180, 60, 0.4);
+  background: rgba(248, 245, 75, 0.18);
+  color: #f8f54b;
+  border: 1px solid rgba(248, 245, 75, 0.4);
 }
 
 .kpi-card__badge--danger {

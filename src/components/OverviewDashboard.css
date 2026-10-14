@@ -47,8 +47,8 @@
 
 .tv-panel-subtitle {
   font-size: 0.725rem;
-  color: var(--text-gold);
-  font-weight: 600;
+  color: var(--text-accent);
+  font-weight: 700;
 }
 
 /* Left: PIC Scorecards Panel */
@@ -77,7 +77,7 @@
 .tv-pic-card {
   background: var(--bg-card-elevated);
   border: 1px solid rgba(255, 255, 255, 0.07);
-  border-left: 3px solid rgba(255, 255, 255, 0.15);
+  border-left: 3.5px solid rgba(255, 255, 255, 0.15);
   border-radius: 10px;
   padding: 8px 12px;
   display: flex;
@@ -87,14 +87,14 @@
 }
 
 .tv-pic-card:hover {
-  background: #1c1b22;
-  border-color: rgba(251, 180, 60, 0.35);
+  background: var(--bg-card-alt);
+  border-color: rgba(248, 245, 75, 0.35);
   transform: translateX(2px);
 }
 
 .tv-pic-card--success { border-left-color: var(--color-green); }
 .tv-pic-card--primary { border-left-color: var(--color-blue); }
-.tv-pic-card--warning { border-left-color: var(--color-amber); }
+.tv-pic-card--warning { border-left-color: var(--color-lemon); }
 .tv-pic-card--danger { border-left-color: var(--color-red); }
 .tv-pic-card--neutral { border-left-color: #64748b; }
 
@@ -157,9 +157,9 @@
 }
 
 .tv-status-badge--warning {
-  background: rgba(251, 180, 60, 0.2);
-  color: #fbb43c;
-  border: 1px solid rgba(251, 180, 60, 0.4);
+  background: rgba(248, 245, 75, 0.18);
+  color: #f8f54b;
+  border: 1px solid rgba(248, 245, 75, 0.4);
 }
 
 .tv-status-badge--danger {
@@ -178,7 +178,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 4px;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.4);
   padding: 5px 8px;
   border-radius: 6px;
 }
@@ -223,7 +223,7 @@
 
 .tv-pic-progress-fill--success { background: var(--color-green); }
 .tv-pic-progress-fill--primary { background: var(--color-blue); }
-.tv-pic-progress-fill--warning { background: var(--color-amber); }
+.tv-pic-progress-fill--warning { background: var(--color-lemon); }
 .tv-pic-progress-fill--danger { background: var(--color-red); }
 .tv-pic-progress-fill--neutral { background: #64748b; }
 
@@ -275,7 +275,7 @@
   gap: 6px;
   font-size: 0.725rem;
   font-weight: 900;
-  color: var(--color-amber);
+  color: var(--color-lemon);
   letter-spacing: 0.05em;
   white-space: nowrap;
 }
@@ -313,7 +313,7 @@
 }
 
 .tv-ticker-rank {
-  color: var(--color-amber);
+  color: var(--color-lemon);
   font-weight: 800;
   font-family: 'JetBrains Mono', monospace;
 }

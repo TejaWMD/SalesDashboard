@@ -116,7 +116,7 @@ function ChartsDashboard({ rows }) {
               : p.percent >= 70
               ? 'rgba(0, 155, 214, 0.9)'
               : p.percent >= 40
-              ? 'rgba(251, 180, 60, 0.9)'
+              ? 'rgba(248, 245, 75, 0.95)'
               : 'rgba(229, 67, 48, 0.9)'
           ),
           borderRadius: 6,
@@ -167,7 +167,7 @@ function ChartsDashboard({ rows }) {
           backgroundColor: [
             'rgba(86, 142, 70, 0.9)',
             'rgba(0, 155, 214, 0.9)',
-            'rgba(251, 180, 60, 0.9)',
+            'rgba(248, 245, 75, 0.95)',
             'rgba(229, 67, 48, 0.9)',
             'rgba(148, 163, 184, 0.3)',
           ],
@@ -189,9 +189,9 @@ function ChartsDashboard({ rows }) {
       },
       tooltip: {
         backgroundColor: '#0c0b0c',
-        titleColor: '#fbb43c',
+        titleColor: '#f8f54b',
         bodyColor: '#ffffff',
-        borderColor: 'rgba(251, 180, 60, 0.3)',
+        borderColor: 'rgba(248, 245, 75, 0.35)',
         borderWidth: 1,
         padding: 10,
         callbacks: {
@@ -222,9 +222,9 @@ function ChartsDashboard({ rows }) {
       legend: { display: false },
       tooltip: {
         backgroundColor: '#0c0b0c',
-        titleColor: '#fbb43c',
+        titleColor: '#f8f54b',
         bodyColor: '#ffffff',
-        borderColor: 'rgba(251, 180, 60, 0.3)',
+        borderColor: 'rgba(248, 245, 75, 0.35)',
         borderWidth: 1,
         padding: 10,
         callbacks: {

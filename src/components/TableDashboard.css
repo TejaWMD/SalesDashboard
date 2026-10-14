@@ -32,8 +32,8 @@
 
 .table-subtitle {
   font-size: 0.725rem;
-  color: var(--text-gold);
-  font-weight: 600;
+  color: var(--text-accent);
+  font-weight: 700;
 }
 
 .table-actions {
@@ -79,7 +79,7 @@
 
 .table-pic-select {
   background: var(--bg-card-elevated);
-  border: 1px solid rgba(251, 180, 60, 0.35);
+  border: 1px solid rgba(248, 245, 75, 0.35);
   color: #ffffff;
   border-radius: 8px;
   padding: 6px 12px;
@@ -91,7 +91,7 @@
 }
 
 .table-pic-select:hover {
-  border-color: var(--color-amber);
+  border-color: var(--color-lemon);
 }
 
 .tv-scroll-toggle {
@@ -140,13 +140,13 @@
 .master-data-table th {
   position: sticky;
   top: 0;
-  background: #141316;
-  color: var(--text-gold);
+  background: #141318;
+  color: var(--text-accent);
   font-weight: 800;
   font-size: 0.725rem;
   letter-spacing: 0.04em;
   padding: 10px 14px;
-  border-bottom: 2px solid rgba(251, 180, 60, 0.3);
+  border-bottom: 2px solid rgba(248, 245, 75, 0.35);
   z-index: 10;
   white-space: nowrap;
 }
@@ -167,7 +167,7 @@
 }
 
 .master-data-table tr:hover td {
-  background: rgba(251, 180, 60, 0.06);
+  background: rgba(248, 245, 75, 0.06);
 }
 
 .store-name-cell {
@@ -177,7 +177,7 @@
 
 .pic-badge {
   display: inline-block;
-  background: #1a191f;
+  background: var(--bg-card-alt);
   border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 2px 8px;
   border-radius: 6px;
@@ -196,12 +196,12 @@
 .text-primary { color: #00c0f0 !important; }
 .text-success { color: #79d863 !important; }
 .text-danger { color: #ff7d6e !important; }
-.text-amber { color: #fbb43c !important; }
+.text-lemon { color: #f8f54b !important; }
 .text-dim { color: #64748b; }
 
 .pct-exceeded { color: #79d863; font-weight: 800; }
 .pct-on-track { color: #00c0f0; font-weight: 800; }
-.pct-in-progress { color: #fbb43c; font-weight: 700; }
+.pct-in-progress { color: #f8f54b; font-weight: 700; }
 .pct-lagging { color: #ff7d6e; font-weight: 700; }
 
 .table-empty-row {
@@ -214,8 +214,8 @@
 .table-summary-row td {
   position: sticky;
   bottom: 0;
-  background: #141316;
-  border-top: 2px solid var(--color-amber);
+  background: #141318;
+  border-top: 2px solid var(--color-lemon);
   padding: 10px 14px;
   color: #ffffff;
   z-index: 10;

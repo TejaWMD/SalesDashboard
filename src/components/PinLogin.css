@@ -7,8 +7,8 @@
   width: 100vw;
   background-color: var(--bg-tv-main);
   background-image: 
-    radial-gradient(circle at 50% 15%, rgba(255, 255, 255, 0.3) 0%, transparent 45%),
-    linear-gradient(135deg, #ffc45c 0%, #fbb43c 50%, #eb9d22 100%);
+    radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.45) 0%, transparent 45%),
+    linear-gradient(135deg, #fcfb76 0%, #f8f54b 50%, #ede938 100%);
   padding: 20px;
   box-sizing: border-box;
 }
@@ -16,12 +16,12 @@
 .pin-card {
   background: var(--bg-card-translucent);
   border: 1px solid var(--border-subtle);
-  border-top: 4px solid var(--color-amber);
+  border-top: 4px solid var(--color-lemon);
   border-radius: 20px;
   padding: 36px 40px;
   width: 100%;
   max-width: 440px;
-  box-shadow: 0 20px 60px rgba(12, 11, 12, 0.4), 0 0 30px rgba(251, 180, 60, 0.15);
+  box-shadow: 0 20px 60px rgba(12, 11, 12, 0.45), 0 0 30px rgba(248, 245, 75, 0.15);
   backdrop-filter: blur(16px);
   display: flex;
   flex-direction: column;
@@ -31,7 +31,7 @@
 
 .pin-card--shake {
   animation: shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-  border-color: rgba(229, 67, 48, 0.8);
+  border-color: rgba(229, 67, 48, 0.85);
   box-shadow: 0 20px 60px rgba(12, 11, 12, 0.5), 0 0 30px rgba(229, 67, 48, 0.3);
 }
 
@@ -57,7 +57,7 @@
   background: linear-gradient(135deg, #009bd6 0%, #007bb0 100%);
   border: 1px solid rgba(255, 255, 255, 0.25);
   margin-bottom: 14px;
-  box-shadow: 0 0 20px rgba(0, 155, 214, 0.35);
+  box-shadow: 0 0 20px rgba(0, 155, 214, 0.4);
 }
 
 .pin-shield-icon {
@@ -76,7 +76,7 @@
 
 .pin-subtitle {
   font-size: 0.825rem;
-  color: var(--text-gold);
+  color: var(--text-accent);
   font-weight: 600;
   margin: 0;
 }
@@ -99,20 +99,20 @@
   height: 50px;
   border-radius: 12px;
   border: 2px solid rgba(255, 255, 255, 0.12);
-  background: #141316;
+  background: var(--bg-card-elevated);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.4rem;
   font-weight: 800;
-  color: var(--color-amber);
+  color: var(--color-lemon);
   font-family: 'JetBrains Mono', monospace;
   transition: all 0.2s ease;
 }
 
 .pin-dot--active {
-  border-color: var(--color-amber);
-  box-shadow: 0 0 14px rgba(251, 180, 60, 0.45);
+  border-color: var(--color-lemon);
+  box-shadow: 0 0 14px rgba(248, 245, 75, 0.5);
 }
 
 .pin-dot--filled {
@@ -122,7 +122,7 @@
 }
 
 .pin-reveal-toggle {
-  background: #141316;
+  background: var(--bg-card-elevated);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--text-muted);
   border-radius: 8px;
@@ -135,7 +135,7 @@
 
 .pin-reveal-toggle:hover {
   color: #ffffff;
-  border-color: var(--color-amber);
+  border-color: var(--color-lemon);
 }
 
 /* Error banner */
@@ -144,8 +144,8 @@
   align-items: center;
   gap: 8px;
   color: #ffffff;
-  background: rgba(229, 67, 48, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(229, 67, 48, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   padding: 8px 14px;
   border-radius: 8px;
   font-size: 0.8rem;
@@ -180,7 +180,7 @@
   height: 56px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #141316;
+  background: var(--bg-card-elevated);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -208,7 +208,7 @@
 }
 
 .pin-key--action {
-  background: #0f0e12;
+  background: #0f0e13;
   color: var(--text-muted);
 }
 

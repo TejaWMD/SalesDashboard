@@ -206,9 +206,9 @@ function OverviewDashboard({ rows }) {
       },
       tooltip: {
         backgroundColor: '#0c0b0c',
-        titleColor: '#fbb43c',
+        titleColor: '#f8f54b',
         bodyColor: '#ffffff',
-        borderColor: 'rgba(251, 180, 60, 0.3)',
+        borderColor: 'rgba(248, 245, 75, 0.35)',
         borderWidth: 1,
         padding: 10,
         callbacks: {

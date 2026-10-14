@@ -275,7 +275,7 @@ function TableDashboard({ rows }) {
                 <td className="text-right font-mono font-bold text-success">
                   {formatCurrency(filteredSummary.salesTotal)}
                 </td>
-                <td className="text-right font-mono font-bold text-amber">
+                <td className="text-right font-mono font-bold text-lemon">
                   {formatPercent(filteredSummary.overallPct)}
                 </td>
                 <td className="text-right font-mono font-bold text-danger">
