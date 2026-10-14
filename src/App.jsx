@@ -123,7 +123,7 @@ function App() {
           <div className="app-header__logo-icon">📊</div>
           <div>
             <h1 className="app-header__title">SALES & COLLECTION</h1>
-            <p className="app-header__subtitle">Live Performance Monitor • Data for TV</p>
+            {/* <p className="app-header__subtitle">Live Performance Monitor • Data for TV</p> */}
           </div>
         </div>
 
