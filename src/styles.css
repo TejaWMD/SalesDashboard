@@ -3,12 +3,12 @@
 
 :root {
   /* Requested Main Background & Color Palette */
-  --bg-tv-main: #f8f54b;
+  --bg-tv-main: #fbe546;
   --color-black: #0c0b0c;
   --color-blue: #009bd6;
   --color-red: #e54330;
   --color-green: #568e46;
-  --color-lemon: #f8f54b;
+  --color-lemon: #f8f149;
 
   /* Card and Surface Shades - Deep Rich Charcoal for High Contrast */
   --bg-card: #0e0d12;
@@ -27,12 +27,12 @@
   --text-body: #e2e8f0;
   --text-muted: #94a3b8;
   --text-dim: #64748b;
-  --text-accent: #f8f54b;
+  --text-accent: #ffc452;
 
   /* Semantic status colors */
   --color-primary: #009bd6;
   --color-success: #568e46;
-  --color-warning: #f8f54b;
+  --color-warning: #ffc452;
   --color-danger: #e54330;
   --color-indigo: #009bd6;
 }
