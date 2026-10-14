@@ -1,32 +1,40 @@
 # .github/workflows/deploy.yml
 name: Deploy Dashboard to GitHub Pages
 
+# Run on every push to the main branch
 on:
   push:
-    branches: [main]        # runs on every push to main
+    branches: [main]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      # 1️⃣ Checkout the repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Install Node (any recent LTS works)
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'   # any recent LTS works
+          node-version: '20'   # LTS version
 
-      - name: Install and Build
-        run: |
-          npm ci               # clean install
-          npm run build        # creates ./dist
+      # 3️⃣ Install dependencies
+      # Use `npm install` instead of `npm ci` so it works even without a lock file.
+      - name: Install dependencies
+        run: npm install
 
+      # 4️⃣ Build the Vite app (creates ./dist)
+      - name: Build
+        run: npm run build
+
+      # 5️⃣ Deploy the built folder to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          keep_files: false
-          force_orphan: true
+          keep_files: false          # overwrite previous gh‑pages content
+          force_orphan: true         # create a fresh gh‑pages branch
