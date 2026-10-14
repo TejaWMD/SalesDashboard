@@ -234,7 +234,7 @@ function OverviewDashboard({ rows }) {
 
   return (
     <div className="tv-overview">
-      {/* Top 5 KPI Cards (Compact Row for TV) */}
+      {/* Top KPI Cards (Compact Row for TV) */}
       <div className="tv-overview__kpis">
         <KpiCard
           title="Total Target"
@@ -260,7 +260,7 @@ function OverviewDashboard({ rows }) {
           icon="💰"
         />
         <KpiCard
-          title="S vs T Rate"
+          title="Sales Rate"
           value={formatPercent(summary.overallSalesPercent)}
           subtitle={`Across ${summary.totalStores} Outlets`}
           status={
@@ -290,6 +290,19 @@ function OverviewDashboard({ rows }) {
           subtitle="Outstanding Amount"
           status={summary.totalPending && summary.totalPending > 0 ? 'danger' : 'neutral'}
           icon="⏳"
+        />
+         <KpiCard
+          title="Collection Rate"
+          value={formatPercent(summary.overallCollectionPercent)}
+          subtitle="Collected vs Total Receivable"
+          status={
+            summary.overallCollectionPercent !== null && summary.overallCollectionPercent >= 100
+              ? 'success'
+              : summary.overallCollectionPercent !== null && summary.overallCollectionPercent >= 70
+              ? 'primary'
+              : 'warning'
+          }
+          icon="📊"
         />
       </div>
 

@@ -7,14 +7,15 @@
   flex: 1;
   min-height: 0;
   gap: 10px;
-  overflow: hidden;
+  overflow-y: auto;    /* allow scroll if vertical space runs out */
+  overflow-x: hidden;
 }
 
-/* Top 5 KPI Cards Row */
+/* Top KPI Cards — 3 per row (2 rows of 3) */
 .tv-overview__kpis {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
   flex-shrink: 0;
 }
 
@@ -33,6 +34,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   margin-bottom: 8px;
   flex-shrink: 0;
 }
@@ -292,6 +294,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
   overflow-x: auto;
   scrollbar-width: none;
   white-space: nowrap;
@@ -353,11 +356,37 @@
   }
 }
 
-/* Laptop Layout */
-@media (max-width: 1200px) and (min-width: 769px) {
+/* Tablet Layout — 2 KPI cards per row */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .tv-overview {
+    overflow-y: auto;
+  }
   .tv-overview__kpis {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .tv-overview__main {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    flex: none;
+    overflow: visible;
+  }
+  .tv-overview__left {
+    max-height: 400px;
+  }
+  .tv-overview__right {
+    grid-template-rows: auto auto;
+  }
+  .tv-chart-box {
+    height: 280px;
+  }
+}
+
+/* Laptop Layout — keep 3 per row */
+@media (max-width: 1200px) and (min-width: 1025px) {
+  .tv-overview__kpis {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
   }
   .tv-overview__main {
     grid-template-columns: 1fr 1fr;
@@ -365,7 +394,7 @@
   }
 }
 
-/* Mobile Layout */
+/* Mobile Layout — 1 KPI card per row */
 @media (max-width: 768px) {
   .tv-overview {
     height: auto;
@@ -378,6 +407,7 @@
   .tv-overview__main {
     grid-template-columns: 1fr;
     height: auto;
+    flex: none;
     overflow: visible;
   }
   .tv-overview__left {

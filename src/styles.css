@@ -322,6 +322,8 @@ html, body {
 
   .app-container {
     padding: 10px;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
 
   .app-header {
@@ -333,6 +335,10 @@ html, body {
 
   .app-header__title {
     font-size: 1.15rem;
+  }
+
+  .app-header .tab-nav {
+    display: none;
   }
 
   .tab-nav {
@@ -349,6 +355,8 @@ html, body {
   }
 
   .app-main {
+    flex: 1 0 auto;
+    min-height: 0;
     overflow-y: visible;
     height: auto;
   }
