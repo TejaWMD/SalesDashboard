@@ -57,13 +57,13 @@
 .tv-overview__left {
   background: var(--bg-card-translucent);
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 10px 14px;
   display: flex;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  box-shadow: 0 4px 18px rgba(12, 11, 12, 0.2);
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .tv-pic-list {
@@ -80,18 +80,19 @@
   background: var(--bg-card-elevated);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-left: 3.5px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 8px 12px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tv-pic-card:hover {
   background: var(--bg-card-alt);
-  border-color: rgba(248, 245, 75, 0.35);
-  transform: translateX(2px);
+  border-color: rgba(249, 215, 30, 0.4);
+  transform: translateX(3px);
+  box-shadow: var(--shadow-sm);
 }
 
 .tv-pic-card--success { border-left-color: var(--color-green); }
@@ -115,7 +116,7 @@
 .tv-pic-card__avatar {
   width: 26px;
   height: 26px;
-  border-radius: 7px;
+  border-radius: 9px;
   background: linear-gradient(135deg, #009bd6 0%, #007bb0 100%);
   color: #ffffff;
   display: flex;
@@ -123,7 +124,12 @@
   justify-content: center;
   font-weight: 800;
   font-size: 0.775rem;
-  box-shadow: 0 2px 6px rgba(0, 155, 214, 0.3);
+  box-shadow: var(--shadow-glow-blue);
+  transition: transform 0.2s ease;
+}
+
+.tv-pic-card:hover .tv-pic-card__avatar {
+  transform: scale(1.1);
 }
 
 .tv-pic-card__name {
@@ -159,9 +165,9 @@
 }
 
 .tv-status-badge--warning {
-  background: rgba(248, 245, 75, 0.18);
-  color: #f8f54b;
-  border: 1px solid rgba(248, 245, 75, 0.4);
+  background: rgba(255, 196, 82, 0.18);
+  color: #ffd97a;
+  border: 1px solid rgba(255, 196, 82, 0.4);
 }
 
 .tv-status-badge--danger {
@@ -182,7 +188,7 @@
   gap: 4px;
   background: rgba(0, 0, 0, 0.4);
   padding: 5px 8px;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .tv-metric-item {
@@ -213,13 +219,13 @@
   width: 100%;
   height: 4px;
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .tv-pic-progress-fill {
   height: 100%;
-  border-radius: 2px;
+  border-radius: 4px;
   transition: width 0.4s ease;
 }
 
@@ -241,13 +247,13 @@
 .tv-chart-box {
   background: var(--bg-card-translucent);
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 10px 14px;
   display: flex;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  box-shadow: 0 4px 18px rgba(12, 11, 12, 0.2);
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .tv-chart-container {
@@ -261,14 +267,14 @@
 .tv-overview__bottom-ticker {
   background: var(--bg-card-translucent);
   border: 1px solid var(--border-subtle);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 6px 14px;
   display: flex;
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(12, 11, 12, 0.18);
+  box-shadow: var(--shadow-sm);
 }
 
 .tv-ticker-label {
@@ -288,6 +294,7 @@
   border-radius: 50%;
   background: var(--color-green);
   box-shadow: 0 0 8px var(--color-green);
+  animation: pulse 1.5s infinite;
 }
 
 .tv-ticker-items {
@@ -310,9 +317,15 @@
   gap: 6px;
   background: var(--bg-card-elevated);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 3px 8px;
   font-size: 0.725rem;
+  transition: all 0.2s ease;
+}
+
+.tv-ticker-chip:hover {
+  border-color: rgba(249, 215, 30, 0.3);
+  transform: translateY(-1px);
 }
 
 .tv-ticker-rank {
