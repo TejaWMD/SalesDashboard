@@ -1,0 +1,83 @@
+/* src/components/CombinedDashboard.css */
+.combined-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.combined-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+}
+
+.pic-combined-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.pic-combined-card {
+  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pic-combined-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pic-combined-card__columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.pic-combined-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.pic-combined-col__heading {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 4px;
+}
+
+.pic-combined-metric {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  margin-bottom: 3px;
+}
+
+.pic-combined-metric .label {
+  color: #94a3b8;
+}
+
+.pic-combined-metric .val {
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.pic-combined-pct {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #38bdf8;
+  margin-top: 4px;
+  text-align: right;
+}

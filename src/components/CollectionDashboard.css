@@ -1,0 +1,20 @@
+/* src/components/CollectionDashboard.css */
+.collection-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.collection-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.pic-card__avatar--collection {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.text-danger {
+  color: #f87171 !important;
+}

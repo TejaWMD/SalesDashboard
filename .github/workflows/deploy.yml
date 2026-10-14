@@ -1,53 +1,51 @@
-# .github/workflows/deploy.yml
 name: Deploy Dashboard to GitHub Pages
 
-# Run on every push to the main branch
+# Run on push to main or manual trigger
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-
     steps:
-      # --------------------------------------------------------------
-      # 1️⃣  Checkout – we need the *full* history so the gh‑pages
-      #      action can push back to the repo.
-      # --------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0          # <-- fetch full history
-          persist-credentials: true  # keep the automatically‑generated GITHUB_TOKEN
 
-      # --------------------------------------------------------------
-      # 2️⃣  Set up a supported Node LTS version (22 at the moment)
-      # --------------------------------------------------------------
-      - name: Set up Node
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'      # use a non‑depricated LTS
+          node-version: '20'
 
-      # --------------------------------------------------------------
-      # 3️⃣  Install dependencies (npm install works even without a lock file)
-      # --------------------------------------------------------------
       - name: Install dependencies
         run: npm install
 
-      # --------------------------------------------------------------
-      # 4️⃣  Build the Vite app – this creates ./dist
-      # --------------------------------------------------------------
-      - name: Build
+      - name: Build Vite app
         run: npm run build
 
-      # --------------------------------------------------------------
-      # 5️⃣  Deploy the contents of ./dist to the gh‑pages branch
-      # --------------------------------------------------------------
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          keep_files: false          # overwrite previous content
-          force_orphan: true         # create a fresh gh‑pages branch each run
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
