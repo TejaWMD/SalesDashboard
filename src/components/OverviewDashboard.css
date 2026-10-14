@@ -263,18 +263,22 @@
   width: 100%;
 }
 
-/* Bottom Ticker: Top Stores */
+/* ============================================
+   Bottom Ticker: Top Stores
+   ============================================ */
 .tv-overview__bottom-ticker {
   background: var(--bg-card-translucent);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  padding: 6px 14px;
+  padding: 6px 0 6px 14px; /* no right padding — items handle it */
   display: flex;
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  min-height: 0;
+  min-width: 0;
 }
 
 .tv-ticker-label {
@@ -286,6 +290,7 @@
   color: var(--color-lemon);
   letter-spacing: 0.05em;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tv-ticker-dot {
@@ -295,6 +300,7 @@
   background: var(--color-green);
   box-shadow: 0 0 8px var(--color-green);
   animation: pulse 1.5s infinite;
+  flex-shrink: 0;
 }
 
 .tv-ticker-items {
@@ -302,9 +308,29 @@
   align-items: center;
   gap: 12px;
   min-width: 0;
+  flex: 1;
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: none;
   white-space: nowrap;
+  padding-right: 14px; /* so last chip isn't flush against edge */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* Fade edges for a polished scroll look */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 8px,
+    black calc(100% - 8px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 8px,
+    black calc(100% - 8px),
+    transparent 100%
+  );
 }
 
 .tv-ticker-items::-webkit-scrollbar {
@@ -321,6 +347,9 @@
   padding: 3px 8px;
   font-size: 0.725rem;
   transition: all 0.2s ease;
+  flex-shrink: 0;        /* never squish chips */
+  white-space: nowrap;   /* keep text on one line */
+  line-height: 1.4;
 }
 
 .tv-ticker-chip:hover {
@@ -332,28 +361,37 @@
   color: var(--color-lemon);
   font-weight: 800;
   font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
 }
 
 .tv-ticker-store {
   color: #ffffff;
   font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px; /* prevent super long store names from breaking layout */
 }
 
 .tv-ticker-pic {
   color: var(--text-muted);
   font-size: 0.675rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
 }
 
 .tv-ticker-val {
   color: #79d863;
   font-family: 'JetBrains Mono', monospace;
   font-weight: 800;
+  flex-shrink: 0;
 }
 
 .tv-ticker-pct {
   color: #00c0f0;
   font-size: 0.675rem;
   font-weight: 800;
+  flex-shrink: 0;
 }
 
 /* TV Specific Display Scaling for 4K / Ultra-wide */
@@ -366,6 +404,12 @@
   }
   .tv-metric-value {
     font-size: 0.9rem;
+  }
+  .tv-ticker-store {
+    max-width: 220px;
+  }
+  .tv-ticker-pic {
+    max-width: 160px;
   }
 }
 
@@ -433,5 +477,23 @@
   }
   .tv-chart-box {
     height: 250px;
+  }
+
+  /* Stack the ticker label above items on mobile */
+  .tv-overview__bottom-ticker {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 8px 12px;
+  }
+  .tv-ticker-items {
+    width: 100%;
+    padding-right: 0;
+  }
+  .tv-ticker-store {
+    max-width: 120px;
+  }
+  .tv-ticker-pic {
+    max-width: 80px;
   }
 }

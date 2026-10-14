@@ -128,9 +128,9 @@ function TableDashboard({ rows }) {
       <div className="table-top-bar">
         <div className="table-info">
           <h2 className="table-title">Master Outlets Performance Table</h2>
-          <span className="table-subtitle">
+          {/* <span className="table-subtitle">
             Displaying {filteredRows.length} of {rows.length} stores • Google Sheet: Data for TV
-          </span>
+          </span> */}
         </div>
 
         <div className="table-actions">
@@ -206,7 +206,7 @@ function TableDashboard({ rows }) {
                 SALES {sortBy === 'sales' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
               </th>
               <th onClick={() => handleSort('salesPercent')} className="sortable text-right">
-                S vs T % {sortBy === 'salesPercent' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                Sales vs Target % {sortBy === 'salesPercent' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
               </th>
               <th onClick={() => handleSort('pending')} className="sortable text-right">
                 PAYMENT PENDING {sortBy === 'pending' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}

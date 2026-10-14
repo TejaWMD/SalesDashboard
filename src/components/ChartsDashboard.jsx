@@ -185,7 +185,7 @@ function ChartsDashboard({ rows }) {
       legend: {
         position: 'top',
         align: 'end',
-        labels: { color: '#f8fafc', font: { size: 11, weight: '700' } },
+        labels: { color: '#5b5545', font: { size: 11, weight: '700' } },
       },
       tooltip: {
         backgroundColor: '#0c0b0c',
@@ -201,16 +201,16 @@ function ChartsDashboard({ rows }) {
     },
     scales: {
       x: {
-        ticks: { color: '#cbd5e1', font: { weight: '700', size: 11 } },
+        ticks: { color: '#5b5545', font: { weight: '700', size: 11 } },
         grid: { display: false },
       },
       y: {
         ticks: {
-          color: '#cbd5e1',
+          color: '#5b5545',
           font: { size: 10, weight: '600' },
           callback: (val) => formatCompactCurrency(val),
         },
-        grid: { color: 'rgba(255, 255, 255, 0.07)' },
+        grid: { color: 'rgba(91, 66, 0, 0.1)' },
       },
     },
   };
@@ -234,16 +234,16 @@ function ChartsDashboard({ rows }) {
     },
     scales: {
       x: {
-        ticks: { color: '#cbd5e1', font: { weight: '700', size: 11 } },
+        ticks: { color: '#5b5545', font: { weight: '700', size: 11 } },
         grid: { display: false },
       },
       y: {
         ticks: {
-          color: '#cbd5e1',
+          color: '#5b5545',
           font: { size: 10, weight: '600' },
           callback: (val) => `${val}%`,
         },
-        grid: { color: 'rgba(255, 255, 255, 0.07)' },
+        grid: { color: 'rgba(91, 66, 0, 0.1)' },
       },
     },
   };
@@ -255,7 +255,7 @@ function ChartsDashboard({ rows }) {
       legend: {
         position: 'right',
         labels: {
-          color: '#f8fafc',
+          color: '#5b5545',
           font: { size: 11, weight: '700' },
           boxWidth: 12,
           padding: 10,
@@ -281,7 +281,7 @@ function ChartsDashboard({ rows }) {
         {/* Chart 2: S vs T Percentage Achievement */}
         <div className="chart-card">
           <div className="chart-card__header">
-            <h3 className="chart-card__title">S vs T Quota Achievement Rate (%)</h3>
+            <h3 className="chart-card__title">Sales vs Target Quota Rate (%)</h3>
             <span className="chart-card__badge">Performance Ratio</span>
           </div>
           <div className="chart-card__body">

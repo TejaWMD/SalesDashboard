@@ -117,56 +117,30 @@ function App() {
 
   return (
     <div className={`app-container ${isFullscreen ? 'app-container--fullscreen' : ''}`}>
-      {/* Top Header */}
-      <header className="app-header">
-        <div className="app-header__branding">
-          <div className="app-header__logo-icon">📊</div>
-          <div>
-            <h1 className="app-header__title">SALES & COLLECTION</h1>
-            {/* <p className="app-header__subtitle">Live Performance Monitor • Data for TV</p> */}
-          </div>
+  <div className="app-topbar">
+    <header className="app-header">
+      <div className="app-header__branding">
+        <div className="app-header__logo-icon">📊</div>
+        <div>
+          <h1 className="app-header__title">SALES & COLLECTION</h1>
         </div>
+      </div>
+    </header>
 
-        {/* View Switcher Tabs in Header for quick access */}
-        <nav className="tab-nav">
-          <button
-            type="button"
-            className={`tab-nav__btn ${activeView === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveView('overview')}
-          >
-            📊 TV Overview
-          </button>
-          <button
-            type="button"
-            className={`tab-nav__btn ${activeView === 'charts' ? 'active' : ''}`}
-            onClick={() => setActiveView('charts')}
-          >
-            📈 Comparison Charts
-          </button>
-          <button
-            type="button"
-            className={`tab-nav__btn ${activeView === 'table' ? 'active' : ''}`}
-            onClick={() => setActiveView('table')}
-          >
-            📋 Master Table
-          </button>
-        </nav>
-      </header>
-
-      {/* Controls & Sync Status Bar */}
-      <TvControls
-        selectedMonth={selectedMonth}
-        onMonthChange={setSelectedMonth}
-        availableMonths={availableMonths}
-        activeView={activeView}
-        onViewChange={setActiveView}
-        lastUpdated={lastUpdated}
-        onManualRefresh={() => loadData(false)}
-        isLoading={isLoading}
-        isFullscreen={isFullscreen}
-        onToggleFullscreen={handleToggleFullscreen}
-        onLockDashboard={handleLockDashboard}
-      />
+    <TvControls
+      selectedMonth={selectedMonth}
+      onMonthChange={setSelectedMonth}
+      availableMonths={availableMonths}
+      activeView={activeView}
+      onViewChange={setActiveView}
+      lastUpdated={lastUpdated}
+      onManualRefresh={() => loadData(false)}
+      isLoading={isLoading}
+      isFullscreen={isFullscreen}
+      onToggleFullscreen={handleToggleFullscreen}
+      onLockDashboard={handleLockDashboard}
+    />
+  </div>
 
       {/* Error alert if any */}
       {error && (

@@ -198,7 +198,7 @@ function OverviewDashboard({ rows }) {
         position: 'top',
         align: 'end',
         labels: {
-          color: '#f8fafc',
+          color: '#5b5545',
           font: { size: 11, weight: '700' },
           boxWidth: 12,
           padding: 8,
@@ -218,16 +218,16 @@ function OverviewDashboard({ rows }) {
     },
     scales: {
       x: {
-        ticks: { color: '#cbd5e1', font: { size: 10, weight: '700' } },
+        ticks: { color: '#5b5545', font: { size: 10, weight: '700' } },
         grid: { display: false },
       },
       y: {
         ticks: {
-          color: '#cbd5e1',
+          color: '#5b5545',
           font: { size: 10, weight: '600' },
           callback: (val) => formatCompactCurrency(val),
         },
-        grid: { color: 'rgba(255, 255, 255, 0.07)' },
+        grid: { color: 'rgba(91, 66, 0, 0.1)' },
       },
     },
   };
@@ -267,8 +267,8 @@ function OverviewDashboard({ rows }) {
             summary.overallSalesPercent !== null && summary.overallSalesPercent >= 100
               ? 'success'
               : summary.overallSalesPercent !== null && summary.overallSalesPercent >= 70
-              ? 'primary'
-              : 'warning'
+                ? 'primary'
+                : 'warning'
           }
           icon="📈"
         />
@@ -291,7 +291,7 @@ function OverviewDashboard({ rows }) {
           status={summary.totalPending && summary.totalPending > 0 ? 'danger' : 'neutral'}
           icon="⏳"
         />
-         <KpiCard
+        <KpiCard
           title="Collection Rate"
           value={formatPercent(summary.overallCollectionPercent)}
           subtitle="Collected vs Total Receivable"
@@ -299,8 +299,8 @@ function OverviewDashboard({ rows }) {
             summary.overallCollectionPercent !== null && summary.overallCollectionPercent >= 100
               ? 'success'
               : summary.overallCollectionPercent !== null && summary.overallCollectionPercent >= 70
-              ? 'primary'
-              : 'warning'
+                ? 'primary'
+                : 'warning'
           }
           icon="📊"
         />
@@ -406,16 +406,24 @@ function OverviewDashboard({ rows }) {
             summary.topStores.map((st, i) => (
               <div key={st.id} className="tv-ticker-chip">
                 <span className="tv-ticker-rank">#{i + 1}</span>
-                <span className="tv-ticker-store">{st.store}</span>
-                <span className="tv-ticker-pic">({st.person})</span>
+                <span className="tv-ticker-store" title={st.store}>
+                  {st.store}
+                </span>
+                <span className="tv-ticker-pic" title={st.person}>
+                  ({st.person})
+                </span>
                 <span className="tv-ticker-val">{formatCurrency(st.sales)}</span>
                 {st.salesPercent !== null && (
-                  <span className="tv-ticker-pct">[{st.salesPercent.toFixed(0)}%]</span>
+                  <span className="tv-ticker-pct">
+                    [{st.salesPercent.toFixed(0)}%]
+                  </span>
                 )}
               </div>
             ))
           ) : (
-            <div className="tv-ticker-chip">Awaiting active sales input for this month</div>
+            <div className="tv-ticker-chip">
+              Awaiting active sales input for this month
+            </div>
           )}
         </div>
       </div>
