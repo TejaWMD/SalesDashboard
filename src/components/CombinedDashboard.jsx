@@ -31,10 +31,10 @@ function CombinedDashboard({ rows }) {
     const personMap = {};
 
     rows.forEach((row) => {
-      totalTarget += row.target;
-      totalSales += row.sales;
-      totalCollected += row.collected;
-      totalPending += row.pending;
+      totalTarget += (row.target || 0);
+      totalSales += (row.sales || 0);
+      totalCollected += (row.collected || 0);
+      totalPending += (row.pending || 0);
 
       const p = row.person || 'Unassigned';
       if (!personMap[p]) {
@@ -47,10 +47,10 @@ function CombinedDashboard({ rows }) {
           outlets: 0,
         };
       }
-      personMap[p].target += row.target;
-      personMap[p].sales += row.sales;
-      personMap[p].collected += row.collected;
-      personMap[p].pending += row.pending;
+      personMap[p].target += (row.target || 0);
+      personMap[p].sales += (row.sales || 0);
+      personMap[p].collected += (row.collected || 0);
+      personMap[p].pending += (row.pending || 0);
       personMap[p].outlets += 1;
     });
 
@@ -411,7 +411,7 @@ function CombinedDashboard({ rows }) {
                         {formatCurrency(r.sales)}
                       </td>
                       <td className="text-right font-mono font-bold">
-                        {r.salesPercent.toFixed(1)}%
+                        {formatPercent(r.salesPercent)}
                       </td>
                       <td className="text-right font-mono text-success">
                         {formatCurrency(r.collected)}

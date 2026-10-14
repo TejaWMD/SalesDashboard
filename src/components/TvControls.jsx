@@ -6,6 +6,8 @@ function TvControls({
   selectedMonth,
   onMonthChange,
   availableMonths,
+  activeView,
+  onViewChange,
   isTvCycleActive,
   onToggleTvCycle,
   cycleSecondsRemaining,
@@ -15,17 +17,21 @@ function TvControls({
   isLoading,
   isFullscreen,
   onToggleFullscreen,
+  onLockDashboard,
 }) {
-  const cycleProgress = cycleDuration > 0
-    ? ((cycleDuration - cycleSecondsRemaining) / cycleDuration) * 100
-    : 0;
+  const cycleProgress =
+    cycleDuration > 0
+      ? ((cycleDuration - cycleSecondsRemaining) / cycleDuration) * 100
+      : 0;
 
   return (
     <div className="tv-controls">
+      {/* Left controls: Month selector & Live Sync status */}
       <div className="tv-controls__group tv-controls__left">
-        {/* Month Filter */}
         <div className="tv-controls__item">
-          <label htmlFor="month-select" className="tv-controls__label">Month:</label>
+          <label htmlFor="month-select" className="tv-controls__label">
+            MONTH:
+          </label>
           <select
             id="month-select"
             className="tv-controls__select"
@@ -41,24 +47,64 @@ function TvControls({
           </select>
         </div>
 
+        {/* View mode switcher */}
+        <div className="tv-view-switcher">
+          <button
+            type="button"
+            className={`tv-view-btn ${activeView === 'overview' ? 'active' : ''}`}
+            onClick={() => onViewChange('overview')}
+            title="TV Overview: Everything on one page"
+          >
+            📊 TV Overview
+          </button>
+          <button
+            type="button"
+            className={`tv-view-btn ${activeView === 'charts' ? 'active' : ''}`}
+            onClick={() => onViewChange('charts')}
+            title="Comparison Charts"
+          >
+            📈 Charts
+          </button>
+          <button
+            type="button"
+            className={`tv-view-btn ${activeView === 'table' ? 'active' : ''}`}
+            onClick={() => onViewChange('table')}
+            title="Master Data Table (8 Columns)"
+          >
+            📋 Master Table
+          </button>
+        </div>
+
         {/* Live Status indicator */}
         <div className="tv-controls__sync-status">
           <span className={`tv-controls__live-dot ${isLoading ? 'pulsing' : ''}`} />
           <span className="tv-controls__last-sync">
-            {isLoading ? 'Updating data...' : `Synced: ${lastUpdated || 'Just now'}`}
+            {isLoading ? 'Syncing...' : `Synced: ${lastUpdated || 'Just now'}`}
           </span>
         </div>
       </div>
 
+      {/* Right controls: Refresh, TV Auto-Cycle, Fullscreen, Lock */}
       <div className="tv-controls__group tv-controls__right">
         {/* Manual Refresh Button */}
         <button
+          type="button"
           className="tv-btn tv-btn--secondary"
           onClick={onManualRefresh}
           disabled={isLoading}
           title="Fetch latest data from Google Sheets"
         >
-          <svg className={`tv-btn__icon ${isLoading ? 'spin' : ''}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            className={`tv-btn__icon ${isLoading ? 'spin' : ''}`}
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="23 4 23 10 17 10" />
             <polyline points="1 20 1 14 7 14" />
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
@@ -66,24 +112,38 @@ function TvControls({
           <span>Refresh</span>
         </button>
 
-        {/* TV Auto-Cycle Mode Button */}
+        {/* TV Auto-Cycle Carousel Mode */}
         <button
+          type="button"
           className={`tv-btn ${isTvCycleActive ? 'tv-btn--active-cycle' : 'tv-btn--secondary'}`}
           onClick={onToggleTvCycle}
-          title={isTvCycleActive ? 'Pause TV Carousel' : 'Start Auto-Rotating Slides for TV Display'}
+          title={isTvCycleActive ? 'Pause Auto-Cycle' : 'Start Auto-Rotating Slides for TV Display'}
         >
-          <svg className="tv-btn__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            className="tv-btn__icon"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
             <polyline points="17 2 12 7 7 2" />
           </svg>
-          <span>{isTvCycleActive ? `TV Mode (${cycleSecondsRemaining}s)` : 'TV Auto-Cycle'}</span>
+          <span>
+            {isTvCycleActive ? `TV Mode (${cycleSecondsRemaining}s)` : 'TV Auto-Cycle'}
+          </span>
           {isTvCycleActive && (
             <span className="tv-btn__progress-bar" style={{ width: `${cycleProgress}%` }} />
           )}
         </button>
 
-        {/* Fullscreen Toggle */}
+        {/* Fullscreen Button */}
         <button
+          type="button"
           className="tv-btn tv-btn--secondary"
           onClick={onToggleFullscreen}
           title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen (Best for TV)'}
@@ -97,7 +157,21 @@ function TvControls({
               <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
             </svg>
           )}
-          <span>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</span>
+          <span>{isFullscreen ? 'Exit Full' : 'Fullscreen'}</span>
+        </button>
+
+        {/* Lock / Logout PIN Button */}
+        <button
+          type="button"
+          className="tv-btn tv-btn--lock"
+          onClick={onLockDashboard}
+          title="Lock Dashboard (Return to PIN Screen)"
+        >
+          <svg className="tv-btn__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          <span>Lock</span>
         </button>
       </div>
     </div>
