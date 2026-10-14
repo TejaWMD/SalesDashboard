@@ -1,0 +1,32 @@
+# .github/workflows/deploy.yml
+name: Deploy Dashboard to GitHub Pages
+
+on:
+  push:
+    branches: [main]        # runs on every push to main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'   # any recent LTS works
+
+      - name: Install and Build
+        run: |
+          npm ci               # clean install
+          npm run build        # creates ./dist
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          keep_files: false
+          force_orphan: true
