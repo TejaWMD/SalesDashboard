@@ -11,30 +11,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout the repository
+      # --------------------------------------------------------------
+      # 1️⃣  Checkout – we need the *full* history so the gh‑pages
+      #      action can push back to the repo.
+      # --------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # <-- fetch full history
+          persist-credentials: true  # keep the automatically‑generated GITHUB_TOKEN
 
-      # 2️⃣ Install Node (any recent LTS works)
+      # --------------------------------------------------------------
+      # 2️⃣  Set up a supported Node LTS version (22 at the moment)
+      # --------------------------------------------------------------
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'   # LTS version
+          node-version: '22'      # use a non‑depricated LTS
 
-      # 3️⃣ Install dependencies
-      # Use `npm install` instead of `npm ci` so it works even without a lock file.
+      # --------------------------------------------------------------
+      # 3️⃣  Install dependencies (npm install works even without a lock file)
+      # --------------------------------------------------------------
       - name: Install dependencies
         run: npm install
 
-      # 4️⃣ Build the Vite app (creates ./dist)
+      # --------------------------------------------------------------
+      # 4️⃣  Build the Vite app – this creates ./dist
+      # --------------------------------------------------------------
       - name: Build
         run: npm run build
 
-      # 5️⃣ Deploy the built folder to GitHub Pages
+      # --------------------------------------------------------------
+      # 5️⃣  Deploy the contents of ./dist to the gh‑pages branch
+      # --------------------------------------------------------------
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          keep_files: false          # overwrite previous gh‑pages content
-          force_orphan: true         # create a fresh gh‑pages branch
+          keep_files: false          # overwrite previous content
+          force_orphan: true         # create a fresh gh‑pages branch each run
