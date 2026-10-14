@@ -147,18 +147,18 @@ function OverviewDashboard({ rows }) {
         {
           label: 'Target (RM)',
           data: summary.picList.map((p) => p.target || 0),
-          backgroundColor: 'rgba(56, 189, 248, 0.4)',
-          borderColor: '#38bdf8',
+          backgroundColor: 'rgba(0, 155, 214, 0.4)',
+          borderColor: '#009bd6',
           borderWidth: 1.5,
-          borderRadius: 4,
+          borderRadius: 5,
         },
         {
           label: 'Sales (RM)',
           data: summary.picList.map((p) => p.sales || 0),
-          backgroundColor: 'rgba(52, 211, 153, 0.85)',
-          borderColor: '#34d399',
+          backgroundColor: 'rgba(86, 142, 70, 0.9)',
+          borderColor: '#568e46',
           borderWidth: 1.5,
-          borderRadius: 4,
+          borderRadius: 5,
         },
       ],
     };
@@ -173,18 +173,18 @@ function OverviewDashboard({ rows }) {
         {
           label: 'Collected (RM)',
           data: summary.picList.map((p) => p.collected || 0),
-          backgroundColor: 'rgba(129, 140, 248, 0.85)',
-          borderColor: '#818cf8',
+          backgroundColor: 'rgba(86, 142, 70, 0.9)',
+          borderColor: '#568e46',
           borderWidth: 1.5,
-          borderRadius: 4,
+          borderRadius: 5,
         },
         {
           label: 'Pending (RM)',
           data: summary.picList.map((p) => p.pending || 0),
-          backgroundColor: 'rgba(248, 113, 113, 0.75)',
-          borderColor: '#f87171',
+          backgroundColor: 'rgba(229, 67, 48, 0.85)',
+          borderColor: '#e54330',
           borderWidth: 1.5,
-          borderRadius: 4,
+          borderRadius: 5,
         },
       ],
     };
@@ -198,17 +198,17 @@ function OverviewDashboard({ rows }) {
         position: 'top',
         align: 'end',
         labels: {
-          color: '#cbd5e1',
-          font: { size: 11, weight: '600' },
+          color: '#f8fafc',
+          font: { size: 11, weight: '700' },
           boxWidth: 12,
           padding: 8,
         },
       },
       tooltip: {
-        backgroundColor: '#0f172a',
-        titleColor: '#f8fafc',
-        bodyColor: '#cbd5e1',
-        borderColor: '#334155',
+        backgroundColor: '#0c0b0c',
+        titleColor: '#fbb43c',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(251, 180, 60, 0.3)',
         borderWidth: 1,
         padding: 10,
         callbacks: {
@@ -218,16 +218,16 @@ function OverviewDashboard({ rows }) {
     },
     scales: {
       x: {
-        ticks: { color: '#94a3b8', font: { size: 10, weight: '600' } },
+        ticks: { color: '#cbd5e1', font: { size: 10, weight: '700' } },
         grid: { display: false },
       },
       y: {
         ticks: {
-          color: '#94a3b8',
-          font: { size: 10 },
+          color: '#cbd5e1',
+          font: { size: 10, weight: '600' },
           callback: (val) => formatCompactCurrency(val),
         },
-        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        grid: { color: 'rgba(255, 255, 255, 0.07)' },
       },
     },
   };
@@ -260,7 +260,7 @@ function OverviewDashboard({ rows }) {
           icon="💰"
         />
         <KpiCard
-          title="S vs T Achievement"
+          title="S vs T Rate"
           value={formatPercent(summary.overallSalesPercent)}
           subtitle={`Across ${summary.totalStores} Outlets`}
           status={
@@ -288,7 +288,7 @@ function OverviewDashboard({ rows }) {
           title="Payment Pending"
           value={formatCurrency(summary.totalPending)}
           subtitle="Outstanding Amount"
-          status={summary.totalPending && summary.totalPending > 0 ? 'danger' : 'purple'}
+          status={summary.totalPending && summary.totalPending > 0 ? 'danger' : 'neutral'}
           icon="⏳"
         />
       </div>
@@ -322,7 +322,9 @@ function OverviewDashboard({ rows }) {
                 <div className="tv-pic-card__metrics">
                   <div className="tv-metric-item">
                     <span className="tv-metric-label">Target:</span>
-                    <span className="tv-metric-value">{formatCurrency(pic.target)}</span>
+                    <span className="tv-metric-value text-primary font-bold">
+                      {formatCurrency(pic.target)}
+                    </span>
                   </div>
                   <div className="tv-metric-item">
                     <span className="tv-metric-label">Sales:</span>
@@ -332,13 +334,13 @@ function OverviewDashboard({ rows }) {
                   </div>
                   <div className="tv-metric-item">
                     <span className="tv-metric-label">Collected:</span>
-                    <span className="tv-metric-value text-indigo">
+                    <span className="tv-metric-value text-success font-bold">
                       {formatCurrency(pic.collected)}
                     </span>
                   </div>
                   <div className="tv-metric-item">
                     <span className="tv-metric-label">Pending:</span>
-                    <span className="tv-metric-value text-danger">
+                    <span className="tv-metric-value text-danger font-bold">
                       {formatCurrency(pic.pending)}
                     </span>
                   </div>
@@ -361,7 +363,7 @@ function OverviewDashboard({ rows }) {
           <div className="tv-chart-box">
             <div className="tv-panel-header">
               <h2 className="tv-panel-title">Sales vs Target by PIC</h2>
-              <span className="tv-panel-subtitle">Target (Cyan) vs Sales (Emerald)</span>
+              <span className="tv-panel-subtitle">Target (Blue) vs Sales (Green)</span>
             </div>
             <div className="tv-chart-container">
               <Bar data={salesChartData} options={compactChartOptions} />
@@ -371,7 +373,7 @@ function OverviewDashboard({ rows }) {
           <div className="tv-chart-box">
             <div className="tv-panel-header">
               <h2 className="tv-panel-title">Payment Collection Status</h2>
-              <span className="tv-panel-subtitle">Collected (Purple) vs Pending (Red)</span>
+              <span className="tv-panel-subtitle">Collected (Green) vs Pending (Red)</span>
             </div>
             <div className="tv-chart-container">
               <Bar data={collectionChartData} options={compactChartOptions} />

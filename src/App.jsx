@@ -4,13 +4,10 @@ import PinLogin, { DASHBOARD_PIN, AUTH_STORAGE_KEY } from './components/PinLogin
 import OverviewDashboard from './components/OverviewDashboard';
 import ChartsDashboard from './components/ChartsDashboard';
 import TableDashboard from './components/TableDashboard';
-import CombinedDashboard from './components/CombinedDashboard';
 import TvControls from './components/TvControls';
 import { fetchSheetData } from './utils/fetchSheet';
 import './styles.css';
 
-const TV_CYCLE_TABS = ['overview', 'charts', 'table'];
-const CYCLE_DURATION_SECONDS = 25;
 const AUTO_REFRESH_INTERVAL_MS = 60000; // 60 seconds auto-sync
 
 function App() {
@@ -23,7 +20,7 @@ function App() {
     }
   });
 
-  // Active view: 'overview' | 'charts' | 'table' | 'combined'
+  // Active view: 'overview' | 'charts' | 'table'
   const [activeView, setActiveView] = useState('overview');
 
   // Sheet data states
@@ -33,10 +30,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState('');
   const [error, setError] = useState(null);
-
-  // TV Auto-Cycle Mode
-  const [isTvCycleActive, setIsTvCycleActive] = useState(false);
-  const [cycleSecondsRemaining, setCycleSecondsRemaining] = useState(CYCLE_DURATION_SECONDS);
 
   // Fullscreen state
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -50,7 +43,7 @@ function App() {
       setRows(data.rows);
       setAvailableMonths(data.availableMonths);
 
-      // Default to OCT or the month with active data if not set
+      // Default to OCT or latest available month
       if (data.availableMonths.length > 0 && (!selectedMonth || selectedMonth === 'ALL')) {
         const preferred = data.availableMonths.includes('OCT')
           ? 'OCT'
@@ -81,31 +74,6 @@ function App() {
     }
   }, [isAuthenticated, loadData]);
 
-  // TV Mode Auto-Cycle Carousel (Rotates views every 25 seconds)
-  useEffect(() => {
-    if (!isTvCycleActive) {
-      setCycleSecondsRemaining(CYCLE_DURATION_SECONDS);
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setCycleSecondsRemaining((prev) => {
-        if (prev <= 1) {
-          // Advance to next view in cycle
-          setActiveView((current) => {
-            const currentIdx = TV_CYCLE_TABS.indexOf(current);
-            const nextIdx = currentIdx === -1 ? 0 : (currentIdx + 1) % TV_CYCLE_TABS.length;
-            return TV_CYCLE_TABS[nextIdx];
-          });
-          return CYCLE_DURATION_SECONDS;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isTvCycleActive]);
-
   // Fullscreen event listener
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -125,11 +93,6 @@ function App() {
         console.warn('Exit fullscreen failed:', err);
       });
     }
-  };
-
-  const handleToggleTvCycle = () => {
-    setIsTvCycleActive((prev) => !prev);
-    setCycleSecondsRemaining(CYCLE_DURATION_SECONDS);
   };
 
   const handleLockDashboard = () => {
@@ -159,14 +122,12 @@ function App() {
         <div className="app-header__branding">
           <div className="app-header__logo-icon">📊</div>
           <div>
-            <h1 className="app-header__title">Executive Sales & Collection Portal</h1>
-            <p className="app-header__subtitle">
-              Live TV & Multi-Outlet Monitor • Google Sheet: Data for TV
-            </p>
+            <h1 className="app-header__title">SALES & COLLECTION</h1>
+            <p className="app-header__subtitle">Live Performance Monitor • Data for TV</p>
           </div>
         </div>
 
-        {/* Quick View Navigation */}
+        {/* View Switcher Tabs in Header for quick access */}
         <nav className="tab-nav">
           <button
             type="button"
@@ -189,27 +150,16 @@ function App() {
           >
             📋 Master Table
           </button>
-          <button
-            type="button"
-            className={`tab-nav__btn ${activeView === 'combined' ? 'active' : ''}`}
-            onClick={() => setActiveView('combined')}
-          >
-            📑 Extended Detail
-          </button>
         </nav>
       </header>
 
-      {/* TV Controls & Sync Status Bar */}
+      {/* Controls & Sync Status Bar */}
       <TvControls
         selectedMonth={selectedMonth}
         onMonthChange={setSelectedMonth}
         availableMonths={availableMonths}
         activeView={activeView}
         onViewChange={setActiveView}
-        isTvCycleActive={isTvCycleActive}
-        onToggleTvCycle={handleToggleTvCycle}
-        cycleSecondsRemaining={cycleSecondsRemaining}
-        cycleDuration={CYCLE_DURATION_SECONDS}
         lastUpdated={lastUpdated}
         onManualRefresh={() => loadData(false)}
         isLoading={isLoading}
@@ -240,21 +190,9 @@ function App() {
             {activeView === 'overview' && <OverviewDashboard rows={filteredRows} />}
             {activeView === 'charts' && <ChartsDashboard rows={filteredRows} />}
             {activeView === 'table' && <TableDashboard rows={filteredRows} />}
-            {activeView === 'combined' && <CombinedDashboard rows={filteredRows} />}
           </>
         )}
       </main>
-
-      {/* Minimal Footer for TV Screen */}
-      <footer className="app-footer">
-        <span>Connected to Google Sheet: <strong>Data for TV</strong></span>
-        <span>•</span>
-        <span>Auto-sync active (60s)</span>
-        <span>•</span>
-        <span>PIN Protected</span>
-        <span>•</span>
-        <span>Optimized for Smart TV, Laptop & Mobile</span>
-      </footer>
     </div>
   );
 }

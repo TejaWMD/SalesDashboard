@@ -84,16 +84,16 @@ function ChartsDashboard({ rows }) {
         {
           label: 'Target (RM)',
           data: picStats.map((p) => p.target),
-          backgroundColor: 'rgba(56, 189, 248, 0.45)',
-          borderColor: '#38bdf8',
+          backgroundColor: 'rgba(0, 155, 214, 0.45)',
+          borderColor: '#009bd6',
           borderWidth: 1.5,
           borderRadius: 6,
         },
         {
           label: 'Actual Sales (RM)',
           data: picStats.map((p) => p.sales),
-          backgroundColor: 'rgba(52, 211, 153, 0.85)',
-          borderColor: '#34d399',
+          backgroundColor: 'rgba(86, 142, 70, 0.9)',
+          borderColor: '#568e46',
           borderWidth: 1.5,
           borderRadius: 6,
         },
@@ -101,7 +101,7 @@ function ChartsDashboard({ rows }) {
     };
   }, [picStats]);
 
-  // Chart 2: S vs T Achievement % with 100% benchmark
+  // Chart 2: S vs T Achievement % with benchmark colors
   const achievementPctData = useMemo(() => {
     const labels = picStats.map((p) => p.name);
     return {
@@ -112,12 +112,12 @@ function ChartsDashboard({ rows }) {
           data: picStats.map((p) => Number(p.percent.toFixed(1))),
           backgroundColor: picStats.map((p) =>
             p.percent >= 100
-              ? 'rgba(52, 211, 153, 0.85)'
+              ? 'rgba(86, 142, 70, 0.9)'
               : p.percent >= 70
-              ? 'rgba(56, 189, 248, 0.85)'
+              ? 'rgba(0, 155, 214, 0.9)'
               : p.percent >= 40
-              ? 'rgba(251, 191, 36, 0.85)'
-              : 'rgba(248, 113, 113, 0.85)'
+              ? 'rgba(251, 180, 60, 0.9)'
+              : 'rgba(229, 67, 48, 0.9)'
           ),
           borderRadius: 6,
         },
@@ -134,16 +134,16 @@ function ChartsDashboard({ rows }) {
         {
           label: 'Collected (RM)',
           data: picStats.map((p) => p.collected),
-          backgroundColor: 'rgba(129, 140, 248, 0.85)',
-          borderColor: '#818cf8',
+          backgroundColor: 'rgba(86, 142, 70, 0.9)',
+          borderColor: '#568e46',
           borderWidth: 1.5,
           borderRadius: 6,
         },
         {
           label: 'Pending (RM)',
           data: picStats.map((p) => p.pending),
-          backgroundColor: 'rgba(248, 113, 113, 0.85)',
-          borderColor: '#f87171',
+          backgroundColor: 'rgba(229, 67, 48, 0.9)',
+          borderColor: '#e54330',
           borderWidth: 1.5,
           borderRadius: 6,
         },
@@ -165,13 +165,13 @@ function ChartsDashboard({ rows }) {
             storeDistribution.noData,
           ],
           backgroundColor: [
-            'rgba(52, 211, 153, 0.85)',
-            'rgba(56, 189, 248, 0.85)',
-            'rgba(251, 191, 36, 0.85)',
-            'rgba(248, 113, 113, 0.85)',
-            'rgba(148, 163, 184, 0.4)',
+            'rgba(86, 142, 70, 0.9)',
+            'rgba(0, 155, 214, 0.9)',
+            'rgba(251, 180, 60, 0.9)',
+            'rgba(229, 67, 48, 0.9)',
+            'rgba(148, 163, 184, 0.3)',
           ],
-          borderColor: '#111827',
+          borderColor: '#0c0b0c',
           borderWidth: 2,
         },
       ],
@@ -185,10 +185,15 @@ function ChartsDashboard({ rows }) {
       legend: {
         position: 'top',
         align: 'end',
-        labels: { color: '#cbd5e1', font: { size: 11, weight: '600' } },
+        labels: { color: '#f8fafc', font: { size: 11, weight: '700' } },
       },
       tooltip: {
-        backgroundColor: '#0f172a',
+        backgroundColor: '#0c0b0c',
+        titleColor: '#fbb43c',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(251, 180, 60, 0.3)',
+        borderWidth: 1,
+        padding: 10,
         callbacks: {
           label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.raw)}`,
         },
@@ -196,16 +201,16 @@ function ChartsDashboard({ rows }) {
     },
     scales: {
       x: {
-        ticks: { color: '#94a3b8', font: { weight: '600', size: 11 } },
+        ticks: { color: '#cbd5e1', font: { weight: '700', size: 11 } },
         grid: { display: false },
       },
       y: {
         ticks: {
-          color: '#94a3b8',
-          font: { size: 10 },
+          color: '#cbd5e1',
+          font: { size: 10, weight: '600' },
           callback: (val) => formatCompactCurrency(val),
         },
-        grid: { color: 'rgba(255, 255, 255, 0.06)' },
+        grid: { color: 'rgba(255, 255, 255, 0.07)' },
       },
     },
   };
@@ -216,7 +221,12 @@ function ChartsDashboard({ rows }) {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: '#0f172a',
+        backgroundColor: '#0c0b0c',
+        titleColor: '#fbb43c',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(251, 180, 60, 0.3)',
+        borderWidth: 1,
+        padding: 10,
         callbacks: {
           label: (ctx) => `Quota Achieved: ${ctx.raw}%`,
         },
@@ -224,16 +234,16 @@ function ChartsDashboard({ rows }) {
     },
     scales: {
       x: {
-        ticks: { color: '#94a3b8', font: { weight: '600', size: 11 } },
+        ticks: { color: '#cbd5e1', font: { weight: '700', size: 11 } },
         grid: { display: false },
       },
       y: {
         ticks: {
-          color: '#94a3b8',
-          font: { size: 10 },
+          color: '#cbd5e1',
+          font: { size: 10, weight: '600' },
           callback: (val) => `${val}%`,
         },
-        grid: { color: 'rgba(255, 255, 255, 0.06)' },
+        grid: { color: 'rgba(255, 255, 255, 0.07)' },
       },
     },
   };
@@ -245,8 +255,8 @@ function ChartsDashboard({ rows }) {
       legend: {
         position: 'right',
         labels: {
-          color: '#cbd5e1',
-          font: { size: 11, weight: '600' },
+          color: '#f8fafc',
+          font: { size: 11, weight: '700' },
           boxWidth: 12,
           padding: 10,
         },

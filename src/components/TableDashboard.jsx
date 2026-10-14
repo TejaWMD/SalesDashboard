@@ -107,7 +107,6 @@ function TableDashboard({ rows }) {
     const el = scrollContainerRef.current;
     if (!el) return;
 
-    let direction = 1;
     const interval = setInterval(() => {
       if (!el) return;
       if (el.scrollTop + el.clientHeight >= el.scrollHeight - 5) {
@@ -130,14 +129,14 @@ function TableDashboard({ rows }) {
         <div className="table-info">
           <h2 className="table-title">Master Outlets Performance Table</h2>
           <span className="table-subtitle">
-            Displaying {filteredRows.length} of {rows.length} stores • Tab: Data for TV
+            Displaying {filteredRows.length} of {rows.length} stores • Google Sheet: Data for TV
           </span>
         </div>
 
         <div className="table-actions">
           {/* Search box */}
           <div className="table-search-box">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
@@ -178,10 +177,10 @@ function TableDashboard({ rows }) {
             type="button"
             className={`tv-scroll-toggle ${isTvAutoScroll ? 'active' : ''}`}
             onClick={() => setIsTvAutoScroll((prev) => !prev)}
-            title="Auto-scroll table smoothly on TV"
+            title="Auto-scroll table smoothly on TV screen"
           >
             <span className="tv-scroll-icon">{isTvAutoScroll ? '⏸' : '▶'}</span>
-            <span>{isTvAutoScroll ? 'TV Auto-Scroll ON' : 'TV Auto-Scroll'}</span>
+            <span>{isTvAutoScroll ? 'Auto-Scroll ON' : 'TV Auto-Scroll'}</span>
           </button>
         </div>
       </div>
@@ -192,28 +191,28 @@ function TableDashboard({ rows }) {
           <thead>
             <tr>
               <th onClick={() => handleSort('store')} className="sortable text-left">
-                STORE (Col A) {sortBy === 'store' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                STORE {sortBy === 'store' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
               </th>
               <th onClick={() => handleSort('person')} className="sortable text-left">
-                PERSON IN CHARGE (Col B) {sortBy === 'person' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                PERSON IN CHARGE {sortBy === 'person' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
               </th>
               <th onClick={() => handleSort('month')} className="sortable text-center">
-                MONTH (Col C) {sortBy === 'month' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                MONTH {sortBy === 'month' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
               </th>
               <th onClick={() => handleSort('target')} className="sortable text-right">
-                TARGET (Col D) {sortBy === 'target' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                TARGET {sortBy === 'target' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
               </th>
               <th onClick={() => handleSort('sales')} className="sortable text-right">
-                SALES (Col E) {sortBy === 'sales' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                SALES {sortBy === 'sales' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
               </th>
               <th onClick={() => handleSort('salesPercent')} className="sortable text-right">
-                S vs T % (Col F) {sortBy === 'salesPercent' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                S vs T % {sortBy === 'salesPercent' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
               </th>
               <th onClick={() => handleSort('pending')} className="sortable text-right">
-                PAYMENT PENDING (Col G) {sortBy === 'pending' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                PAYMENT PENDING {sortBy === 'pending' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
               </th>
               <th onClick={() => handleSort('collected')} className="sortable text-right">
-                PAYMENT COLLECTED (Col H) {sortBy === 'collected' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                PAYMENT COLLECTED {sortBy === 'collected' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
               </th>
             </tr>
           </thead>
@@ -244,7 +243,7 @@ function TableDashboard({ rows }) {
                       <span className="pic-badge">{r.person}</span>
                     </td>
                     <td className="text-center font-mono text-muted">{r.month}</td>
-                    <td className="text-right font-mono text-primary">
+                    <td className="text-right font-mono text-primary font-bold">
                       {formatCurrency(r.target)}
                     </td>
                     <td className="text-right font-mono font-bold text-success">
@@ -253,10 +252,10 @@ function TableDashboard({ rows }) {
                     <td className={`text-right font-mono font-bold ${pctClass}`}>
                       {formatPercent(r.salesPercent)}
                     </td>
-                    <td className="text-right font-mono text-danger">
+                    <td className="text-right font-mono text-danger font-bold">
                       {formatCurrency(r.pending)}
                     </td>
-                    <td className="text-right font-mono text-indigo">
+                    <td className="text-right font-mono text-success font-bold">
                       {formatCurrency(r.collected)}
                     </td>
                   </tr>
@@ -276,13 +275,13 @@ function TableDashboard({ rows }) {
                 <td className="text-right font-mono font-bold text-success">
                   {formatCurrency(filteredSummary.salesTotal)}
                 </td>
-                <td className="text-right font-mono font-bold">
+                <td className="text-right font-mono font-bold text-amber">
                   {formatPercent(filteredSummary.overallPct)}
                 </td>
                 <td className="text-right font-mono font-bold text-danger">
                   {formatCurrency(filteredSummary.pendingTotal)}
                 </td>
-                <td className="text-right font-mono font-bold text-indigo">
+                <td className="text-right font-mono font-bold text-success">
                   {formatCurrency(filteredSummary.collectedTotal)}
                 </td>
               </tr>
