@@ -8,7 +8,7 @@
   --color-blue: #009bd6;
   --color-red: #e54330;
   --color-green: #568e46;
-  --color-lemon: #e8e237;
+  --color-lemon: #fbe546;
 
   /* Card and Surface Shades - Deep Rich Charcoal for High Contrast */
   --bg-card: #0e0d12;
@@ -52,7 +52,7 @@ html, body {
   background-image: 
     radial-gradient(circle at 12% 12%, rgba(255, 255, 255, 0.5) 0%, transparent 40%),
     radial-gradient(circle at 88% 85%, rgba(0, 155, 214, 0.1) 0%, transparent 45%),
-    linear-gradient(135deg, #ffc452 0%, #f8bb40 50%, #e8a92a 100%);
+    linear-gradient(135deg, #fbe546 0%, #fbe546 50%, #fbe546 100%);
   color: var(--text-main);
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
