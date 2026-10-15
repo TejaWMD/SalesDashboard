@@ -1,20 +1,19 @@
 // src/components/ChartsDashboard.jsx
 import React, { useMemo } from 'react';
-import { Bar, Doughnut } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
-  ArcElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
-import { formatCurrency, formatPercent, formatCompactCurrency } from '../utils/fetchSheet';
+import { formatCurrency, formatCompactCurrency } from '../utils/fetchSheet';
 import './ChartsDashboard.css';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function ChartsDashboard({ rows }) {
   // Aggregate per Person in Charge
@@ -44,35 +43,14 @@ function ChartsDashboard({ rows }) {
       const pct = p.target > 0 ? (p.sales / p.target) * 100 : 0;
       const rec = p.collected + p.pending;
       const collPct = rec > 0 ? (p.collected / rec) * 100 : 0;
+      const pendPct = rec > 0 ? (p.pending / rec) * 100 : 0;
       return {
         ...p,
         percent: pct,
         collectionPercent: collPct,
+        pendingPercent: pendPct,
       };
     });
-  }, [rows]);
-
-  // Quota distribution of stores
-  const storeDistribution = useMemo(() => {
-    let exceeded = 0; // >= 100%
-    let onTrack = 0;  // 70 - 99.9%
-    let inProgress = 0; // 40 - 69.9%
-    let lagging = 0;   // < 40%
-    let noData = 0;
-
-    rows.forEach((r) => {
-      if (r.salesPercent === null && r.sales === null) {
-        noData += 1;
-      } else {
-        const p = r.salesPercent || 0;
-        if (p >= 100) exceeded += 1;
-        else if (p >= 70) onTrack += 1;
-        else if (p >= 40) inProgress += 1;
-        else lagging += 1;
-      }
-    });
-
-    return { exceeded, onTrack, inProgress, lagging, noData };
   }, [rows]);
 
   // Chart 1: Target vs Actual Sales
@@ -151,32 +129,40 @@ function ChartsDashboard({ rows }) {
     };
   }, [picStats]);
 
-  // Chart 4: Store Distribution Doughnut
-  const distributionData = useMemo(() => {
+  // Chart 4: Payment Collected vs Pending Rate (100% stacked)
+  const collectionRateData = useMemo(() => {
+    const labels = picStats.map((p) => p.name);
     return {
-      labels: ['Exceeded (>=100%)', 'On Track (70-99%)', 'In Progress (40-69%)', 'Lagging (<40%)', 'Awaiting Data'],
+      labels,
       datasets: [
         {
-          data: [
-            storeDistribution.exceeded,
-            storeDistribution.onTrack,
-            storeDistribution.inProgress,
-            storeDistribution.lagging,
-            storeDistribution.noData,
-          ],
-          backgroundColor: [
-            'rgba(86, 142, 70, 0.9)',
-            'rgba(0, 155, 214, 0.9)',
-            'rgba(248, 245, 75, 0.95)',
-            'rgba(229, 67, 48, 0.9)',
-            'rgba(148, 163, 184, 0.3)',
-          ],
-          borderColor: '#0c0b0c',
-          borderWidth: 2,
+          label: 'Collected %',
+          data: picStats.map((p) => Number(p.collectionPercent.toFixed(1))),
+          backgroundColor: 'rgba(86, 142, 70, 0.9)',
+          borderColor: '#568e46',
+          borderWidth: 1.5,
+          borderRadius: 6,
+        },
+        {
+          label: 'Pending %',
+          data: picStats.map((p) => Number(p.pendingPercent.toFixed(1))),
+          backgroundColor: 'rgba(229, 67, 48, 0.9)',
+          borderColor: '#e54330',
+          borderWidth: 1.5,
+          borderRadius: 6,
         },
       ],
     };
-  }, [storeDistribution]);
+  }, [picStats]);
+
+  const tooltipBase = {
+    backgroundColor: '#0c0b0c',
+    titleColor: '#f8f54b',
+    bodyColor: '#ffffff',
+    borderColor: 'rgba(248, 245, 75, 0.35)',
+    borderWidth: 1,
+    padding: 10,
+  };
 
   const currencyOptions = {
     responsive: true,
@@ -188,12 +174,7 @@ function ChartsDashboard({ rows }) {
         labels: { color: '#5b5545', font: { size: 11, weight: '700' } },
       },
       tooltip: {
-        backgroundColor: '#0c0b0c',
-        titleColor: '#f8f54b',
-        bodyColor: '#ffffff',
-        borderColor: 'rgba(248, 245, 75, 0.35)',
-        borderWidth: 1,
-        padding: 10,
+        ...tooltipBase,
         callbacks: {
           label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.raw)}`,
         },
@@ -221,12 +202,7 @@ function ChartsDashboard({ rows }) {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: '#0c0b0c',
-        titleColor: '#f8f54b',
-        bodyColor: '#ffffff',
-        borderColor: 'rgba(248, 245, 75, 0.35)',
-        borderWidth: 1,
-        padding: 10,
+        ...tooltipBase,
         callbacks: {
           label: (ctx) => `Quota Achieved: ${ctx.raw}%`,
         },
@@ -248,18 +224,38 @@ function ChartsDashboard({ rows }) {
     },
   };
 
-  const doughnutOptions = {
+  const collectionRateOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'right',
-        labels: {
-          color: '#5b5545',
-          font: { size: 11, weight: '700' },
-          boxWidth: 12,
-          padding: 10,
+        position: 'top',
+        align: 'end',
+        labels: { color: '#5b5545', font: { size: 11, weight: '700' } },
+      },
+      tooltip: {
+        ...tooltipBase,
+        callbacks: {
+          label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}%`,
         },
+      },
+    },
+    scales: {
+      x: {
+        stacked: true,
+        ticks: { color: '#5b5545', font: { weight: '700', size: 11 } },
+        grid: { display: false },
+      },
+      y: {
+        stacked: true,
+        min: 0,
+        max: 100,
+        ticks: {
+          color: '#5b5545',
+          font: { size: 10, weight: '600' },
+          callback: (val) => `${val}%`,
+        },
+        grid: { color: 'rgba(91, 66, 0, 0.1)' },
       },
     },
   };
@@ -271,7 +267,6 @@ function ChartsDashboard({ rows }) {
         <div className="chart-card">
           <div className="chart-card__header">
             <h3 className="chart-card__title">Sales Target vs Actual Sales by PIC</h3>
-            <span className="chart-card__badge">Financial Value (RM)</span>
           </div>
           <div className="chart-card__body">
             <Bar data={targetVsSalesData} options={currencyOptions} />
@@ -281,8 +276,7 @@ function ChartsDashboard({ rows }) {
         {/* Chart 2: S vs T Percentage Achievement */}
         <div className="chart-card">
           <div className="chart-card__header">
-            <h3 className="chart-card__title">Sales vs Target Quota Rate (%)</h3>
-            <span className="chart-card__badge">Performance Ratio</span>
+            <h3 className="chart-card__title">Sales vs Target Rate (%)</h3>
           </div>
           <div className="chart-card__body">
             <Bar data={achievementPctData} options={percentOptions} />
@@ -293,21 +287,19 @@ function ChartsDashboard({ rows }) {
         <div className="chart-card">
           <div className="chart-card__header">
             <h3 className="chart-card__title">Payment Collected vs Pending by PIC</h3>
-            <span className="chart-card__badge">Cashflow Balance (RM)</span>
           </div>
           <div className="chart-card__body">
             <Bar data={collectionData} options={currencyOptions} />
           </div>
         </div>
 
-        {/* Chart 4: Store Quota Tier Distribution */}
+        {/* Chart 4: Collected vs Pending Rate */}
         <div className="chart-card">
           <div className="chart-card__header">
-            <h3 className="chart-card__title">Outlet Achievement Tier Distribution</h3>
-            <span className="chart-card__badge">{rows.length} Total Stores</span>
+            <h3 className="chart-card__title">Payment Collected vs Pending Rate (%)</h3>
           </div>
           <div className="chart-card__body">
-            <Doughnut data={distributionData} options={doughnutOptions} />
+            <Bar data={collectionRateData} options={collectionRateOptions} />
           </div>
         </div>
       </div>

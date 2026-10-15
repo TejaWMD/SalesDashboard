@@ -2285,7 +2285,7 @@ select {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 30px;
   width: 100%;
   min-width: 0;
   flex: 0 0 auto;

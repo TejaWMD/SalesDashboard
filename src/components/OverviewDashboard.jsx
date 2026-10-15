@@ -16,6 +16,16 @@ import './OverviewDashboard.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// Colour band for a percentage (same thresholds as the card status)
+const rateStatus = (v) => {
+  if (v === null || v === undefined) return 'neutral';
+  if (v >= 100) return 'success';
+  if (v >= 70) return 'primary';
+  if (v >= 40) return 'warning';
+  return 'danger';
+};
+const clampPct = (v) => Math.max(0, Math.min(100, v || 0));
+
 function OverviewDashboard({ rows }) {
   // Aggregate metrics across rows for selected month
   const summary = useMemo(() => {
@@ -91,6 +101,8 @@ function OverviewDashboard({ rows }) {
       const pct = p.hasTarget && p.target > 0 ? (p.sales / p.target) * 100 : null;
       const rec = p.collected + p.pending;
       const collPct = rec > 0 ? (p.collected / rec) * 100 : null;
+      const pendingPct = rec > 0 ? (p.pending / rec) * 100 : null;
+      const averagePct = pct !== null && collPct !== null ? (pct + collPct) / 2 : null;
 
       let status = 'neutral';
       let statusLabel = 'Awaiting';
@@ -114,10 +126,29 @@ function OverviewDashboard({ rows }) {
         ...p,
         percent: pct,
         collectionPercent: collPct,
+        pendingPercent: pendingPct,
+        averagePercent: averagePct,
         status,
         statusLabel,
       };
     });
+
+    const sortedPicList = picList.sort((a, b) => {
+      if (a.averagePercent === null) return b.averagePercent === null ? a.name.localeCompare(b.name) : 1;
+      if (b.averagePercent === null) return -1;
+      return b.averagePercent - a.averagePercent || a.name.localeCompare(b.name);
+    });
+    const ratedPicList = sortedPicList.filter((pic) => pic.averagePercent !== null);
+    const highestAveragePic = ratedPicList[0];
+    const lowestAveragePic = ratedPicList[ratedPicList.length - 1];
+    const rankedPicList = sortedPicList.map((pic) => ({
+      ...pic,
+      performanceHighlight: pic === highestAveragePic
+        ? 'best'
+        : pic === lowestAveragePic && lowestAveragePic !== highestAveragePic
+          ? 'worst'
+          : null,
+    }));
 
     // Top 5 performing stores by actual sales
     const topStores = [...rows]
@@ -133,7 +164,7 @@ function OverviewDashboard({ rows }) {
       totalPending: hasPending ? totalPending : null,
       overallCollectionPercent,
       totalStores: rows.length,
-      picList,
+      picList: rankedPicList,
       topStores,
     };
   }, [rows]);
@@ -239,7 +270,6 @@ function OverviewDashboard({ rows }) {
         <KpiCard
           title="Total Target"
           value={formatCurrency(summary.totalTarget)}
-          subtitle="Monthly Sales Target"
           status="primary"
           icon="🎯"
         />
@@ -251,7 +281,6 @@ function OverviewDashboard({ rows }) {
               ? `${summary.overallSalesPercent.toFixed(1)}% Achieved`
               : 'No Data'
           }
-          subtitle="Total Invoiced"
           status={
             summary.overallSalesPercent !== null && summary.overallSalesPercent >= 70
               ? 'success'
@@ -262,7 +291,6 @@ function OverviewDashboard({ rows }) {
         <KpiCard
           title="Sales Rate"
           value={formatPercent(summary.overallSalesPercent)}
-          subtitle={`Across ${summary.totalStores} Outlets`}
           status={
             summary.overallSalesPercent !== null && summary.overallSalesPercent >= 100
               ? 'success'
@@ -280,21 +308,18 @@ function OverviewDashboard({ rows }) {
               ? `${summary.overallCollectionPercent.toFixed(1)}% Settled`
               : 'Pending Input'
           }
-          subtitle="Cash Received"
           status="success"
           icon="💵"
         />
         <KpiCard
           title="Payment Pending"
           value={formatCurrency(summary.totalPending)}
-          subtitle="Outstanding Amount"
           status={summary.totalPending && summary.totalPending > 0 ? 'danger' : 'neutral'}
           icon="⏳"
         />
         <KpiCard
           title="Collection Rate"
           value={formatPercent(summary.overallCollectionPercent)}
-          subtitle="Collected vs Total Receivable"
           status={
             summary.overallCollectionPercent !== null && summary.overallCollectionPercent >= 100
               ? 'success'
@@ -317,7 +342,10 @@ function OverviewDashboard({ rows }) {
 
           <div className="tv-pic-list">
             {summary.picList.map((pic) => (
-              <div key={pic.name} className={`tv-pic-card tv-pic-card--${pic.status}`}>
+              <div
+                key={pic.name}
+                className={`tv-pic-card tv-pic-card--${pic.status}${pic.performanceHighlight ? ` tv-pic-card--highlight-${pic.performanceHighlight}` : ''}`}
+              >
                 <div className="tv-pic-card__top">
                   <div className="tv-pic-card__identity">
                     <span className="tv-pic-card__avatar">{pic.name[0]}</span>
@@ -326,9 +354,23 @@ function OverviewDashboard({ rows }) {
                       <span className="tv-pic-card__meta">{pic.storeCount} Stores Managed</span>
                     </div>
                   </div>
-                  <span className={`tv-status-badge tv-status-badge--${pic.status}`}>
-                    {pic.percent !== null ? `${pic.percent.toFixed(1)}%` : pic.statusLabel}
-                  </span>
+
+                  <div className="tv-pic-card__pills">
+                    {[
+                      { label: 'Sales', value: pic.percent },
+                      { label: 'Collected', value: pic.collectionPercent },
+                      { label: 'Average', value: pic.averagePercent },
+                    ].map((c) => (
+                      <div key={c.label} className="tv-pill">
+                        <div
+                          className={`tv-pill__fill tv-pill__fill--${rateStatus(c.value)}`}
+                          style={{ width: `${clampPct(c.value)}%` }}
+                        />
+                        <span className="tv-pill__label">{c.label}</span>
+                        <span className="tv-pill__value">{formatPercent(c.value)}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Metrics Breakdown Grid */}

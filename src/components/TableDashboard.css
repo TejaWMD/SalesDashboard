@@ -219,12 +219,12 @@
 .text-primary { color: #00c0f0 !important; }
 .text-success { color: #79d863 !important; }
 .text-danger { color: #ff7d6e !important; }
-.text-lemon { color: #f9d71e !important; }
+.text-lemon { color: #fefa87 !important; }
 .text-dim { color: #64748b; }
 
 .pct-exceeded { color: #79d863; font-weight: 800; }
 .pct-on-track { color: #00c0f0; font-weight: 800; }
-.pct-in-progress { color: #ffd97a; font-weight: 700; }
+.pct-in-progress { color: #fefa87; font-weight: 700; }
 .pct-lagging { color: #ff7d6e; font-weight: 700; }
 
 .table-empty-row {

@@ -96,10 +96,10 @@ function PinLogin({ onSuccess }) {
               <path d="M10 11V9a2 2 0 1 1 4 0v2" />
             </svg>
           </div>
-          <h1 className="pin-title">Executive Sales Dashboard</h1>
-          <p className="pin-subtitle">
+          <h1 className="pin-title">SALES & COLLECTION</h1>
+          {/* <p className="pin-subtitle">
             Restricted Access Portal • Enter 6-Digit PIN
-          </p>
+          </p> */}
         </div>
 
         {/* PIN Dots Display */}
@@ -111,9 +111,8 @@ function PinLogin({ onSuccess }) {
               return (
                 <div
                   key={idx}
-                  className={`pin-dot ${isFilled ? 'pin-dot--filled' : ''} ${
-                    idx === pin.length ? 'pin-dot--active' : ''
-                  }`}
+                  className={`pin-dot ${isFilled ? 'pin-dot--filled' : ''} ${idx === pin.length ? 'pin-dot--active' : ''
+                    }`}
                 >
                   {isFilled && showPin ? char : isFilled ? '•' : ''}
                 </div>
@@ -132,17 +131,22 @@ function PinLogin({ onSuccess }) {
         </div>
 
         {/* Error message */}
-        {errorMsg ? (
+        {errorMsg && (
           <div className="pin-error-banner">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
             <span>{errorMsg}</span>
           </div>
-        ) : (
-          <div className="pin-instruction">Use on-screen keypad or keyboard</div>
         )}
 
         {/* Numeric Keypad */}
@@ -203,7 +207,7 @@ function PinLogin({ onSuccess }) {
         </button>
 
         <div className="pin-footer-info">
-          <span>Optimized for Smart TV & Dashboard Monitors</span>
+          {/* <span>Optimized for Smart TV & Dashboard Monitors</span> */}
         </div>
       </div>
     </div>

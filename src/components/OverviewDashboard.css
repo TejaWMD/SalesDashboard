@@ -101,10 +101,111 @@
 .tv-pic-card--danger { border-left-color: var(--color-red); }
 .tv-pic-card--neutral { border-left-color: #64748b; }
 
+.tv-pic-card.tv-pic-card--highlight-best,
+.tv-pic-card.tv-pic-card--highlight-best:hover {
+  background: linear-gradient(90deg, rgba(86, 142, 70, 0.55) 0%, rgba(86, 142, 70, 0.28) 100%);
+  border-color: rgba(121, 216, 99, 0.8);
+  border-left-color: #79d863;
+  box-shadow: 0 0 14px rgba(121, 216, 99, 0.25);
+}
+
+.tv-pic-card.tv-pic-card--highlight-worst,
+.tv-pic-card.tv-pic-card--highlight-worst:hover {
+  background: linear-gradient(90deg, rgba(229, 67, 48, 0.55) 0%, rgba(229, 67, 48, 0.28) 100%);
+  border-color: rgba(255, 125, 110, 0.8);
+  border-left-color: #ff7d6e;
+  box-shadow: 0 0 14px rgba(255, 125, 110, 0.25);
+}
+
+/* Horizontal pill gauges, side by side (top right of PIC card) */
 .tv-pic-card__top {
+  gap: 10px;
+  flex-wrap: wrap; /* pills drop below the name if the card is too narrow */
+}
+
+.tv-pic-card__pills {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.tv-pill {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 6px;
+  width: 112px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.6);
+}
+
+/* glossy highlight for the tube look */
+.tv-pill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.28) 0%,
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 0, 0, 0.25) 100%);
+  pointer-events: none;
+}
+
+.tv-pill__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 9999px;
+  opacity: 0.85;
+  transition: width 0.5s ease;
+}
+
+.tv-pill__fill--success { background: var(--color-green); }
+.tv-pill__fill--primary { background: var(--color-blue); }
+.tv-pill__fill--warning { background: var(--color-lemon); }
+.tv-pill__fill--danger  { background: var(--color-red); }
+.tv-pill__fill--neutral { background: #64748b; }
+
+.tv-pill__label,
+.tv-pill__value {
+  position: relative;
+  z-index: 1;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.tv-pill__label {
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.tv-pill__value {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Bigger on 4K / ultra-wide TVs */
+@media (min-width: 1920px) {
+  .tv-pill {
+    width: 132px;
+    height: 28px;
+  }
+  .tv-pill__label,
+  .tv-pill__value {
+    font-size: 0.75rem;
+  }
 }
 
 .tv-pic-card__identity {
@@ -189,6 +290,20 @@
   background: rgba(0, 0, 0, 0.4);
   padding: 5px 8px;
   border-radius: 8px;
+}
+
+.tv-pic-card__rates {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--text-muted);
+  font-size: 0.675rem;
+  line-height: 1.4;
+}
+
+.tv-pic-card__rates strong {
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
 }
 
 .tv-metric-item {

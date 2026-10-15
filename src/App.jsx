@@ -117,30 +117,30 @@ function App() {
 
   return (
     <div className={`app-container ${isFullscreen ? 'app-container--fullscreen' : ''}`}>
-  <div className="app-topbar">
-    <header className="app-header">
-      <div className="app-header__branding">
-        <div className="app-header__logo-icon">📊</div>
-        <div>
-          <h1 className="app-header__title">SALES & COLLECTION</h1>
-        </div>
-      </div>
-    </header>
+      <div className="app-topbar">
+        <header className="app-header">
+          <div className="app-header__branding">
+            <div className="app-header__logo-icon">📊</div>
+            <div>
+              <h1 className="app-header__title">SALES & COLLECTION</h1>
+            </div>
+          </div>
+        </header>
 
-    <TvControls
-      selectedMonth={selectedMonth}
-      onMonthChange={setSelectedMonth}
-      availableMonths={availableMonths}
-      activeView={activeView}
-      onViewChange={setActiveView}
-      lastUpdated={lastUpdated}
-      onManualRefresh={() => loadData(false)}
-      isLoading={isLoading}
-      isFullscreen={isFullscreen}
-      onToggleFullscreen={handleToggleFullscreen}
-      onLockDashboard={handleLockDashboard}
-    />
-  </div>
+        <TvControls
+          selectedMonth={selectedMonth}
+          onMonthChange={setSelectedMonth}
+          availableMonths={availableMonths}
+          activeView={activeView}
+          onViewChange={setActiveView}
+          lastUpdated={lastUpdated}
+          onManualRefresh={() => loadData(false)}
+          isLoading={isLoading}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={handleToggleFullscreen}
+          onLockDashboard={handleLockDashboard}
+        />
+      </div>
 
       {/* Error alert if any */}
       {error && (
