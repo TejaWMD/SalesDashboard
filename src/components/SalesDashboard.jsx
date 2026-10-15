@@ -1,5 +1,5 @@
 // src/components/SalesDashboard.jsx
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -11,464 +11,457 @@ import {
   Legend,
 } from 'chart.js';
 import KpiCard from './KpiCard';
-import { formatCurrency, formatPercent } from '../utils/fetchSheet';
-import './SalesDashboard.css';
+import { formatCurrency, formatPercent, formatCompactCurrency } from '../utils/fetchSheet';
+import './OverviewDashboard.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-function SalesDashboard({ rows }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPerson, setSelectedPerson] = useState('ALL');
-  const [quotaFilter, setQuotaFilter] = useState('ALL');
-  const [sortBy, setSortBy] = useState('sales');
-  const [sortOrder, setSortOrder] = useState('desc');
+// Colour band for a percentage (same thresholds as the card status)
+const rateStatus = (v) => {
+  if (v === null || v === undefined) return 'neutral';
+  if (v >= 100) return 'success';
+  if (v >= 70) return 'primary';
+  if (v >= 40) return 'warning';
+  return 'danger';
+};
+const clampPct = (v) => Math.max(0, Math.min(100, v || 0));
 
-  // Compute overall KPI metrics
+function SalesDashboard({ rows }) {
+  // Aggregate metrics across rows for selected month
   const summary = useMemo(() => {
     let totalTarget = 0;
+    let hasTarget = false;
     let totalSales = 0;
-    const personMap = {};
+    let hasSales = false;
+
+    const picMap = {};
 
     rows.forEach((row) => {
-      totalTarget += row.target;
-      totalSales += row.sales;
+      if (row.target !== null) {
+        totalTarget += row.target;
+        hasTarget = true;
+      }
+      if (row.sales !== null) {
+        totalSales += row.sales;
+        hasSales = true;
+      }
 
       const p = row.person || 'Unassigned';
-      if (!personMap[p]) {
-        personMap[p] = {
+      if (!picMap[p]) {
+        picMap[p] = {
           name: p,
           target: 0,
           sales: 0,
-          outlets: 0,
+          hasTarget: false,
+          hasSales: false,
+          storeCount: 0,
         };
       }
-      personMap[p].target += row.target;
-      personMap[p].sales += row.sales;
-      personMap[p].outlets += 1;
+
+      picMap[p].storeCount += 1;
+      if (row.target !== null) {
+        picMap[p].target += row.target;
+        picMap[p].hasTarget = true;
+      }
+      if (row.sales !== null) {
+        picMap[p].sales += row.sales;
+        picMap[p].hasSales = true;
+      }
     });
 
-    const percent = totalTarget > 0 ? (totalSales / totalTarget) * 100 : 0;
-    const remaining = Math.max(0, totalTarget - totalSales);
+    const overallSalesPercent = hasTarget && totalTarget > 0 ? (totalSales / totalTarget) * 100 : null;
+    const totalRemaining = hasTarget ? Math.max(0, totalTarget - totalSales) : 0;
 
-    // Compute metrics for each person
-    const personsList = Object.values(personMap).map((p) => {
-      const pPercent = p.target > 0 ? (p.sales / p.target) * 100 : 0;
-      const pRemaining = Math.max(0, p.target - p.sales);
-      let status = 'danger';
-      let statusLabel = 'At Risk';
-      if (pPercent >= 100) {
-        status = 'success';
-        statusLabel = 'Exceeded';
-      } else if (pPercent >= 70) {
-        status = 'primary';
-        statusLabel = 'On Track';
-      } else if (pPercent >= 40) {
-        status = 'warning';
-        statusLabel = 'In Progress';
+    const picList = Object.values(picMap).map((p) => {
+      const pct = p.hasTarget && p.target > 0 ? (p.sales / p.target) * 100 : null;
+      const rem = p.hasTarget ? Math.max(0, p.target - p.sales) : 0;
+
+      let status = 'neutral';
+      let statusLabel = 'Awaiting';
+      if (pct !== null) {
+        if (pct >= 100) {
+          status = 'success';
+          statusLabel = 'Exceeded';
+        } else if (pct >= 70) {
+          status = 'primary';
+          statusLabel = 'On Track';
+        } else if (pct >= 40) {
+          status = 'warning';
+          statusLabel = 'In Progress';
+        } else {
+          status = 'danger';
+          statusLabel = 'Needs Push';
+        }
       }
 
       return {
         ...p,
-        percent: pPercent,
-        remaining: pRemaining,
+        percent: pct,
+        remaining: rem,
         status,
         statusLabel,
       };
     });
 
+    const sortedPicList = picList.sort((a, b) => {
+      if (a.percent === null) return b.percent === null ? a.name.localeCompare(b.name) : 1;
+      if (b.percent === null) return -1;
+      return b.percent - a.percent || a.name.localeCompare(b.name);
+    });
+
+    const ratedPicList = sortedPicList.filter((pic) => pic.percent !== null);
+    const highestPic = ratedPicList[0];
+    const lowestPic = ratedPicList[ratedPicList.length - 1];
+    const rankedPicList = sortedPicList.map((pic) => ({
+      ...pic,
+      performanceHighlight: pic === highestPic
+        ? 'best'
+        : pic === lowestPic && lowestPic !== highestPic
+          ? 'worst'
+          : null,
+    }));
+
+    // Top 5 performing stores by actual sales
+    const topStores = [...rows]
+      .filter((r) => r.sales !== null && r.sales > 0)
+      .sort((a, b) => (b.sales || 0) - (a.sales || 0))
+      .slice(0, 8);
+
     return {
-      totalTarget,
-      totalSales,
-      percent,
-      remaining,
-      totalOutlets: rows.length,
-      personsList,
+      totalTarget: hasTarget ? totalTarget : null,
+      totalSales: hasSales ? totalSales : null,
+      overallSalesPercent,
+      totalRemaining,
+      totalStores: rows.length,
+      picList: rankedPicList,
+      topStores,
+      topPic: highestPic || null,
     };
   }, [rows]);
 
-  // Chart: Target vs Sales by Person
-  const comparisonChartData = useMemo(() => {
-    const labels = summary.personsList.map((p) => p.name);
+  // Chart 1: Sales vs Target by Person in Charge
+  const salesChartData = useMemo(() => {
+    const labels = summary.picList.map((p) => p.name);
     return {
       labels,
       datasets: [
         {
           label: 'Target (RM)',
-          data: summary.personsList.map((p) => p.target),
-          backgroundColor: 'rgba(56, 189, 248, 0.75)',
-          borderColor: '#38bdf8',
-          borderWidth: 1,
-          borderRadius: 6,
+          data: summary.picList.map((p) => p.target || 0),
+          backgroundColor: 'rgba(0, 155, 214, 0.45)',
+          borderColor: '#009bd6',
+          borderWidth: 1.5,
+          borderRadius: 5,
         },
         {
-          label: 'Actual Sales (RM)',
-          data: summary.personsList.map((p) => p.sales),
-          backgroundColor: 'rgba(52, 211, 153, 0.75)',
-          borderColor: '#34d399',
-          borderWidth: 1,
-          borderRadius: 6,
+          label: 'Sales (RM)',
+          data: summary.picList.map((p) => p.sales || 0),
+          backgroundColor: 'rgba(86, 142, 70, 0.9)',
+          borderColor: '#568e46',
+          borderWidth: 1.5,
+          borderRadius: 5,
         },
       ],
     };
-  }, [summary.personsList]);
+  }, [summary.picList]);
 
-  const chartOptions = {
+  // Chart 2: Quota Achievement Rate (%) by Person in Charge
+  const achievementChartData = useMemo(() => {
+    const labels = summary.picList.map((p) => p.name);
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Achievement %',
+          data: summary.picList.map((p) => (p.percent !== null ? Number(p.percent.toFixed(1)) : 0)),
+          backgroundColor: summary.picList.map((p) =>
+            p.percent >= 100
+              ? 'rgba(86, 142, 70, 0.9)'
+              : p.percent >= 70
+              ? 'rgba(0, 155, 214, 0.9)'
+              : p.percent >= 40
+              ? 'rgba(248, 245, 75, 0.95)'
+              : 'rgba(229, 67, 48, 0.9)'
+          ),
+          borderRadius: 5,
+        },
+      ],
+    };
+  }, [summary.picList]);
+
+  const compactChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top',
+        align: 'end',
         labels: {
           color: '#cbd5e1',
-          font: { size: 12, weight: '600' },
-          boxWidth: 14,
-          padding: 16,
+          font: { size: 11, weight: '700' },
+          boxWidth: 12,
+          padding: 8,
         },
       },
       tooltip: {
-        backgroundColor: '#0f172a',
-        titleColor: '#f8fafc',
-        bodyColor: '#cbd5e1',
-        borderColor: '#334155',
+        backgroundColor: '#0c0b0c',
+        titleColor: '#f8f54b',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(248, 245, 75, 0.35)',
         borderWidth: 1,
-        padding: 12,
+        padding: 10,
         callbacks: {
-          label: function (context) {
-            return `${context.dataset.label}: ${formatCurrency(context.raw)}`;
-          },
+          label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.raw)}`,
         },
       },
     },
     scales: {
       x: {
-        ticks: { color: '#94a3b8', font: { weight: '600' } },
-        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: { color: '#94a3b8', font: { size: 10, weight: '700' } },
+        grid: { display: false },
       },
       y: {
         ticks: {
           color: '#94a3b8',
-          callback: (value) => `RM ${(value / 1000).toLocaleString()}k`,
+          font: { size: 10, weight: '600' },
+          callback: (val) => formatCompactCurrency(val),
         },
         grid: { color: 'rgba(255, 255, 255, 0.08)' },
       },
     },
   };
 
-  // Top 8 Stores by Sales
-  const topStoresChartData = useMemo(() => {
-    const sorted = [...rows].sort((a, b) => b.sales - a.sales).slice(0, 8);
-    return {
-      labels: sorted.map((s) => s.store),
-      datasets: [
-        {
-          label: 'Sales (RM)',
-          data: sorted.map((s) => s.sales),
-          backgroundColor: 'rgba(99, 102, 241, 0.75)',
-          borderColor: '#818cf8',
-          borderWidth: 1,
-          borderRadius: 6,
+  const percentChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0c0b0c',
+        titleColor: '#f8f54b',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(248, 245, 75, 0.35)',
+        borderWidth: 1,
+        padding: 10,
+        callbacks: {
+          label: (ctx) => `Achievement: ${ctx.raw}%`,
         },
-      ],
-    };
-  }, [rows]);
-
-  // Filter and sort the table rows
-  const filteredRows = useMemo(() => {
-    return rows
-      .filter((row) => {
-        // Search filter
-        if (
-          searchTerm &&
-          !row.store.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          !row.person.toLowerCase().includes(searchTerm.toLowerCase())
-        ) {
-          return false;
-        }
-        // Person filter
-        if (selectedPerson !== 'ALL' && row.person !== selectedPerson) {
-          return false;
-        }
-        // Quota filter
-        if (quotaFilter === 'ACHIEVED' && row.salesPercent < 100) return false;
-        if (quotaFilter === 'PROGRESS' && (row.salesPercent < 50 || row.salesPercent >= 100)) return false;
-        if (quotaFilter === 'BEHIND' && row.salesPercent >= 50) return false;
-
-        return true;
-      })
-      .sort((a, b) => {
-        let valA = a[sortBy];
-        let valB = b[sortBy];
-        if (typeof valA === 'string') {
-          return sortOrder === 'asc'
-            ? valA.localeCompare(valB)
-            : valB.localeCompare(valA);
-        }
-        return sortOrder === 'asc' ? valA - valB : valB - valA;
-      });
-  }, [rows, searchTerm, selectedPerson, quotaFilter, sortBy, sortOrder]);
-
-  const handleSort = (column) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(column);
-      setSortOrder('desc');
-    }
+      },
+    },
+    scales: {
+      x: {
+        ticks: { color: '#94a3b8', font: { size: 10, weight: '700' } },
+        grid: { display: false },
+      },
+      y: {
+        ticks: {
+          color: '#94a3b8',
+          font: { size: 10, weight: '600' },
+          callback: (val) => `${val}%`,
+        },
+        grid: { color: 'rgba(255, 255, 255, 0.08)' },
+      },
+    },
   };
 
-  const uniquePersons = useMemo(() => {
-    return Array.from(new Set(rows.map((r) => r.person))).filter(Boolean);
-  }, [rows]);
-
   return (
-    <div className="sales-section">
-      {/* KPI Cards Grid */}
-      <div className="sales-kpi-grid">
+    <div className="tv-overview">
+      {/* Top KPI Cards (Following Overview coding and features) */}
+      <div className="tv-overview__kpis">
         <KpiCard
-          title="Total Sales Target"
+          title="Total Target"
           value={formatCurrency(summary.totalTarget)}
-          subtitle="Monthly Quota Target"
           status="primary"
           icon="🎯"
         />
         <KpiCard
-          title="Total Actual Sales"
+          title="Actual Sales"
           value={formatCurrency(summary.totalSales)}
-          subtitle="Achieved to Date"
-          badge={`${summary.percent.toFixed(1)}% Achieved`}
-          status={summary.percent >= 70 ? 'success' : summary.percent >= 40 ? 'warning' : 'danger'}
+          badge={
+            summary.overallSalesPercent !== null
+              ? `${summary.overallSalesPercent.toFixed(1)}% Achieved`
+              : 'No Data'
+          }
+          status={
+            summary.overallSalesPercent !== null && summary.overallSalesPercent >= 70
+              ? 'success'
+              : 'warning'
+          }
           icon="💰"
         />
         <KpiCard
-          title="% Quota Achieved"
-          value={formatPercent(summary.percent)}
-          subtitle={`Remaining: ${formatCurrency(summary.remaining)}`}
-          status={summary.percent >= 70 ? 'success' : summary.percent >= 40 ? 'warning' : 'danger'}
+          title="Sales vs Target Rate"
+          value={formatPercent(summary.overallSalesPercent)}
+          status={
+            summary.overallSalesPercent !== null && summary.overallSalesPercent >= 100
+              ? 'success'
+              : summary.overallSalesPercent !== null && summary.overallSalesPercent >= 70
+                ? 'primary'
+                : 'warning'
+          }
           icon="📈"
         />
         <KpiCard
           title="Remaining Target"
-          value={formatCurrency(summary.remaining)}
-          subtitle={`Across ${summary.totalOutlets} Total Outlets`}
-          status="purple"
+          value={formatCurrency(summary.totalRemaining)}
+          badge={
+            summary.totalRemaining === 0 && summary.totalSales > 0
+              ? 'Target Hit!'
+              : `Quota Balance`
+          }
+          status={summary.totalRemaining === 0 ? 'success' : 'purple'}
           icon="⏳"
         />
         <KpiCard
-          title="Total Outlets"
-          value={summary.totalOutlets}
-          subtitle={`${summary.personsList.length} Person(s) in Charge`}
+          title="Total Outlets Managed"
+          value={summary.totalStores}
+          subtitle={`${summary.picList.length} Team Leaders active`}
           status="default"
           icon="🏪"
         />
+        <KpiCard
+          title="Top Performing Leader"
+          value={summary.topPic ? summary.topPic.name : '-'}
+          badge={summary.topPic && summary.topPic.percent !== null ? `${summary.topPic.percent.toFixed(1)}% Rate` : undefined}
+          status="success"
+          icon="🏆"
+        />
       </div>
 
-      {/* Person in Charge Cards */}
-      <div className="section-block">
-        <div className="section-block__header">
-          <h2 className="section-block__title">Person in Charge Performance</h2>
-          <span className="section-block__subtitle">Sales target achievement by PIC</span>
-        </div>
-        <div className="pic-grid">
-          {summary.personsList.map((pic) => (
-            <div key={pic.name} className={`pic-card pic-card--${pic.status}`}>
-              <div className="pic-card__top">
-                <div className="pic-card__name-wrap">
-                  <span className="pic-card__avatar">{pic.name[0]}</span>
-                  <div>
-                    <h3 className="pic-card__name">{pic.name}</h3>
-                    <span className="pic-card__outlets">{pic.outlets} Stores Managed</span>
+      {/* Main Grid: PIC Scorecards (Left) & Comparison Charts (Right) */}
+      <div className="tv-overview__main">
+        {/* Left: Person In Charge Scorecard Cards */}
+        <div className="tv-overview__left">
+          <div className="tv-panel-header">
+            <h2 className="tv-panel-title">Person in Charge Performance</h2>
+            <span className="tv-panel-subtitle">{summary.picList.length} Team Leaders</span>
+          </div>
+
+          <div className="tv-pic-list">
+            {summary.picList.map((pic) => (
+              <div
+                key={pic.name}
+                className={`tv-pic-card tv-pic-card--${pic.status}${pic.performanceHighlight ? ` tv-pic-card--highlight-${pic.performanceHighlight}` : ''}`}
+              >
+                <div className="tv-pic-card__top">
+                  <div className="tv-pic-card__identity">
+                    <span className="tv-pic-card__avatar">{pic.name[0]}</span>
+                    <div>
+                      <h3 className="tv-pic-card__name">{pic.name}</h3>
+                      <span className="tv-pic-card__meta">{pic.storeCount} Stores Managed</span>
+                    </div>
+                  </div>
+
+                  <div className="tv-pic-card__pills">
+                    {[
+                      { label: 'Achieved', value: pic.percent },
+                    ].map((c) => (
+                      <div key={c.label} className="tv-pill" style={{ width: '130px' }}>
+                        <div
+                          className={`tv-pill__fill tv-pill__fill--${rateStatus(c.value)}`}
+                          style={{ width: `${clampPct(c.value)}%` }}
+                        />
+                        <span className="tv-pill__label">{c.label}</span>
+                        <span className="tv-pill__value">{formatPercent(c.value)}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <span className={`pic-card__badge pic-card__badge--${pic.status}`}>
-                  {pic.statusLabel}
-                </span>
-              </div>
 
-              <div className="pic-card__metrics">
-                <div className="pic-card__metric">
-                  <span className="pic-card__metric-label">Sales Achieved</span>
-                  <span className="pic-card__metric-val pic-card__metric-val--actual">
-                    {formatCurrency(pic.sales)}
-                  </span>
+                {/* Metrics Breakdown Grid */}
+                <div className="tv-pic-card__metrics">
+                  <div className="tv-metric-item">
+                    <span className="tv-metric-label">Target:</span>
+                    <span className="tv-metric-value text-primary font-bold">
+                      {formatCurrency(pic.target)}
+                    </span>
+                  </div>
+                  <div className="tv-metric-item">
+                    <span className="tv-metric-label">Actual Sales:</span>
+                    <span className="tv-metric-value text-success font-bold">
+                      {formatCurrency(pic.sales)}
+                    </span>
+                  </div>
+                  <div className="tv-metric-item">
+                    <span className="tv-metric-label">Remaining:</span>
+                    <span className="tv-metric-value text-warning font-bold">
+                      {formatCurrency(pic.remaining)}
+                    </span>
+                  </div>
+                  <div className="tv-metric-item">
+                    <span className="tv-metric-label">Rate:</span>
+                    <span className="tv-metric-value font-bold">
+                      {formatPercent(pic.percent)}
+                    </span>
+                  </div>
                 </div>
-                <div className="pic-card__metric">
-                  <span className="pic-card__metric-label">Target Quota</span>
-                  <span className="pic-card__metric-val">{formatCurrency(pic.target)}</span>
-                </div>
-              </div>
 
-              {/* Progress Bar */}
-              <div className="pic-progress">
-                <div className="pic-progress__bar-bg">
+                {/* Progress bar */}
+                <div className="tv-pic-progress-track">
                   <div
-                    className={`pic-progress__bar-fill pic-progress__bar-fill--${pic.status}`}
-                    style={{ width: `${Math.min(100, pic.percent)}%` }}
+                    className={`tv-pic-progress-fill tv-pic-progress-fill--${pic.status}`}
+                    style={{ width: `${Math.min(100, pic.percent || 0)}%` }}
                   />
                 </div>
-                <div className="pic-progress__info">
-                  <span className="pic-progress__percent">{pic.percent.toFixed(1)}% Achieved</span>
-                  <span className="pic-progress__rem">Rem: {formatCurrency(pic.remaining)}</span>
-                </div>
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Dual TV Comparison Charts */}
+        <div className="tv-overview__right">
+          <div className="tv-chart-box">
+            <div className="tv-panel-header">
+              <h2 className="tv-panel-title">Sales Target vs Actual by PIC</h2>
+              <span className="tv-panel-subtitle">Target (Blue) vs Sales (Green)</span>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Comparison Charts */}
-      <div className="charts-grid">
-        <div className="chart-card">
-          <h3 className="chart-card__title">Sales Target vs Actual by Person in Charge</h3>
-          <div className="chart-card__canvas-wrapper">
-            <Bar data={comparisonChartData} options={chartOptions} />
+            <div className="tv-chart-container">
+              <Bar data={salesChartData} options={compactChartOptions} />
+            </div>
           </div>
-        </div>
-        <div className="chart-card">
-          <h3 className="chart-card__title">Top Outlets by Sales Performance</h3>
-          <div className="chart-card__canvas-wrapper">
-            <Bar
-              data={topStoresChartData}
-              options={{
-                ...chartOptions,
-                plugins: {
-                  ...chartOptions.plugins,
-                  legend: { display: false },
-                },
-              }}
-            />
+
+          <div className="tv-chart-box">
+            <div className="tv-panel-header">
+              <h2 className="tv-panel-title">Sales vs Target Achievement Rate (%)</h2>
+              <span className="tv-panel-subtitle">Target Fulfillment by Team Member</span>
+            </div>
+            <div className="tv-chart-container">
+              <Bar data={achievementChartData} options={percentChartOptions} />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Store Quota Performance Table */}
-      <div className="section-block">
-        <div className="section-block__header table-controls-header">
-          <div>
-            <h2 className="section-block__title">Store Quota Performance</h2>
-            <span className="section-block__subtitle">
-              Showing {filteredRows.length} of {rows.length} stores
-            </span>
-          </div>
-
-          <div className="table-filters">
-            <input
-              type="text"
-              placeholder="Search store or PIC..."
-              className="table-search-input"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-
-            <select
-              className="table-filter-select"
-              value={selectedPerson}
-              onChange={(e) => setSelectedPerson(e.target.value)}
-            >
-              <option value="ALL">All Persons</option>
-              {uniquePersons.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-
-            <select
-              className="table-filter-select"
-              value={quotaFilter}
-              onChange={(e) => setQuotaFilter(e.target.value)}
-            >
-              <option value="ALL">All Quota Status</option>
-              <option value="ACHIEVED">100%+ Achieved</option>
-              <option value="PROGRESS">50% - 99%</option>
-              <option value="BEHIND">&lt; 50% Behind</option>
-            </select>
-          </div>
+      {/* Bottom Ticker: Top Stores & Outlets Overview */}
+      <div className="tv-overview__bottom-ticker">
+        <div className="tv-ticker-label">
+          <span className="tv-ticker-dot" />
+          <span>TOP OUTLETS:</span>
         </div>
-
-        <div className="table-responsive">
-          <table className="quota-table">
-            <thead>
-              <tr>
-                <th onClick={() => handleSort('store')} className="sortable">
-                  Store {sortBy === 'store' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-                <th onClick={() => handleSort('person')} className="sortable">
-                  Person in Charge {sortBy === 'person' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-                <th onClick={() => handleSort('month')} className="sortable">
-                  Month {sortBy === 'month' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-                <th onClick={() => handleSort('target')} className="sortable text-right">
-                  Target (RM) {sortBy === 'target' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-                <th onClick={() => handleSort('sales')} className="sortable text-right">
-                  Sales (RM) {sortBy === 'sales' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-                <th onClick={() => handleSort('remainingSales')} className="sortable text-right">
-                  Remaining (RM) {sortBy === 'remainingSales' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-                <th onClick={() => handleSort('salesPercent')} className="sortable text-right" style={{ minWidth: '170px' }}>
-                  % Achieved {sortBy === 'salesPercent' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRows.length === 0 ? (
-                <tr>
-                  <td colSpan="7" className="table-empty">
-                    No matching store records found.
-                  </td>
-                </tr>
-              ) : (
-                filteredRows.map((r) => {
-                  const pct = r.salesPercent;
-                  let statusClass = 'status-danger';
-                  let badgeText = 'Behind';
-                  if (pct >= 100) {
-                    statusClass = 'status-success';
-                    badgeText = 'Done';
-                  } else if (pct >= 70) {
-                    statusClass = 'status-primary';
-                    badgeText = 'Good';
-                  } else if (pct >= 40) {
-                    statusClass = 'status-warning';
-                    badgeText = 'Active';
-                  }
-
-                  return (
-                    <tr key={r.id}>
-                      <td className="store-cell font-semibold">{r.store}</td>
-                      <td>
-                        <span className="pic-tag">{r.person}</span>
-                      </td>
-                      <td>
-                        <span className="month-tag">{r.month}</span>
-                      </td>
-                      <td className="text-right font-mono">{formatCurrency(r.target)}</td>
-                      <td className="text-right font-mono font-bold text-success">
-                        {formatCurrency(r.sales)}
-                      </td>
-                      <td className="text-right font-mono text-muted">
-                        {formatCurrency(r.remainingSales)}
-                      </td>
-                      <td className="text-right">
-                        <div className="table-progress-cell">
-                          <span className={`status-badge ${statusClass}`}>{badgeText}</span>
-                          <span className="percent-val font-mono font-bold">{pct.toFixed(1)}%</span>
-                          <div className="mini-progress-bar">
-                            <div
-                              className={`mini-progress-fill ${statusClass}`}
-                              style={{ width: `${Math.min(100, pct)}%` }}
-                            />
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+        <div className="tv-ticker-items">
+          {summary.topStores.length > 0 ? (
+            summary.topStores.map((st, i) => (
+              <div key={st.id || i} className="tv-ticker-chip">
+                <span className="tv-ticker-rank">#{i + 1}</span>
+                <span className="tv-ticker-store" title={st.store}>
+                  {st.store}
+                </span>
+                <span className="tv-ticker-pic" title={st.person}>
+                  ({st.person})
+                </span>
+                <span className="tv-ticker-val">{formatCurrency(st.sales)}</span>
+                {st.salesPercent !== null && (
+                  <span className="tv-ticker-pct">
+                    [{st.salesPercent.toFixed(0)}%]
+                  </span>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="tv-ticker-chip">
+              Awaiting active sales input for this month
+            </div>
+          )}
         </div>
       </div>
     </div>

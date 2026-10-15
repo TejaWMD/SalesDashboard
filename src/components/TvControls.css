@@ -52,6 +52,18 @@
   box-shadow: var(--shadow-glow-lemon);
 }
 
+.tv-controls__badge-pill {
+  background: var(--bg-card-elevated);
+  border: 1px solid rgba(249, 215, 30, 0.4);
+  color: var(--color-lemon);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.775rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  font-family: 'JetBrains Mono', monospace;
+}
+
 /* View Switcher */
 .tv-view-switcher {
   display: flex;

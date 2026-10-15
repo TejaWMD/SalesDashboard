@@ -1,10 +1,29 @@
 // src/utils/fetchSheet.js
 import Papa from 'papaparse';
 
-// Google Sheet configuration
-export const SHEET_ID = '11ww5CiQYESF4E513Sxrx789uLmokkFdw';
-export const SHEET_GID = '1281119238'; // Tab: "Data for TV"
-export const SHEET_TAB_NAME = 'Data for TV';
+// Google Sheet configurations
+export const SALES_SHEET = {
+  id: '11ww5CiQYESF4E513Sxrx789uLmokkFdw',
+  gid: '1281119238',
+  tab: 'Data for TV',
+};
+
+export const PAYMENT_SHEET = {
+  id: '1z2lgK4l9GKiykqMPJk_UF9NzQnzUJIPOiLhv0qfeVm4',
+  gid: '1645199720',
+  tab: 'SUMMARY OCTOBER TEJA',
+};
+
+export const ONLINE_SHEET = {
+  id: '1Ca_p2pDurpAjeO0hdCeAqTPpcLO2EMZ86emzvhYXlJY',
+  gid: '388466216',
+  tab: 'OKTOBER 2026',
+};
+
+// Backward-compatibility aliases
+export const SHEET_ID = SALES_SHEET.id;
+export const SHEET_GID = SALES_SHEET.gid;
+export const SHEET_TAB_NAME = SALES_SHEET.tab;
 
 /**
  * Standard 12-month calendar order
@@ -113,22 +132,13 @@ function normalizeRowKeys(rawRow) {
 }
 
 /**
- * Fetches the Google Sheet CSV and transforms into standardized row objects.
- * Accurately maps Columns A to H:
- * Column A: STORE
- * Column B: PERSON IN CHARGE
- * Column C: MONTH
- * Column D: TARGET
- * Column E: SALES
- * Column F: S vs T PERCENTAGE
- * Column G: PAYMENT PENDING
- * Column H: PAYMENT COLLECTED
+ * 1. Fetches Sales Data from Sheet 1 ("Data for TV" tab)
+ * Columns: Store, Person in Charge, Month, Target, Sales, S vs T %
  */
-export async function fetchSheetData() {
+export async function fetchSalesData() {
   const timestamp = Date.now();
-  // Using direct export URL with cache-busting timestamp
-  const directExportUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SHEET_GID}&_t=${timestamp}`;
-  const fallbackUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}&_t=${timestamp}`;
+  const directExportUrl = `https://docs.google.com/spreadsheets/d/${SALES_SHEET.id}/export?format=csv&gid=${SALES_SHEET.gid}&_t=${timestamp}`;
+  const fallbackUrl = `https://docs.google.com/spreadsheets/d/${SALES_SHEET.id}/gviz/tq?tqx=out:csv&gid=${SALES_SHEET.gid}&_t=${timestamp}`;
 
   let csvText = '';
   try {
@@ -136,7 +146,7 @@ export async function fetchSheetData() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     csvText = await response.text();
   } catch (err) {
-    console.warn('Direct export failed, trying gviz fallback...', err);
+    console.warn('Direct export failed for Sales, trying gviz fallback...', err);
     const response = await fetch(fallbackUrl, { cache: 'no-store' });
     csvText = await response.text();
   }
@@ -206,19 +216,6 @@ export async function fetchSheetData() {
               salesPercent = (salesVal.num / targetVal.num) * 100;
             }
 
-            // Collection rate if both or either payment numbers exist
-            let collectionRate = null;
-            const collectedNum = collectedVal.isBlank ? null : collectedVal.num;
-            const pendingNum = pendingVal.isBlank ? null : pendingVal.num;
-            if (collectedNum !== null || pendingNum !== null) {
-              const c = collectedNum || 0;
-              const p = pendingNum || 0;
-              const totalBilled = c + p;
-              if (totalBilled > 0) {
-                collectionRate = (c / totalBilled) * 100;
-              }
-            }
-
             if (month) monthsSet.add(month);
 
             processed.push({
@@ -233,7 +230,6 @@ export async function fetchSheetData() {
               salesPercent,
               pending: pendingVal.isBlank ? null : pendingVal.num,
               collected: collectedVal.isBlank ? null : collectedVal.num,
-              collectionRate,
 
               // Raw text values as entered in sheet
               targetRaw: targetVal.raw,
@@ -246,8 +242,6 @@ export async function fetchSheetData() {
               isTargetBlank: targetVal.isBlank,
               isSalesBlank: salesVal.isBlank,
               isPercentBlank: sVsTVal.isBlank && salesPercent === null,
-              isPendingBlank: pendingVal.isBlank,
-              isCollectedBlank: collectedVal.isBlank,
             });
           }
 
@@ -272,4 +266,412 @@ export async function fetchSheetData() {
       error: (err) => reject(err),
     });
   });
+}
+
+/**
+ * Fetches Payment Data from Google Sheets.
+ *
+ * Source columns:
+ * A = Customer
+ * B = Account Manager
+ * E = Payment Collected
+ * J = Payment Pending
+ *
+ * No receivable field is created or returned.
+ */
+export async function fetchPaymentData() {
+  const timestamp = Date.now();
+  const encodedTab = encodeURIComponent(PAYMENT_SHEET.tab);
+
+  const gvizUrl =
+    `https://docs.google.com/spreadsheets/d/${PAYMENT_SHEET.id}` +
+    `/gviz/tq?tqx=out:csv&sheet=${encodedTab}&_t=${timestamp}`;
+
+  const directExportUrl =
+    `https://docs.google.com/spreadsheets/d/${PAYMENT_SHEET.id}` +
+    `/export?format=csv&sheet=${encodedTab}&_t=${timestamp}`;
+
+  let csvText = '';
+
+  try {
+    const response = await fetch(gvizUrl, { cache: 'no-store' });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    csvText = await response.text();
+  } catch (error) {
+    console.warn(
+      'Google Visualization request failed. Trying CSV export...',
+      error
+    );
+
+    const response = await fetch(directExportUrl, {
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Payment sheet request failed: HTTP ${response.status}`
+      );
+    }
+
+    csvText = await response.text();
+  }
+
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvText, {
+      header: false,
+      skipEmptyLines: 'greedy',
+
+      complete: (results) => {
+        try {
+          const rawRows = results.data || [];
+
+          if (rawRows.length <= 1) {
+            resolve({
+              rows: [],
+              picList: [],
+              summary: {
+                totalCollected: null,
+                totalPending: null,
+                overallCollectionRate: null,
+                overallPendingRate: null,
+                totalCustomers: 0,
+              },
+            });
+            return;
+          }
+
+          const processed = [];
+          const picMap = {};
+
+          let totalCollected = 0;
+          let totalPending = 0;
+          let hasCollected = false;
+          let hasPending = false;
+
+          // Skip the header row.
+          for (let i = 1; i < rawRows.length; i++) {
+            const row = rawRows[i] || [];
+
+            // Column A: Customer
+            const customer = String(row[0] || '').trim();
+
+            // Column B: Account Manager
+            const person = String(row[1] || '').trim();
+
+            // Skip rows without a customer or account manager.
+            if (!customer && !person) continue;
+
+            // Column E: Payment Collected
+            const collectedVal = parseSheetValue(row[4]);
+
+            // Column J: Payment Pending
+            const pendingVal = parseSheetValue(row[9]);
+
+            const collected = collectedVal.isBlank
+              ? 0
+              : (collectedVal.num ?? 0);
+
+            const pending = pendingVal.isBlank
+              ? 0
+              : (pendingVal.num ?? 0);
+
+            if (!collectedVal.isBlank) hasCollected = true;
+            if (!pendingVal.isBlank) hasPending = true;
+
+            totalCollected += collected;
+            totalPending += pending;
+
+            /*
+             * Collection and pending rates are calculated directly
+             * from the collected and pending amounts.
+             * No receivable property is stored in the data.
+             */
+            const combinedAmount = collected + pending;
+
+            const collectionRate =
+              combinedAmount > 0
+                ? (collected / combinedAmount) * 100
+                : null;
+
+            const pendingRate =
+              combinedAmount > 0
+                ? (pending / combinedAmount) * 100
+                : null;
+
+            const accountManager = person || 'Unassigned';
+
+            if (!picMap[accountManager]) {
+              picMap[accountManager] = {
+                name: accountManager,
+                collected: 0,
+                pending: 0,
+                customerCount: 0,
+              };
+            }
+
+            // Group amounts by account manager.
+            picMap[accountManager].collected += collected;
+            picMap[accountManager].pending += pending;
+            picMap[accountManager].customerCount += 1;
+
+            processed.push({
+              id: `pay-${customer}-${person}-${i}`,
+
+              customer: customer || 'Unknown Customer',
+              person: accountManager,
+
+              collected: collectedVal.isBlank
+                ? null
+                : collectedVal.num,
+
+              pending: pendingVal.isBlank
+                ? null
+                : pendingVal.num,
+
+              collectionRate,
+              pendingRate,
+
+              collectedRaw: collectedVal.raw,
+              pendingRaw: pendingVal.raw,
+
+              isCollectedBlank: collectedVal.isBlank,
+              isPendingBlank: pendingVal.isBlank,
+            });
+          }
+
+          // Calculate overall payment rates.
+          const combinedTotal = totalCollected + totalPending;
+
+          const overallCollectionRate =
+            combinedTotal > 0
+              ? (totalCollected / combinedTotal) * 100
+              : null;
+
+          const overallPendingRate =
+            combinedTotal > 0
+              ? (totalPending / combinedTotal) * 100
+              : null;
+
+          // Build account manager analysis.
+          const picList = Object.values(picMap).map((pic) => {
+            const combined = pic.collected + pic.pending;
+
+            const collectionPercent =
+              combined > 0
+                ? (pic.collected / combined) * 100
+                : null;
+
+            const pendingPercent =
+              combined > 0
+                ? (pic.pending / combined) * 100
+                : null;
+
+            let status = 'neutral';
+            let statusLabel = 'Awaiting';
+
+            if (collectionPercent !== null) {
+              if (collectionPercent >= 90) {
+                status = 'success';
+                statusLabel = 'Excellent';
+              } else if (collectionPercent >= 60) {
+                status = 'primary';
+                statusLabel = 'Good Progress';
+              } else if (collectionPercent >= 30) {
+                status = 'warning';
+                statusLabel = 'Pending Followup';
+              } else {
+                status = 'danger';
+                statusLabel = 'Action Needed';
+              }
+            }
+
+            return {
+              ...pic,
+              collectionPercent,
+              pendingPercent,
+              status,
+              statusLabel,
+            };
+          });
+
+          // Rank account managers by collection rate.
+          picList.sort((a, b) => {
+            if (a.collectionPercent === null) return 1;
+            if (b.collectionPercent === null) return -1;
+
+            return (
+              b.collectionPercent - a.collectionPercent ||
+              a.name.localeCompare(b.name)
+            );
+          });
+
+          const ratedPics = picList.filter(
+            (pic) => pic.collectionPercent !== null
+          );
+
+          const highestPic = ratedPics[0];
+          const lowestPic = ratedPics[ratedPics.length - 1];
+
+          const rankedPicList = picList.map((pic) => ({
+            ...pic,
+            performanceHighlight:
+              pic === highestPic
+                ? 'best'
+                : pic === lowestPic && lowestPic !== highestPic
+                  ? 'worst'
+                  : null,
+          }));
+
+          resolve({
+            rows: processed,
+            picList: rankedPicList,
+
+            summary: {
+              totalCollected: hasCollected
+                ? totalCollected
+                : null,
+
+              totalPending: hasPending
+                ? totalPending
+                : null,
+
+              overallCollectionRate,
+              overallPendingRate,
+              totalCustomers: processed.length,
+            },
+          });
+        } catch (error) {
+          reject(error);
+        }
+      },
+
+      error: (error) => reject(error),
+    });
+  });
+}
+
+/**
+ * 3. Fetches Online Sales Data from Sheet 3 ("OKTOBER 2026" tab)
+ * Requirement:
+ * - Take sales value for now from C34 and D34
+ * - C34: Shopee sales
+ * - D34: TikTok sales
+ * - Also parses daily sales rows for trends & charts
+ */
+export async function fetchOnlineData() {
+  const timestamp = Date.now();
+  const directExportUrl = `https://docs.google.com/spreadsheets/d/${ONLINE_SHEET.id}/export?format=csv&gid=${ONLINE_SHEET.gid}&_t=${timestamp}`;
+  const fallbackUrl = `https://docs.google.com/spreadsheets/d/${ONLINE_SHEET.id}/gviz/tq?tqx=out:csv&gid=${ONLINE_SHEET.gid}&_t=${timestamp}`;
+
+  let csvText = '';
+  try {
+    const response = await fetch(directExportUrl, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    csvText = await response.text();
+  } catch (err) {
+    console.warn('Direct export failed for Online, trying gviz fallback...', err);
+    const response = await fetch(fallbackUrl, { cache: 'no-store' });
+    csvText = await response.text();
+  }
+
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvText, {
+      header: false,
+      skipEmptyLines: 'greedy',
+      complete: (results) => {
+        try {
+          const rawRows = results.data || [];
+          let shopeeTotal = null;
+          let tiktokTotal = null;
+          let totalSales = null;
+          const dailyRecords = [];
+
+          for (let r = 0; r < rawRows.length; r++) {
+            const row = rawRows[r];
+            const colB = (row[1] || '').trim().toUpperCase();
+
+            // Look for TOTAL row (row 34 or marked TOTAL)
+            if (colB === 'TOTAL' || r === 33) {
+              const c34Val = parseSheetValue(row[2]); // Col C
+              const d34Val = parseSheetValue(row[3]); // Col D
+              const e34Val = parseSheetValue(row[4]); // Col E
+
+              if (!c34Val.isBlank) shopeeTotal = c34Val.num;
+              if (!d34Val.isBlank) tiktokTotal = d34Val.num;
+
+              if (shopeeTotal !== null || tiktokTotal !== null) {
+                totalSales = (shopeeTotal || 0) + (tiktokTotal || 0);
+              } else if (!e34Val.isBlank) {
+                totalSales = e34Val.num;
+              }
+            } else if (row[1] && (row[1].includes('/') || row[1].toLowerCase().includes('oct') || row[1].toLowerCase().includes('okt'))) {
+              // Daily sales records (e.g. 1/10/2026)
+              const date = (row[1] || '').trim();
+              const shopee = parseSheetValue(row[2]);
+              const tiktok = parseSheetValue(row[3]);
+              const total = parseSheetValue(row[4]);
+
+              const sNum = shopee.isBlank ? 0 : shopee.num;
+              const tNum = tiktok.isBlank ? 0 : tiktok.num;
+              const totNum = (!total.isBlank && total.num) ? total.num : (sNum + tNum);
+
+              if (sNum > 0 || tNum > 0 || totNum > 0) {
+                dailyRecords.push({
+                  date,
+                  shopee: sNum,
+                  tiktok: tNum,
+                  total: totNum,
+                });
+              }
+            }
+          }
+
+          // If TOTAL row wasn't found in loop, calculate from daily
+          if (shopeeTotal === null && tiktokTotal === null && dailyRecords.length > 0) {
+            shopeeTotal = dailyRecords.reduce((acc, d) => acc + d.shopee, 0);
+            tiktokTotal = dailyRecords.reduce((acc, d) => acc + d.tiktok, 0);
+            totalSales = shopeeTotal + tiktokTotal;
+          }
+
+          const safeTotal = totalSales || ((shopeeTotal || 0) + (tiktokTotal || 0));
+          const shopeePercent = safeTotal > 0 ? ((shopeeTotal || 0) / safeTotal) * 100 : 0;
+          const tiktokPercent = safeTotal > 0 ? ((tiktokTotal || 0) / safeTotal) * 100 : 0;
+
+          const activeDaysCount = dailyRecords.length;
+          const dailyAverage = activeDaysCount > 0 ? safeTotal / activeDaysCount : 0;
+
+          let peakDay = null;
+          if (dailyRecords.length > 0) {
+            peakDay = [...dailyRecords].sort((a, b) => b.total - a.total)[0];
+          }
+
+          resolve({
+            shopeeTotal: shopeeTotal !== null ? shopeeTotal : 0,
+            tiktokTotal: tiktokTotal !== null ? tiktokTotal : 0,
+            totalSales: safeTotal,
+            shopeePercent,
+            tiktokPercent,
+            dailyRecords,
+            activeDaysCount,
+            dailyAverage,
+            peakDay,
+          });
+        } catch (error) {
+          reject(error);
+        }
+      },
+      error: (err) => reject(err),
+    });
+  });
+}
+
+/**
+ * Backward compatibility alias for existing code
+ */
+export async function fetchSheetData() {
+  return fetchSalesData();
 }

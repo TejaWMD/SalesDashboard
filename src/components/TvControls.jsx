@@ -19,50 +19,57 @@ function TvControls({
     <div className="tv-controls">
       {/* Left controls: Month selector & Quick View switch */}
       <div className="tv-controls__group tv-controls__left">
-        <div className="tv-controls__item">
-          <label htmlFor="month-select" className="tv-controls__label">
-            MONTH:
-          </label>
-          <select
-            id="month-select"
-            className="tv-controls__select"
-            value={selectedMonth}
-            onChange={(e) => onMonthChange(e.target.value)}
-          >
-            <option value="ALL">All Months</option>
-            {availableMonths.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
-        </div>
+        {activeView === 'sales' ? (
+          <div className="tv-controls__item">
+            <label htmlFor="month-select" className="tv-controls__label">
+              MONTH:
+            </label>
+            <select
+              id="month-select"
+              className="tv-controls__select"
+              value={selectedMonth}
+              onChange={(e) => onMonthChange(e.target.value)}
+            >
+              <option value="ALL">All Months</option>
+              {availableMonths.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <div className="tv-controls__item">
+            <span className="tv-controls__label">PERIOD:</span>
+            <span className="tv-controls__badge-pill">OCT 2026</span>
+          </div>
+        )}
 
-        {/* View mode switcher */}
+        {/* View mode switcher: Sales, Collection, Online Sales */}
         <div className="tv-view-switcher">
           <button
             type="button"
-            className={`tv-view-btn ${activeView === 'overview' ? 'active' : ''}`}
-            onClick={() => onViewChange('overview')}
-            title="TV Overview: Top KPIs, Team Scorecards & Dual Charts"
+            className={`tv-view-btn ${activeView === 'sales' ? 'active' : ''}`}
+            onClick={() => onViewChange('sales')}
+            title="Sales Dashboard: Target vs Actual Sales, PIC Scorecards & Charts"
           >
-            📊 Overview
+            💰 Sales
           </button>
           <button
             type="button"
-            className={`tv-view-btn ${activeView === 'charts' ? 'active' : ''}`}
-            onClick={() => onViewChange('charts')}
-            title="Comparison Charts"
+            className={`tv-view-btn ${activeView === 'collection' ? 'active' : ''}`}
+            onClick={() => onViewChange('collection')}
+            title="Collection Dashboard: Payment Collected vs Pending & AM Performance"
           >
-            📈 Charts
+            💵 Collection
           </button>
           <button
             type="button"
-            className={`tv-view-btn ${activeView === 'table' ? 'active' : ''}`}
-            onClick={() => onViewChange('table')}
-            title="Master Data Table (8 Columns)"
+            className={`tv-view-btn ${activeView === 'online' ? 'active' : ''}`}
+            onClick={() => onViewChange('online')}
+            title="Online Sales Dashboard: Shopee & TikTok Ecommerce Performance"
           >
-            📋 Master Table
+            🛒 Online Sales
           </button>
         </div>
 
@@ -83,7 +90,7 @@ function TvControls({
           className="tv-btn tv-btn--refresh"
           onClick={onManualRefresh}
           disabled={isLoading}
-          title="Fetch latest data from Google Sheets"
+          title="Fetch latest data from all Google Sheets"
         >
           <svg
             className={`tv-btn__icon ${isLoading ? 'spin' : ''}`}

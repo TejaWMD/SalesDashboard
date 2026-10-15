@@ -1,514 +1,659 @@
 // src/components/CollectionDashboard.jsx
-import React, { useMemo, useState } from 'react';
-import { Bar, Doughnut } from 'react-chartjs-2';
+
+import React, { useMemo } from 'react';
+import { Bar } from 'react-chartjs-2';
+
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
-  ArcElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
+
 import KpiCard from './KpiCard';
-import { formatCurrency, formatPercent } from '../utils/fetchSheet';
-import './CollectionDashboard.css';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
+import {
+  formatCurrency,
+  formatPercent,
+  formatCompactCurrency,
+} from '../utils/fetchSheet';
 
-function CollectionDashboard({ rows }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPerson, setSelectedPerson] = useState('ALL');
-  const [paymentStatusFilter, setPaymentStatusFilter] = useState('ALL');
-  const [sortBy, setSortBy] = useState('pending');
-  const [sortOrder, setSortOrder] = useState('desc');
+import './OverviewDashboard.css';
 
-  // Compute collection summaries
-  const summary = useMemo(() => {
-    let totalReceivable = 0;
-    let totalCollected = 0;
-    let totalPending = 0;
-    let pendingOutletsCount = 0;
-    const personMap = {};
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
-    rows.forEach((row) => {
-      // If collection total is 0, use sales as expected collection
-      const expected = row.collectionTotal > 0 ? row.collectionTotal : row.sales;
-      totalReceivable += expected;
-      totalCollected += row.collected;
-      totalPending += row.pending;
+const rateStatus = (value) => {
+  if (value === null || value === undefined) return 'neutral';
+  if (value >= 90) return 'success';
+  if (value >= 60) return 'primary';
+  if (value >= 30) return 'warning';
+  return 'danger';
+};
 
-      if (row.pending > 0) {
-        pendingOutletsCount += 1;
-      }
+const clampPct = (value) =>
+  Math.max(0, Math.min(100, value || 0));
 
-      const p = row.person || 'Unassigned';
-      if (!personMap[p]) {
-        personMap[p] = {
-          name: p,
-          receivable: 0,
-          collected: 0,
-          pending: 0,
-          outlets: 0,
-          pendingOutlets: 0,
-        };
-      }
-      personMap[p].receivable += expected;
-      personMap[p].collected += row.collected;
-      personMap[p].pending += row.pending;
-      personMap[p].outlets += 1;
-      if (row.pending > 0) {
-        personMap[p].pendingOutlets += 1;
-      }
-    });
+function CollectionDashboard({ data }) {
+  const {
+    rows = [],
+    picList = [],
+    summary = {},
+  } = data || {};
 
-    const percent = totalReceivable > 0 ? (totalCollected / totalReceivable) * 100 : 0;
+  // Calculate dashboard metrics without receivable fields.
+  const computed = useMemo(() => {
+    const pendingCustomerCount = rows.filter(
+      (row) => row.pending !== null && row.pending > 0
+    ).length;
 
-    const personsList = Object.values(personMap).map((p) => {
-      const pPercent = p.receivable > 0 ? (p.collected / p.receivable) * 100 : 0;
-      let status = 'danger';
-      let statusLabel = 'High Pending';
-      if (pPercent >= 90) {
-        status = 'success';
-        statusLabel = 'Collected';
-      } else if (pPercent >= 50) {
-        status = 'primary';
-        statusLabel = 'In Progress';
-      } else if (p.collected > 0) {
-        status = 'warning';
-        statusLabel = 'Partial';
-      }
+    const totalCollected = summary.totalCollected ?? 0;
+    const totalPending = summary.totalPending ?? 0;
 
-      return {
-        ...p,
-        percent: pPercent,
-        status,
-        statusLabel,
-      };
-    });
+    const overallCollectionRate =
+      summary.overallCollectionRate ?? null;
+
+    const overallPendingRate =
+      summary.overallPendingRate ?? null;
+
+    // Customers with the highest outstanding payments.
+    const topPendingCustomers = [...rows]
+      .filter(
+        (row) => row.pending !== null && row.pending > 0
+      )
+      .sort(
+        (a, b) => (b.pending || 0) - (a.pending || 0)
+      )
+      .slice(0, 8);
+
+    const topAM = picList.find(
+      (pic) => pic.performanceHighlight === 'best'
+    );
 
     return {
-      totalReceivable,
       totalCollected,
       totalPending,
-      percent,
-      totalOutlets: rows.length,
-      pendingOutletsCount,
-      personsList,
+      overallCollectionRate,
+      overallPendingRate,
+      pendingCustomerCount,
+      totalCustomers: summary.totalCustomers ?? rows.length,
+      picList,
+      topPendingCustomers,
+      topAM: topAM || null,
     };
-  }, [rows]);
+  }, [rows, picList, summary]);
 
-  // Chart: Payment Collected vs Pending by Person
-  const comparisonChartData = useMemo(() => {
-    const labels = summary.personsList.map((p) => p.name);
-    return {
-      labels,
-      datasets: [
-        {
-          label: 'Collected (RM)',
-          data: summary.personsList.map((p) => p.collected),
-          backgroundColor: 'rgba(52, 211, 153, 0.75)',
-          borderColor: '#34d399',
-          borderWidth: 1,
-          borderRadius: 6,
-        },
-        {
-          label: 'Pending (RM)',
-          data: summary.personsList.map((p) => p.pending),
-          backgroundColor: 'rgba(248, 113, 113, 0.75)',
-          borderColor: '#f87171',
-          borderWidth: 1,
-          borderRadius: 6,
-        },
-      ],
-    };
-  }, [summary.personsList]);
+  // Chart 1: Payment Collected vs Payment Pending.
+  const comparisonChartData = useMemo(() => ({
+    labels: computed.picList.map((pic) => pic.name),
 
-  // Doughnut Chart: Overall Collection breakdown
-  const doughnutChartData = useMemo(() => {
-    return {
-      labels: ['Payment Collected', 'Payment Pending'],
-      datasets: [
-        {
-          data: [summary.totalCollected, summary.totalPending],
-          backgroundColor: ['rgba(52, 211, 153, 0.85)', 'rgba(248, 113, 113, 0.85)'],
-          borderColor: ['#34d399', '#f87171'],
-          borderWidth: 1,
-        },
-      ],
-    };
-  }, [summary.totalCollected, summary.totalPending]);
+    datasets: [
+      {
+        label: 'Payment Collected (RM)',
 
-  const barChartOptions = {
+        data: computed.picList.map(
+          (pic) => pic.collected || 0
+        ),
+
+        backgroundColor: 'rgba(86, 142, 70, 0.9)',
+        borderColor: '#568e46',
+        borderWidth: 1.5,
+        borderRadius: 5,
+      },
+
+      {
+        label: 'Payment Pending (RM)',
+
+        data: computed.picList.map(
+          (pic) => pic.pending || 0
+        ),
+
+        backgroundColor: 'rgba(229, 67, 48, 0.85)',
+        borderColor: '#e54330',
+        borderWidth: 1.5,
+        borderRadius: 5,
+      },
+    ],
+  }), [computed.picList]);
+
+  // Chart 2: Payment Collected Rate by Account Manager.
+  const collectionRateChartData = useMemo(() => ({
+    labels: computed.picList.map((pic) => pic.name),
+
+    datasets: [
+      {
+        label: 'Payment Collected Rate (%)',
+
+        data: computed.picList.map((pic) =>
+          pic.collectionPercent !== null
+            ? Number(pic.collectionPercent.toFixed(1))
+            : 0
+        ),
+
+        backgroundColor: computed.picList.map((pic) =>
+          pic.collectionPercent >= 90
+            ? 'rgba(86, 142, 70, 0.9)'
+            : pic.collectionPercent >= 60
+              ? 'rgba(0, 155, 214, 0.9)'
+              : pic.collectionPercent >= 30
+                ? 'rgba(248, 245, 75, 0.95)'
+                : 'rgba(229, 67, 48, 0.9)'
+        ),
+
+        borderRadius: 5,
+      },
+    ],
+  }), [computed.picList]);
+
+  const compactChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+
     plugins: {
       legend: {
         position: 'top',
+        align: 'end',
+
         labels: {
           color: '#cbd5e1',
-          font: { size: 12, weight: '600' },
-          boxWidth: 14,
-          padding: 16,
+          font: {
+            size: 11,
+            weight: '700',
+          },
+          boxWidth: 12,
+          padding: 8,
         },
       },
+
       tooltip: {
-        backgroundColor: '#0f172a',
-        titleColor: '#f8fafc',
-        bodyColor: '#cbd5e1',
-        borderColor: '#334155',
+        backgroundColor: '#0c0b0c',
+        titleColor: '#f8f54b',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(248, 245, 75, 0.35)',
         borderWidth: 1,
-        padding: 12,
+        padding: 10,
+
         callbacks: {
-          label: function (context) {
-            return `${context.dataset.label}: ${formatCurrency(context.raw)}`;
-          },
+          label: (context) =>
+            `${context.dataset.label}: ${formatCurrency(context.raw)}`,
         },
       },
     },
+
     scales: {
       x: {
-        ticks: { color: '#94a3b8', font: { weight: '600' } },
-        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: {
+          color: '#94a3b8',
+          font: {
+            size: 10,
+            weight: '700',
+          },
+        },
+
+        grid: {
+          display: false,
+        },
       },
+
       y: {
         ticks: {
           color: '#94a3b8',
-          callback: (value) => `RM ${(value / 1000).toLocaleString()}k`,
+          font: {
+            size: 10,
+            weight: '600',
+          },
+
+          callback: (value) =>
+            formatCompactCurrency(value),
         },
-        grid: { color: 'rgba(255, 255, 255, 0.08)' },
+
+        grid: {
+          color: 'rgba(255, 255, 255, 0.08)',
+        },
       },
     },
   };
 
-  const doughnutOptions = {
+  const rateChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+
     plugins: {
       legend: {
-        position: 'bottom',
-        labels: {
-          color: '#cbd5e1',
-          font: { size: 12, weight: '600' },
-          padding: 14,
-        },
+        display: false,
       },
+
       tooltip: {
-        backgroundColor: '#0f172a',
-        titleColor: '#f8fafc',
-        bodyColor: '#cbd5e1',
-        borderColor: '#334155',
+        backgroundColor: '#0c0b0c',
+        titleColor: '#f8f54b',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(248, 245, 75, 0.35)',
         borderWidth: 1,
-        padding: 12,
+        padding: 10,
+
         callbacks: {
-          label: function (context) {
-            return ` ${context.label}: ${formatCurrency(context.raw)}`;
-          },
+          label: (context) =>
+            `Payment Collected Rate: ${context.raw}%`,
         },
       },
     },
-    cutout: '70%',
+
+    scales: {
+      x: {
+        ticks: {
+          color: '#94a3b8',
+          font: {
+            size: 10,
+            weight: '700',
+          },
+        },
+
+        grid: {
+          display: false,
+        },
+      },
+
+      y: {
+        min: 0,
+        max: 100,
+
+        ticks: {
+          color: '#94a3b8',
+          font: {
+            size: 10,
+            weight: '600',
+          },
+
+          callback: (value) => `${value}%`,
+        },
+
+        grid: {
+          color: 'rgba(255, 255, 255, 0.08)',
+        },
+      },
+    },
   };
-
-  // Filter and sort collection rows
-  const filteredRows = useMemo(() => {
-    return rows
-      .filter((row) => {
-        // Search filter
-        if (
-          searchTerm &&
-          !row.store.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          !row.person.toLowerCase().includes(searchTerm.toLowerCase())
-        ) {
-          return false;
-        }
-        // Person filter
-        if (selectedPerson !== 'ALL' && row.person !== selectedPerson) {
-          return false;
-        }
-        // Status filter
-        const isPaid = row.pending === 0 && row.collected > 0;
-        const isPartial = row.pending > 0 && row.collected > 0;
-        const isUnpaid = row.collected === 0;
-
-        if (paymentStatusFilter === 'PAID' && !isPaid) return false;
-        if (paymentStatusFilter === 'PARTIAL' && !isPartial) return false;
-        if (paymentStatusFilter === 'PENDING' && !isUnpaid) return false;
-
-        return true;
-      })
-      .sort((a, b) => {
-        let valA = a[sortBy];
-        let valB = b[sortBy];
-        if (typeof valA === 'string') {
-          return sortOrder === 'asc'
-            ? valA.localeCompare(valB)
-            : valB.localeCompare(a[sortBy]);
-        }
-        return sortOrder === 'asc' ? valA - valB : valB - valA;
-      });
-  }, [rows, searchTerm, selectedPerson, paymentStatusFilter, sortBy, sortOrder]);
-
-  const handleSort = (column) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(column);
-      setSortOrder('desc');
-    }
-  };
-
-  const uniquePersons = useMemo(() => {
-    return Array.from(new Set(rows.map((r) => r.person))).filter(Boolean);
-  }, [rows]);
 
   return (
-    <div className="collection-section">
-      {/* Collection KPI Cards */}
-      <div className="collection-kpi-grid">
-        <KpiCard
-          title="Total Receivable / Target"
-          value={formatCurrency(summary.totalReceivable)}
-          subtitle="Total Due from Sales"
-          status="primary"
-          icon="📋"
-        />
+    <div className="tv-overview">
+
+      {/* KPI Cards */}
+      <div className="tv-overview__kpis">
+
         <KpiCard
           title="Payment Collected"
-          value={formatCurrency(summary.totalCollected)}
-          subtitle="Funds Received & Settled"
-          badge={`${summary.percent.toFixed(1)}% Collected`}
+          value={formatCurrency(computed.totalCollected)}
+          badge={
+            computed.overallCollectionRate !== null
+              ? `${computed.overallCollectionRate.toFixed(1)}% Collected`
+              : 'No Data'
+          }
           status="success"
           icon="💵"
         />
+
         <KpiCard
           title="Payment Pending"
-          value={formatCurrency(summary.totalPending)}
-          subtitle="Outstanding to Collect"
-          status={summary.totalPending > 0 ? 'danger' : 'success'}
+          value={formatCurrency(computed.totalPending)}
+          badge={`${computed.pendingCustomerCount} Customers Pending`}
+          status={
+            computed.totalPending > 0
+              ? 'danger'
+              : 'neutral'
+          }
           icon="⏳"
         />
+
         <KpiCard
-          title="Collection Rate %"
-          value={formatPercent(summary.percent)}
-          subtitle={`${summary.pendingOutletsCount} Outlets with Pending Payment`}
-          status={summary.percent >= 70 ? 'success' : summary.percent >= 40 ? 'warning' : 'danger'}
+          title="Payment Collected Rate"
+          value={formatPercent(computed.overallCollectionRate)}
+          status={
+            computed.overallCollectionRate !== null &&
+              computed.overallCollectionRate >= 70
+              ? 'success'
+              : computed.overallCollectionRate !== null &&
+                computed.overallCollectionRate >= 40
+                ? 'primary'
+                : 'warning'
+          }
           icon="📊"
         />
+
         <KpiCard
-          title="Pending Outlets"
-          value={summary.pendingOutletsCount}
-          subtitle={`Out of ${summary.totalOutlets} Total Outlets`}
-          status={summary.pendingOutletsCount > 0 ? 'warning' : 'success'}
+          title="Payment Pending Rate"
+          value={formatPercent(computed.overallPendingRate)}
+          status={
+            computed.overallPendingRate > 50
+              ? 'danger'
+              : 'warning'
+          }
+          icon="📉"
+        />
+
+        <KpiCard
+          title="Customers"
+          value={computed.totalCustomers}
+          subtitle={`${computed.picList.length} Account Managers`}
+          status="default"
           icon="🏬"
         />
+        <KpiCard
+          title="Top Performing Leader"
+          value={computed.topAM ? computed.topAM.name : '-'}
+          badge={
+            computed.topAM &&
+              computed.topAM.collectionPercent !== null
+              ? `${computed.topAM.collectionPercent.toFixed(1)}% Rate`
+              : undefined
+          }
+          status="success"
+          icon="🏆"
+        />
+
       </div>
 
-      {/* Person in Charge Collection Breakdown */}
-      <div className="section-block">
-        <div className="section-block__header">
-          <h2 className="section-block__title">Person in Charge Collection Status</h2>
-          <span className="section-block__subtitle">Payment received vs pending by PIC</span>
-        </div>
-        <div className="pic-grid">
-          {summary.personsList.map((pic) => (
-            <div key={pic.name} className={`pic-card pic-card--${pic.status}`}>
-              <div className="pic-card__top">
-                <div className="pic-card__name-wrap">
-                  <span className="pic-card__avatar pic-card__avatar--collection">{pic.name[0]}</span>
-                  <div>
-                    <h3 className="pic-card__name">{pic.name}</h3>
-                    <span className="pic-card__outlets">
-                      {pic.pendingOutlets} / {pic.outlets} Outlets Pending
-                    </span>
-                  </div>
-                </div>
-                <span className={`pic-card__badge pic-card__badge--${pic.status}`}>
-                  {pic.statusLabel}
-                </span>
-              </div>
+      {/* Main Dashboard */}
+      <div className="tv-overview__main">
 
-              <div className="pic-card__metrics">
-                <div className="pic-card__metric">
-                  <span className="pic-card__metric-label">Collected</span>
-                  <span className="pic-card__metric-val pic-card__metric-val--actual">
-                    {formatCurrency(pic.collected)}
-                  </span>
-                </div>
-                <div className="pic-card__metric">
-                  <span className="pic-card__metric-label">Pending</span>
-                  <span className="pic-card__metric-val text-danger">
-                    {formatCurrency(pic.pending)}
-                  </span>
-                </div>
-              </div>
+        {/* Account Manager Performance */}
+        <div className="tv-overview__left">
 
-              {/* Progress Bar */}
-              <div className="pic-progress">
-                <div className="pic-progress__bar-bg">
-                  <div
-                    className={`pic-progress__bar-fill pic-progress__bar-fill--${pic.status}`}
-                    style={{ width: `${Math.min(100, pic.percent)}%` }}
-                  />
-                </div>
-                <div className="pic-progress__info">
-                  <span className="pic-progress__percent">{pic.percent.toFixed(1)}% Collected</span>
-                  <span className="pic-progress__rem">Total: {formatCurrency(pic.receivable)}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+          <div className="tv-panel-header">
+            <h2 className="tv-panel-title">
+              Account Manager Payment Performance
+            </h2>
 
-      {/* Charts Grid */}
-      <div className="charts-grid">
-        <div className="chart-card">
-          <h3 className="chart-card__title">Payment Collected vs Pending by Person</h3>
-          <div className="chart-card__canvas-wrapper">
-            <Bar data={comparisonChartData} options={barChartOptions} />
-          </div>
-        </div>
-        <div className="chart-card">
-          <h3 className="chart-card__title">Overall Payment Settlement Breakdown</h3>
-          <div className="chart-card__canvas-wrapper">
-            <Doughnut data={doughnutChartData} options={doughnutOptions} />
-          </div>
-        </div>
-      </div>
-
-      {/* Collection Details Table */}
-      <div className="section-block">
-        <div className="section-block__header table-controls-header">
-          <div>
-            <h2 className="section-block__title">Collection Tracking & Outlets</h2>
-            <span className="section-block__subtitle">
-              Showing {filteredRows.length} of {rows.length} store payment records
+            <span className="tv-panel-subtitle">
+              {computed.picList.length} Account Managers
             </span>
           </div>
 
-          <div className="table-filters">
-            <input
-              type="text"
-              placeholder="Search store or PIC..."
-              className="table-search-input"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="tv-pic-list">
 
-            <select
-              className="table-filter-select"
-              value={selectedPerson}
-              onChange={(e) => setSelectedPerson(e.target.value)}
-            >
-              <option value="ALL">All Persons</option>
-              {uniquePersons.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
+            {computed.picList.map((pic) => (
+              <div
+                key={pic.name}
+                className={
+                  `tv-pic-card tv-pic-card--${pic.status}` +
+                  (
+                    pic.performanceHighlight
+                      ? ` tv-pic-card--highlight-${pic.performanceHighlight}`
+                      : ''
+                  )
+                }
+              >
 
-            <select
-              className="table-filter-select"
-              value={paymentStatusFilter}
-              onChange={(e) => setPaymentStatusFilter(e.target.value)}
-            >
-              <option value="ALL">All Payment Status</option>
-              <option value="PAID">Fully Paid</option>
-              <option value="PARTIAL">Partially Paid</option>
-              <option value="PENDING">Pending / Unpaid</option>
-            </select>
+                <div className="tv-pic-card__top">
+
+                  <div className="tv-pic-card__identity">
+
+                    <span className="tv-pic-card__avatar">
+                      {pic.name[0]}
+                    </span>
+
+                    <div>
+                      <h3 className="tv-pic-card__name">
+                        {pic.name}
+                      </h3>
+
+                      <span className="tv-pic-card__meta">
+                        {pic.customerCount} Customers
+                      </span>
+                    </div>
+
+                  </div>
+
+                  <div className="tv-pic-card__pills">
+
+                    {[
+                      {
+                        label: 'Collected',
+                        value: pic.collectionPercent,
+                      },
+                      {
+                        label: 'Pending',
+                        value: pic.pendingPercent,
+                      },
+                    ].map((item) => (
+
+                      <div
+                        key={item.label}
+                        className="tv-pill"
+                        style={{ width: '120px' }}
+                      >
+
+                        <div
+                          className={
+                            'tv-pill__fill tv-pill__fill--' +
+                            (
+                              item.label === 'Collected'
+                                ? rateStatus(item.value)
+                                : 'danger'
+                            )
+                          }
+                          style={{
+                            width: `${clampPct(item.value)}%`,
+                          }}
+                        />
+
+                        <span className="tv-pill__label">
+                          {item.label}
+                        </span>
+
+                        <span className="tv-pill__value">
+                          {formatPercent(item.value)}
+                        </span>
+
+                      </div>
+
+                    ))}
+
+                  </div>
+
+                </div>
+
+                {/* Payment Metrics */}
+                <div className="tv-pic-card__metrics">
+
+                  <div className="tv-metric-item">
+                    <span className="tv-metric-label">
+                      Payment Collected:
+                    </span>
+
+                    <span className="tv-metric-value text-success font-bold">
+                      {formatCurrency(pic.collected)}
+                    </span>
+                  </div>
+
+                  <div className="tv-metric-item">
+                    <span className="tv-metric-label">
+                      Payment Pending:
+                    </span>
+
+                    <span className="tv-metric-value text-danger font-bold">
+                      {formatCurrency(pic.pending)}
+                    </span>
+                  </div>
+
+                  <div className="tv-metric-item">
+                    <span className="tv-metric-label">
+                      Collected Rate:
+                    </span>
+
+                    <span className="tv-metric-value font-bold">
+                      {formatPercent(pic.collectionPercent)}
+                    </span>
+                  </div>
+
+                  <div className="tv-metric-item">
+                    <span className="tv-metric-label">
+                      Pending Rate:
+                    </span>
+
+                    <span className="tv-metric-value font-bold">
+                      {formatPercent(pic.pendingPercent)}
+                    </span>
+                  </div>
+
+                </div>
+
+                {/* Collection Progress */}
+                <div className="tv-pic-progress-track">
+                  <div
+                    className={
+                      `tv-pic-progress-fill tv-pic-progress-fill--${pic.status}`
+                    }
+                    style={{
+                      width: `${clampPct(pic.collectionPercent)}%`,
+                    }}
+                  />
+                </div>
+
+              </div>
+            ))}
+
           </div>
         </div>
 
-        <div className="table-responsive">
-          <table className="quota-table">
-            <thead>
-              <tr>
-                <th onClick={() => handleSort('store')} className="sortable">
-                  Store {sortBy === 'store' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-                <th onClick={() => handleSort('person')} className="sortable">
-                  Person in Charge {sortBy === 'person' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-                <th onClick={() => handleSort('month')} className="sortable">
-                  Month {sortBy === 'month' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-                <th onClick={() => handleSort('collectionTotal')} className="sortable text-right">
-                  Receivable / Sales (RM) {sortBy === 'collectionTotal' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-                <th onClick={() => handleSort('collected')} className="sortable text-right">
-                  Collected (RM) {sortBy === 'collected' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-                <th onClick={() => handleSort('pending')} className="sortable text-right">
-                  Pending (RM) {sortBy === 'pending' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-                <th onClick={() => handleSort('collectionRate')} className="sortable text-right" style={{ minWidth: '170px' }}>
-                  Status / % {sortBy === 'collectionRate' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRows.length === 0 ? (
-                <tr>
-                  <td colSpan="7" className="table-empty">
-                    No matching collection records found.
-                  </td>
-                </tr>
-              ) : (
-                filteredRows.map((r) => {
-                  const rate = r.collectionRate;
-                  const isPaid = r.pending === 0 && r.collected > 0;
-                  const isPartial = r.pending > 0 && r.collected > 0;
+        {/* Charts */}
+        <div className="tv-overview__right">
 
-                  let statusBadgeClass = 'status-danger';
-                  let statusText = 'Pending';
-                  if (isPaid) {
-                    statusBadgeClass = 'status-success';
-                    statusText = 'Paid Full';
-                  } else if (isPartial) {
-                    statusBadgeClass = 'status-warning';
-                    statusText = 'Partial';
-                  }
+          <div className="tv-chart-box">
 
-                  return (
-                    <tr key={r.id}>
-                      <td className="store-cell font-semibold">{r.store}</td>
-                      <td>
-                        <span className="pic-tag">{r.person}</span>
-                      </td>
-                      <td>
-                        <span className="month-tag">{r.month}</span>
-                      </td>
-                      <td className="text-right font-mono">{formatCurrency(r.collectionTotal || r.sales)}</td>
-                      <td className="text-right font-mono font-bold text-success">
-                        {formatCurrency(r.collected)}
-                      </td>
-                      <td className="text-right font-mono font-bold text-danger">
-                        {formatCurrency(r.pending)}
-                      </td>
-                      <td className="text-right">
-                        <div className="table-progress-cell">
-                          <span className={`status-badge ${statusBadgeClass}`}>{statusText}</span>
-                          <span className="percent-val font-mono font-bold">{rate.toFixed(1)}%</span>
-                          <div className="mini-progress-bar">
-                            <div
-                              className={`mini-progress-fill ${statusBadgeClass}`}
-                              style={{ width: `${Math.min(100, rate)}%` }}
-                            />
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+            <div className="tv-panel-header">
+              <h2 className="tv-panel-title">
+                Payment Collected vs Pending by Account Manager
+              </h2>
+
+              <span className="tv-panel-subtitle">
+                Collected (Green) vs Pending (Red)
+              </span>
+            </div>
+
+            <div className="tv-chart-container">
+              <Bar
+                data={comparisonChartData}
+                options={compactChartOptions}
+              />
+            </div>
+
+          </div>
+
+          <div className="tv-chart-box">
+
+            <div className="tv-panel-header">
+              <h2 className="tv-panel-title">
+                Payment Collected Rate (%)
+              </h2>
+
+              <span className="tv-panel-subtitle">
+                Collected Rate by Account Manager
+              </span>
+            </div>
+
+            <div className="tv-chart-container">
+              <Bar
+                data={collectionRateChartData}
+                options={rateChartOptions}
+              />
+            </div>
+
+          </div>
+
         </div>
       </div>
+
+      {/* Top Pending Customers */}
+      <div className="tv-overview__bottom-ticker">
+
+        <div className="tv-ticker-label">
+
+          <span
+            className="tv-ticker-dot"
+            style={{
+              background: '#e54330',
+              boxShadow: '0 0 8px #e54330',
+            }}
+          />
+
+          <span>TOP PENDING CUSTOMERS:</span>
+
+        </div>
+
+        <div className="tv-ticker-items">
+
+          {computed.topPendingCustomers.length > 0 ? (
+
+            computed.topPendingCustomers.map((customer, index) => (
+
+              <div
+                key={customer.id || index}
+                className="tv-ticker-chip"
+              >
+
+                <span
+                  className="tv-ticker-rank"
+                  style={{ color: '#ff7d6e' }}
+                >
+                  #{index + 1}
+                </span>
+
+                <span
+                  className="tv-ticker-store"
+                  title={customer.customer}
+                >
+                  {customer.customer}
+                </span>
+
+                <span
+                  className="tv-ticker-pic"
+                  title={customer.person}
+                >
+                  ({customer.person})
+                </span>
+
+                <span
+                  className="tv-ticker-val"
+                  style={{ color: '#ff7d6e' }}
+                >
+                  {formatCurrency(customer.pending)}
+                </span>
+
+                {customer.collectionRate !== null && (
+
+                  <span
+                    className="tv-ticker-pct"
+                    style={{ color: '#79d863' }}
+                  >
+                    [{customer.collectionRate.toFixed(0)}% Collected]
+                  </span>
+
+                )}
+
+              </div>
+
+            ))
+
+          ) : (
+
+            <div className="tv-ticker-chip">
+              No outstanding pending payments.
+            </div>
+
+          )}
+
+        </div>
+      </div>
+
     </div>
   );
 }

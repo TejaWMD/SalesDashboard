@@ -1,11 +1,11 @@
 // src/App.jsx
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import PinLogin, { DASHBOARD_PIN, AUTH_STORAGE_KEY } from './components/PinLogin';
-import OverviewDashboard from './components/OverviewDashboard';
-import ChartsDashboard from './components/ChartsDashboard';
-import TableDashboard from './components/TableDashboard';
+import SalesDashboard from './components/SalesDashboard';
+import CollectionDashboard from './components/CollectionDashboard';
+import OnlineSalesDashboard from './components/OnlineSalesDashboard';
 import TvControls from './components/TvControls';
-import { fetchSheetData } from './utils/fetchSheet';
+import { fetchSalesData, fetchPaymentData, fetchOnlineData } from './utils/fetchSheet';
 import './styles.css';
 
 const AUTO_REFRESH_INTERVAL_MS = 60000; // 60 seconds auto-sync
@@ -20,13 +20,30 @@ function App() {
     }
   });
 
-  // Active view: 'overview' | 'charts' | 'table'
-  const [activeView, setActiveView] = useState('overview');
+  // Active view: 'sales' | 'collection' | 'online'
+  const [activeView, setActiveView] = useState('sales');
 
-  // Sheet data states
-  const [rows, setRows] = useState([]);
+  // Sales data states
+  const [salesRows, setSalesRows] = useState([]);
   const [availableMonths, setAvailableMonths] = useState(['OCT']);
   const [selectedMonth, setSelectedMonth] = useState('OCT');
+
+  // Payment data states
+  const [paymentData, setPaymentData] = useState({ rows: [], picList: [], summary: {} });
+
+  // Online sales data states
+  const [onlineData, setOnlineData] = useState({
+    shopeeTotal: 0,
+    tiktokTotal: 0,
+    totalSales: 0,
+    shopeePercent: 0,
+    tiktokPercent: 0,
+    dailyRecords: [],
+    activeDaysCount: 0,
+    dailyAverage: 0,
+    peakDay: null,
+  });
+
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState('');
   const [error, setError] = useState(null);
@@ -34,20 +51,27 @@ function App() {
   // Fullscreen state
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Fetch real-time data from Google Sheet
+  // Fetch real-time data from all Google Sheets concurrently
   const loadData = useCallback(async (isSilent = false) => {
     if (!isSilent) setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchSheetData();
-      setRows(data.rows);
-      setAvailableMonths(data.availableMonths);
+      const [salesRes, paymentRes, onlineRes] = await Promise.all([
+        fetchSalesData(),
+        fetchPaymentData(),
+        fetchOnlineData(),
+      ]);
 
-      // Default to OCT or latest available month
-      if (data.availableMonths.length > 0 && (!selectedMonth || selectedMonth === 'ALL')) {
-        const preferred = data.availableMonths.includes('OCT')
+      setSalesRows(salesRes.rows);
+      setAvailableMonths(salesRes.availableMonths);
+      setPaymentData(paymentRes);
+      setOnlineData(onlineRes);
+
+      // Default month to OCT or latest available month
+      if (salesRes.availableMonths.length > 0 && (!selectedMonth || selectedMonth === 'ALL')) {
+        const preferred = salesRes.availableMonths.includes('OCT')
           ? 'OCT'
-          : data.availableMonths[data.availableMonths.length - 1];
+          : salesRes.availableMonths[salesRes.availableMonths.length - 1];
         setSelectedMonth(preferred);
       }
 
@@ -56,8 +80,8 @@ function App() {
         now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
       );
     } catch (err) {
-      console.error('Failed to fetch Google Sheet data:', err);
-      setError('Could not fetch data from Google Sheet. Please verify internet connection.');
+      console.error('Failed to fetch data from Google Sheets:', err);
+      setError('Could not fetch data from Google Sheets. Please verify connection and permissions.');
     } finally {
       setIsLoading(false);
     }
@@ -104,11 +128,11 @@ function App() {
     setIsAuthenticated(false);
   };
 
-  // Filter rows strictly according to selected month
-  const filteredRows = useMemo(() => {
-    if (selectedMonth === 'ALL') return rows;
-    return rows.filter((r) => r.month === selectedMonth);
-  }, [rows, selectedMonth]);
+  // Filter sales rows according to selected month
+  const filteredSalesRows = useMemo(() => {
+    if (selectedMonth === 'ALL') return salesRows;
+    return salesRows.filter((r) => r.month === selectedMonth);
+  }, [salesRows, selectedMonth]);
 
   // If user has not authenticated with PIN 040903, show the PIN Login Screen
   if (!isAuthenticated) {
@@ -122,7 +146,11 @@ function App() {
           <div className="app-header__branding">
             <div className="app-header__logo-icon">📊</div>
             <div>
-              <h1 className="app-header__title">SALES & COLLECTION</h1>
+              <h1 className="app-header__title">
+                {activeView === 'sales' && 'SALES PERFORMANCE'}
+                {activeView === 'collection' && 'COLLECTION TRACKING'}
+                {activeView === 'online' && 'ONLINE SALES'}
+              </h1>
             </div>
           </div>
         </header>
@@ -154,16 +182,16 @@ function App() {
 
       {/* Main Content Area (Fitted 100vh on TV without page scroll) */}
       <main className="app-main">
-        {isLoading && rows.length === 0 ? (
+        {isLoading && salesRows.length === 0 ? (
           <div className="loading-state">
             <div className="loading-spinner" />
-            <p>Fetching real-time data from Google Sheet ("Data for TV")...</p>
+            <p>Syncing real-time data from Google Sheets (Sales, Collection, Online)...</p>
           </div>
         ) : (
           <>
-            {activeView === 'overview' && <OverviewDashboard rows={filteredRows} />}
-            {activeView === 'charts' && <ChartsDashboard rows={filteredRows} />}
-            {activeView === 'table' && <TableDashboard rows={filteredRows} />}
+            {activeView === 'sales' && <SalesDashboard rows={filteredSalesRows} />}
+            {activeView === 'collection' && <CollectionDashboard data={paymentData} />}
+            {activeView === 'online' && <OnlineSalesDashboard data={onlineData} />}
           </>
         )}
       </main>
