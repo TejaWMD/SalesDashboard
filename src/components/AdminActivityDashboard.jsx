@@ -5,6 +5,7 @@ import {
   getActivityLogs,
   clearActivityLogs,
   subscribeToActivityUpdates,
+  syncFromCloud,
 } from '../utils/activityTracker';
 import './AdminActivityDashboard.css';
 
@@ -69,17 +70,27 @@ function AdminActivityDashboard({ currentUserEmail }) {
   const [selectedActionFilter, setSelectedActionFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
+  const [isSyncingCloud, setIsSyncingCloud] = useState(false);
 
   const refreshTrackerState = () => {
     setUsers(getAllTrackedUsers());
     setLogs(getActivityLogs());
   };
 
-  useEffect(() => {
+  const handleManualCloudSync = async () => {
+    setIsSyncingCloud(true);
+    await syncFromCloud();
     refreshTrackerState();
+    setIsSyncingCloud(false);
+  };
+
+  useEffect(() => {
+    handleManualCloudSync();
     const unsubscribe = subscribeToActivityUpdates(refreshTrackerState);
-    // Also refresh relative timestamps every 5 seconds
-    const timer = setInterval(refreshTrackerState, 5000);
+    // Poll cloud & refresh relative timestamps every 4 seconds
+    const timer = setInterval(() => {
+      syncFromCloud().then(refreshTrackerState);
+    }, 4000);
     return () => {
       unsubscribe();
       clearInterval(timer);
@@ -213,18 +224,29 @@ function AdminActivityDashboard({ currentUserEmail }) {
                 <span>👤</span> USER ACCESS & LIVE LOCATION STATUS
               </h2>
               <p className="admin-panel__subtitle">
-                Click any account row to filter their complete activity history on the right
+                Live multi-device cloud sync active • Click any account row to filter history
               </p>
             </div>
-            {selectedUserFilter !== 'ALL' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {selectedUserFilter !== 'ALL' && (
+                <button
+                  type="button"
+                  className="admin-reset-filter-btn"
+                  onClick={() => setSelectedUserFilter('ALL')}
+                >
+                  Show All Users ✕
+                </button>
+              )}
               <button
                 type="button"
                 className="admin-reset-filter-btn"
-                onClick={() => setSelectedUserFilter('ALL')}
+                onClick={handleManualCloudSync}
+                disabled={isSyncingCloud}
+                title="Sync latest activity across all PCs, laptops & devices"
               >
-                Show All Users ✕
+                {isSyncingCloud ? 'Syncing...' : '☁️ Sync Devices'}
               </button>
-            )}
+            </div>
           </div>
 
           <div className="admin-table-container">

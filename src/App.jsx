@@ -19,6 +19,8 @@ import {
   recordUserActivity,
   sendUserHeartbeat,
   formatDashboardLocation,
+  startCloudActivitySync,
+  syncFromCloud,
 } from './utils/activityTracker';
 import './styles.css';
 
@@ -81,15 +83,26 @@ function App() {
     [activeView, salesSubTab, collectionSubTab, selectedMonth]
   );
 
+  // Start cross-device cloud activity sync on mount
+  useEffect(() => {
+    const stopSync = startCloudActivitySync();
+    return () => {
+      if (stopSync) stopSync();
+    };
+  }, []);
+
   // Keep live presence heartbeat updated for the currently logged-in user
   useEffect(() => {
     if (!currentUserEmail) return undefined;
 
-    sendUserHeartbeat(
-      currentUserEmail,
-      currentLocationLabel,
-      `Viewing ${currentLocationLabel}`
-    );
+    // Pull latest cloud state first, then broadcast this device's active presence
+    syncFromCloud().finally(() => {
+      sendUserHeartbeat(
+        currentUserEmail,
+        currentLocationLabel,
+        `Viewing ${currentLocationLabel}`
+      );
+    });
 
     const heartbeatTimer = setInterval(() => {
       sendUserHeartbeat(
@@ -101,6 +114,7 @@ function App() {
 
     const handleVisibilityOrFocus = () => {
       if (document.visibilityState === 'visible') {
+        syncFromCloud();
         sendUserHeartbeat(
           currentUserEmail,
           currentLocationLabel,
