@@ -120,6 +120,29 @@ export function formatPercent(val, blankPlaceholder = '-') {
 }
 
 /**
+ * Returns responsive font and element dimensions for Chart.js canvases based on screen width.
+ * Ensures chart axes ticks, legend labels, and tooltips are clearly readable on 50" TVs
+ * without affecting mobile, laptop, or desktop layouts.
+ */
+export function getChartResponsiveFonts() {
+  if (typeof window === 'undefined') {
+    return { tick: 10, legend: 11, boxWidth: 12, padding: 8 };
+  }
+  const w = window.innerWidth;
+  if (w >= 2560) {
+    // 4K / UHD 50" TV
+    return { tick: 15, legend: 16, boxWidth: 18, padding: 12 };
+  }
+  if (w >= 1920) {
+    // 1080p Full HD 50" TV / Large Display
+    return { tick: 12, legend: 13, boxWidth: 14, padding: 10 };
+  }
+  // Mobile, Laptop, Desktop PC
+  return { tick: 10, legend: 11, boxWidth: 12, padding: 8 };
+}
+
+
+/**
  * Normalizes an object's keys to uppercase trimmed strings
  */
 function normalizeRowKeys(rawRow) {

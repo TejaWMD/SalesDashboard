@@ -128,19 +128,58 @@
   font-weight: 500;
 }
 
-/* TV scaling */
+/* TV scaling (1080p Full HD 50" TV >= 1920px) */
 @media (min-width: 1920px) {
   .kpi-card {
-    padding: 16px 20px;
+    padding: 14px 18px;
     border-radius: 18px;
   }
   .kpi-card__title {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+  }
+  .kpi-card__icon {
+    font-size: 2.2rem;
   }
   .kpi-card__value {
-    font-size: 1.9rem;
+    font-size: 1.95rem;
+  }
+  .kpi-card__footer {
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .kpi-card__badge {
+    font-size: 0.78rem;
+    padding: 3px 9px;
   }
   .kpi-card__subtitle {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
+  }
+}
+
+/* TV scaling (4K / UHD 50" TV >= 2560px) */
+@media (min-width: 2560px) {
+  .kpi-card {
+    padding: 22px 26px;
+    border-radius: 22px;
+  }
+  .kpi-card__title {
+    font-size: 1.15rem;
+  }
+  .kpi-card__icon {
+    font-size: 2.8rem;
+  }
+  .kpi-card__value {
+    font-size: 2.8rem;
+  }
+  .kpi-card__footer {
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .kpi-card__badge {
+    font-size: 1.05rem;
+    padding: 5px 14px;
+  }
+  .kpi-card__subtitle {
+    font-size: 1.05rem;
   }
 }

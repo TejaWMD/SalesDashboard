@@ -324,11 +324,18 @@
 
 
 /* ========================================================
-   TV SPECIFIC SCALING (4K & Large Screens >= 1920px)
+   TV SPECIFIC SCALING (1080p Full HD 50" TV >= 1920px)
    ======================================================== */
 @media (min-width: 1920px) {
   .homepage-header-banner {
-    padding: 14px 20px;
+    padding: 12px 18px;
+    border-radius: 16px;
+  }
+
+  .homepage-header-banner__icon {
+    font-size: 1.5rem;
+    padding: 6px 11px;
+    border-radius: 12px;
   }
 
   .homepage-header-banner__title {
@@ -336,36 +343,154 @@
   }
 
   .homepage-header-banner__subtitle {
-    font-size: 0.9rem;
+    font-size: 0.88rem;
+  }
+
+  .homepage-summary-pill {
+    font-size: 0.85rem;
+    padding: 6px 14px;
   }
 
   .am-cards-grid {
-    gap: 16px;
-  }
-
-  .am-card {
-    padding: 18px 22px;
     gap: 14px;
   }
 
+  .am-card {
+    padding: 16px 20px;
+    gap: 12px;
+    border-radius: 18px;
+    border-top-width: 5px;
+  }
+
   .am-card__avatar {
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
     font-size: 1.25rem;
+    border-radius: 12px;
   }
 
   .am-card__name {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
+  }
+
+  .am-card__role {
+    font-size: 0.82rem;
+  }
+
+  .am-card__count-badge {
+    font-size: 0.82rem;
+    padding: 4px 12px;
+  }
+
+  .am-category-group {
+    padding: 9px 13px;
+    border-radius: 13px;
+    gap: 7px;
   }
 
   .am-category-badge {
-    font-size: 0.82rem;
-    padding: 3px 11px;
+    font-size: 0.8rem;
+    padding: 3px 10px;
+  }
+
+  .am-category-count {
+    font-size: 0.78rem;
+  }
+
+  .am-store-tags {
+    gap: 7px;
   }
 
   .am-store-chip {
-    font-size: 0.9rem;
-    padding: 6px 13px;
+    font-size: 0.88rem;
+    padding: 5px 12px;
+    border-radius: 9px;
+  }
+}
+
+/* ========================================================
+   TV ULTRA-HD / 4K DISPLAY (50" 4K TVs >= 2560px)
+   ======================================================== */
+@media (min-width: 2560px) {
+  .homepage-header-banner {
+    padding: 18px 26px;
+    border-radius: 20px;
+  }
+
+  .homepage-header-banner__icon {
+    font-size: 2.1rem;
+    padding: 8px 16px;
+    border-radius: 15px;
+  }
+
+  .homepage-header-banner__title {
+    font-size: 1.85rem;
+  }
+
+  .homepage-header-banner__subtitle {
+    font-size: 1.15rem;
+  }
+
+  .homepage-summary-pill {
+    font-size: 1.1rem;
+    padding: 8px 18px;
+  }
+
+  .am-cards-grid {
+    gap: 20px;
+  }
+
+  .am-card {
+    padding: 22px 26px;
+    gap: 16px;
+    border-radius: 22px;
+    border-top-width: 6px;
+  }
+
+  .am-card__avatar {
+    width: 58px;
+    height: 58px;
+    font-size: 1.6rem;
+    border-radius: 16px;
+  }
+
+  .am-card__name {
+    font-size: 1.7rem;
+  }
+
+  .am-card__role {
+    font-size: 1.1rem;
+  }
+
+  .am-card__count-badge {
+    font-size: 1.1rem;
+    padding: 6px 16px;
+  }
+
+  .am-category-group {
+    padding: 12px 18px;
+    border-radius: 16px;
+    gap: 10px;
+  }
+
+  .am-category-badge {
+    font-size: 1.05rem;
+    padding: 5px 14px;
+    border-radius: 8px;
+  }
+
+  .am-category-count {
+    font-size: 1rem;
+  }
+
+  .am-store-tags {
+    gap: 9px;
+  }
+
+  .am-store-chip {
+    font-size: 1.15rem;
+    padding: 7px 16px;
+    border-radius: 11px;
   }
 }
 

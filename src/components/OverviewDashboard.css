@@ -196,15 +196,28 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Bigger on 4K / ultra-wide TVs */
+/* Bigger on Full HD 50" TV (1080p >= 1920px) */
 @media (min-width: 1920px) {
   .tv-pill {
-    width: 132px;
-    height: 28px;
+    width: 138px;
+    height: 30px;
   }
   .tv-pill__label,
   .tv-pill__value {
-    font-size: 0.75rem;
+    font-size: 0.78rem;
+  }
+}
+
+/* Bigger on 4K UHD 50" TV (>= 2560px) */
+@media (min-width: 2560px) {
+  .tv-pill {
+    width: 180px;
+    height: 40px;
+    padding: 0 14px;
+  }
+  .tv-pill__label,
+  .tv-pill__value {
+    font-size: 1rem;
   }
 }
 
@@ -509,22 +522,199 @@
   flex-shrink: 0;
 }
 
-/* TV Specific Display Scaling for 4K / Ultra-wide */
+/* TV Specific Display Scaling (1080p Full HD 50" TV >= 1920px) */
 @media (min-width: 1920px) {
+  .tv-overview {
+    gap: 12px;
+  }
+  .tv-overview__kpis {
+    gap: 12px;
+  }
+  .tv-overview__main {
+    gap: 12px;
+  }
   .tv-panel-title {
     font-size: 1.15rem;
   }
+  .tv-panel-subtitle {
+    font-size: 0.82rem;
+  }
+  .tv-overview__left,
+  .tv-chart-box {
+    padding: 12px 16px;
+    border-radius: 16px;
+  }
+  .tv-pic-list {
+    gap: 10px;
+  }
+  .tv-pic-card {
+    padding: 10px 14px;
+    border-radius: 14px;
+    gap: 8px;
+  }
+  .tv-pic-card__avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+    border-radius: 10px;
+  }
   .tv-pic-card__name {
-    font-size: 1rem;
+    font-size: 1.05rem;
+  }
+  .tv-pic-card__meta {
+    font-size: 0.78rem;
+  }
+  .tv-status-badge {
+    font-size: 0.78rem;
+    padding: 3px 9px;
+  }
+  .tv-pic-card__metrics {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .tv-metric-label {
+    font-size: 0.72rem;
   }
   .tv-metric-value {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+  }
+  .tv-pic-progress-track {
+    height: 6px;
+  }
+  .tv-overview__bottom-ticker {
+    padding: 8px 0 8px 16px;
+    gap: 14px;
+    border-radius: 14px;
+  }
+  .tv-ticker-label {
+    font-size: 0.85rem;
+    gap: 8px;
+  }
+  .tv-ticker-dot {
+    width: 9px;
+    height: 9px;
+  }
+  .tv-ticker-chip {
+    font-size: 0.82rem;
+    padding: 4px 10px;
+    border-radius: 9px;
+    gap: 7px;
+  }
+  .tv-ticker-rank {
+    font-size: 0.85rem;
   }
   .tv-ticker-store {
-    max-width: 220px;
+    font-size: 0.85rem;
+    max-width: 240px;
+  }
+  .tv-ticker-val {
+    font-size: 0.88rem;
+  }
+  .tv-ticker-pct {
+    font-size: 0.82rem;
   }
   .tv-ticker-pic {
-    max-width: 160px;
+    font-size: 0.78rem;
+    max-width: 170px;
+  }
+}
+
+/* TV Specific Display Scaling (4K / UHD 50" TV >= 2560px) */
+@media (min-width: 2560px) {
+  .tv-overview {
+    gap: 18px;
+  }
+  .tv-overview__kpis {
+    gap: 18px;
+  }
+  .tv-overview__main {
+    gap: 18px;
+  }
+  .tv-panel-title {
+    font-size: 1.55rem;
+  }
+  .tv-panel-subtitle {
+    font-size: 1.15rem;
+  }
+  .tv-overview__left,
+  .tv-chart-box {
+    padding: 18px 22px;
+    border-radius: 22px;
+  }
+  .tv-pic-list {
+    gap: 14px;
+  }
+  .tv-pic-card {
+    padding: 14px 18px;
+    border-radius: 18px;
+    gap: 12px;
+    border-left-width: 5px;
+  }
+  .tv-pic-card__avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+    border-radius: 13px;
+  }
+  .tv-pic-card__name {
+    font-size: 1.45rem;
+  }
+  .tv-pic-card__meta {
+    font-size: 1.05rem;
+  }
+  .tv-status-badge {
+    font-size: 1.05rem;
+    padding: 5px 14px;
+  }
+  .tv-pic-card__metrics {
+    padding: 10px 16px;
+    gap: 10px;
+    border-radius: 12px;
+  }
+  .tv-metric-label {
+    font-size: 0.95rem;
+  }
+  .tv-metric-value {
+    font-size: 1.3rem;
+  }
+  .tv-pic-progress-track {
+    height: 8px;
+  }
+  .tv-overview__bottom-ticker {
+    padding: 12px 0 12px 22px;
+    gap: 18px;
+    border-radius: 18px;
+  }
+  .tv-ticker-label {
+    font-size: 1.15rem;
+    gap: 10px;
+  }
+  .tv-ticker-dot {
+    width: 12px;
+    height: 12px;
+  }
+  .tv-ticker-chip {
+    font-size: 1.1rem;
+    padding: 7px 16px;
+    border-radius: 12px;
+    gap: 10px;
+  }
+  .tv-ticker-rank {
+    font-size: 1.15rem;
+  }
+  .tv-ticker-store {
+    font-size: 1.15rem;
+    max-width: 360px;
+  }
+  .tv-ticker-val {
+    font-size: 1.2rem;
+  }
+  .tv-ticker-pct {
+    font-size: 1.1rem;
+  }
+  .tv-ticker-pic {
+    font-size: 1.02rem;
+    max-width: 250px;
   }
 }
 

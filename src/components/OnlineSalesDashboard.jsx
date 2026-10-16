@@ -12,12 +12,25 @@ import {
   Legend,
 } from 'chart.js';
 import KpiCard from './KpiCard';
-import { formatCurrency, formatPercent, formatCompactCurrency } from '../utils/fetchSheet';
+import {
+  formatCurrency,
+  formatPercent,
+  formatCompactCurrency,
+  getChartResponsiveFonts,
+} from '../utils/fetchSheet';
 import './OverviewDashboard.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 function OnlineSalesDashboard({ data }) {
+  const [chartFonts, setChartFonts] = React.useState(getChartResponsiveFonts);
+
+  React.useEffect(() => {
+    const handleResize = () => setChartFonts(getChartResponsiveFonts());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const {
     shopeeTotal = 0,
     tiktokTotal = 0,
@@ -95,9 +108,9 @@ function OnlineSalesDashboard({ data }) {
         align: 'end',
         labels: {
           color: '#cbd5e1',
-          font: { size: 11, weight: '700' },
-          boxWidth: 12,
-          padding: 8,
+          font: { size: chartFonts.legend, weight: '700' },
+          boxWidth: chartFonts.boxWidth,
+          padding: chartFonts.padding,
         },
       },
       tooltip: {
@@ -114,13 +127,13 @@ function OnlineSalesDashboard({ data }) {
     },
     scales: {
       x: {
-        ticks: { color: '#94a3b8', font: { size: 10, weight: '700' } },
+        ticks: { color: '#94a3b8', font: { size: chartFonts.tick, weight: '700' } },
         grid: { display: false },
       },
       y: {
         ticks: {
           color: '#94a3b8',
-          font: { size: 10, weight: '600' },
+          font: { size: chartFonts.tick, weight: '600' },
           callback: (val) => formatCompactCurrency(val),
         },
         grid: { color: 'rgba(255, 255, 255, 0.08)' },

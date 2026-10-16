@@ -19,6 +19,7 @@ import {
   formatCurrency,
   formatPercent,
   formatCompactCurrency,
+  getChartResponsiveFonts,
 } from '../utils/fetchSheet';
 
 import './OverviewDashboard.css';
@@ -44,6 +45,14 @@ const clampPct = (value) =>
   Math.max(0, Math.min(100, value || 0));
 
 function CollectionDashboard({ data }) {
+  const [chartFonts, setChartFonts] = React.useState(getChartResponsiveFonts);
+
+  React.useEffect(() => {
+    const handleResize = () => setChartFonts(getChartResponsiveFonts());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const {
     rows = [],
     picList = [],
@@ -166,11 +175,11 @@ function CollectionDashboard({ data }) {
         labels: {
           color: '#cbd5e1',
           font: {
-            size: 11,
+            size: chartFonts.legend,
             weight: '700',
           },
-          boxWidth: 12,
-          padding: 8,
+          boxWidth: chartFonts.boxWidth,
+          padding: chartFonts.padding,
         },
       },
 
@@ -194,7 +203,7 @@ function CollectionDashboard({ data }) {
         ticks: {
           color: '#94a3b8',
           font: {
-            size: 10,
+            size: chartFonts.tick,
             weight: '700',
           },
         },
@@ -208,7 +217,7 @@ function CollectionDashboard({ data }) {
         ticks: {
           color: '#94a3b8',
           font: {
-            size: 10,
+            size: chartFonts.tick,
             weight: '600',
           },
 
@@ -252,7 +261,7 @@ function CollectionDashboard({ data }) {
         ticks: {
           color: '#94a3b8',
           font: {
-            size: 10,
+            size: chartFonts.tick,
             weight: '700',
           },
         },
@@ -269,7 +278,7 @@ function CollectionDashboard({ data }) {
         ticks: {
           color: '#94a3b8',
           font: {
-            size: 10,
+            size: chartFonts.tick,
             weight: '600',
           },
 

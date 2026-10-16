@@ -226,7 +226,7 @@
   box-shadow: none;
 }
 
-/* TV Scaling */
+/* TV Scaling (1080p Full HD 50" TV >= 1920px) */
 @media (min-width: 1920px) {
   .pin-card {
     max-width: 500px;
@@ -240,6 +240,12 @@
   .pin-title {
     font-size: 1.7rem;
   }
+  .pin-subtitle {
+    font-size: 0.95rem;
+  }
+  .login-label {
+    font-size: 0.82rem;
+  }
   .login-input {
     height: 54px;
     font-size: 1.05rem;
@@ -248,6 +254,42 @@
     height: 54px;
     font-size: 1.1rem;
     border-radius: 14px;
+  }
+}
+
+/* TV Scaling (4K / UHD 50" TV >= 2560px) */
+@media (min-width: 2560px) {
+  .pin-card {
+    max-width: 650px;
+    padding: 56px 64px;
+    border-radius: 32px;
+    border-top-width: 8px;
+  }
+  .pin-company-logo {
+    width: 180px;
+    height: 180px;
+  }
+  .pin-title {
+    font-size: 2.3rem;
+  }
+  .pin-subtitle {
+    font-size: 1.25rem;
+  }
+  .login-label {
+    font-size: 1.05rem;
+  }
+  .login-input {
+    height: 68px;
+    font-size: 1.35rem;
+  }
+  .login-password-toggle {
+    font-size: 1.05rem;
+    padding: 6px 14px;
+  }
+  .pin-submit-btn {
+    height: 68px;
+    font-size: 1.4rem;
+    border-radius: 18px;
   }
 }
 

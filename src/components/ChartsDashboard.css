@@ -71,10 +71,39 @@
   width: 100%;
 }
 
-/* TV scaling */
+/* TV scaling (1080p Full HD 50" TV >= 1920px) */
 @media (min-width: 1920px) {
+  .charts-grid {
+    gap: 14px;
+  }
+  .chart-card {
+    padding: 14px 18px;
+    border-radius: 18px;
+  }
   .chart-card__title {
     font-size: 1.15rem;
+  }
+  .chart-card__badge {
+    font-size: 0.8rem;
+    padding: 3px 10px;
+  }
+}
+
+/* TV scaling (4K / UHD 50" TV >= 2560px) */
+@media (min-width: 2560px) {
+  .charts-grid {
+    gap: 20px;
+  }
+  .chart-card {
+    padding: 20px 24px;
+    border-radius: 22px;
+  }
+  .chart-card__title {
+    font-size: 1.55rem;
+  }
+  .chart-card__badge {
+    font-size: 1.05rem;
+    padding: 5px 14px;
   }
 }
 
