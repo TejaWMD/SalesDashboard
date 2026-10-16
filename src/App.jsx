@@ -95,14 +95,15 @@ function App() {
   useEffect(() => {
     if (!currentUserEmail) return undefined;
 
-    // Pull latest cloud state first, then broadcast this device's active presence
-    syncFromCloud().finally(() => {
-      sendUserHeartbeat(
-        currentUserEmail,
-        currentLocationLabel,
-        `Viewing ${currentLocationLabel}`
-      );
-    });
+    // Broadcast this device's active presence immediately on mount/view change
+    sendUserHeartbeat(
+      currentUserEmail,
+      currentLocationLabel,
+      `Viewing ${currentLocationLabel}`
+    );
+
+    // Pull latest cloud state in parallel
+    syncFromCloud();
 
     const heartbeatTimer = setInterval(() => {
       sendUserHeartbeat(
@@ -114,12 +115,12 @@ function App() {
 
     const handleVisibilityOrFocus = () => {
       if (document.visibilityState === 'visible') {
-        syncFromCloud();
         sendUserHeartbeat(
           currentUserEmail,
           currentLocationLabel,
           `Viewing ${currentLocationLabel}`
         );
+        syncFromCloud();
       }
     };
 

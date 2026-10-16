@@ -6,11 +6,9 @@ export const ACTIVITY_LOGS_STORAGE_KEY = 'wmd_dashboard_activity_logs_v2';
 export const CLEAR_TS_STORAGE_KEY = 'wmd_dashboard_logs_cleared_at_v2';
 const BROADCAST_CHANNEL_NAME = 'wmd_dashboard_activity_sync_v2';
 
-// Cloud Sync Endpoints (Works across different PCs, laptops, TVs & phones on GitHub Pages)
+// Cloud Sync Endpoint: ntfy.envs.net (High-speed, open CORS, real-time SSE stream across all devices)
 const NTFY_TOPIC = 'wmd_sales_dashboard_live_v2_981834';
-const NTFY_BASE_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
-const CLOUD_SNAPSHOT_URL =
-  'https://api.restful-api.dev/objects/ff808181a09d98f701a14300a6106e8d';
+const PRIMARY_NTFY_URL = `https://ntfy.envs.net/${NTFY_TOPIC}`;
 const MSG_PREFIX = 'WMD_SYNC:';
 
 // Users with a heartbeat within the last 90 seconds and status === 'online' are considered actively online
@@ -29,7 +27,7 @@ try {
 let eventSourceInstance = null;
 let cloudPollTimer = null;
 let isSyncingFromCloud = false;
-let lastSnapshotPushMs = 0;
+let lastSyncAttemptMs = 0;
 
 function notifySubscribers() {
   try {
@@ -148,7 +146,7 @@ function saveActivityLogs(logs) {
 
 /**
  * Merges a single user's incoming presence object into the target presenceMap.
- * Uses serverTimeSec when available so clock skew between PC & Laptop never breaks online detection.
+ * Handles clock skew accurately so users never prematurely drop to offline.
  */
 function mergeUserPresenceEntry(
   targetMap,
@@ -159,6 +157,7 @@ function mergeUserPresenceEntry(
   if (!incoming || !incoming.email) return false;
   const cleanEmail = String(incoming.email).trim().toLowerCase();
   const existing = targetMap[cleanEmail];
+  const nowMs = Date.now();
 
   const existingServerSec = existing?._serverTimeSec || 0;
   const incomingTimeMs = incoming.lastAccessedAt
@@ -180,37 +179,58 @@ function mergeUserPresenceEntry(
     isNewerOrEqual = incomingTimeMs >= existingTimeMs - 2000;
   }
 
+  // Calculate heartbeat timestamp relative to local clock
   let computedHeartbeatMs = 0;
   if (incoming.status === 'offline') {
     computedHeartbeatMs = 0;
   } else if (typeof ageMsFromServer === 'number' && ageMsFromServer >= 0) {
-    computedHeartbeatMs = Math.max(0, Date.now() - ageMsFromServer);
-  } else if (existing?.lastHeartbeatMs && !serverTimeSec) {
+    // True elapsed time calculated against server timestamp
+    computedHeartbeatMs = Math.max(0, nowMs - ageMsFromServer);
+  } else if (incoming.lastHeartbeatMs && (nowMs - incoming.lastHeartbeatMs) < ONLINE_TIMEOUT_MS) {
+    computedHeartbeatMs = incoming.lastHeartbeatMs;
+  } else if (incomingTimeMs && (nowMs - incomingTimeMs) < ONLINE_TIMEOUT_MS) {
+    computedHeartbeatMs = incomingTimeMs;
+  } else if (existing?.lastHeartbeatMs && (nowMs - existing.lastHeartbeatMs) < ONLINE_TIMEOUT_MS) {
+    // Keep existing valid recent heartbeat
     computedHeartbeatMs = existing.lastHeartbeatMs;
+  } else {
+    // Live arrival defaults to active now
+    computedHeartbeatMs = nowMs;
   }
 
   if (isNewerOrEqual) {
     const normalizedIso =
       serverTimeSec && serverTimeSec > 0
         ? new Date(serverTimeSec * 1000).toISOString()
-        : incoming.lastAccessedAt;
+        : incoming.lastAccessedAt || new Date().toISOString();
+
+    const isStillOnline =
+      incoming.status !== 'offline' &&
+      computedHeartbeatMs > 0 &&
+      nowMs - computedHeartbeatMs <= ONLINE_TIMEOUT_MS;
 
     targetMap[cleanEmail] = {
       ...existing,
       ...incoming,
       email: cleanEmail,
       role: isAdminEmail(cleanEmail) ? 'admin' : 'user',
-      lastAccessedAt: normalizedIso || incoming.lastAccessedAt || existing?.lastAccessedAt,
+      status: incoming.status === 'offline' ? 'offline' : (isStillOnline ? 'online' : 'offline'),
+      lastAccessedAt: normalizedIso || existing?.lastAccessedAt,
       lastHeartbeatMs: incoming.status === 'offline' ? 0 : computedHeartbeatMs,
       _serverTimeSec: Math.max(serverTimeSec || 0, existingServerSec),
+      lastLoginAt: incoming.lastLoginAt || existing?.lastLoginAt || normalizedIso,
+      lastLogoutAt: incoming.status === 'offline' ? (incoming.lastLogoutAt || normalizedIso) : existing?.lastLogoutAt || null,
       totalLogins: Math.max(incoming.totalLogins || 0, existing?.totalLogins || 0),
       totalActions: Math.max(incoming.totalActions || 0, existing?.totalActions || 0),
     };
     return true;
   }
 
-  existing.totalLogins = Math.max(incoming.totalLogins || 0, existing.totalLogins || 0);
-  existing.totalActions = Math.max(incoming.totalActions || 0, existing.totalActions || 0);
+  // Even if older, preserve highest cumulative counters
+  if (existing) {
+    existing.totalLogins = Math.max(incoming.totalLogins || 0, existing.totalLogins || 0);
+    existing.totalActions = Math.max(incoming.totalActions || 0, existing.totalActions || 0);
+  }
   return false;
 }
 
@@ -241,103 +261,60 @@ function mergeLogEntries(existingLogs, incomingLogs) {
 }
 
 /**
- * Publishes an event packet to the real-time ntfy.sh cloud stream
+ * Publishes an event packet to the real-time cloud stream with strict timeout
  */
 async function publishCloudEvent(packet) {
   try {
-    await fetch(NTFY_BASE_URL, {
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+
+    await fetch(PRIMARY_NTFY_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain;charset=UTF-8',
       },
       body: `${MSG_PREFIX}${JSON.stringify(packet)}`,
       keepalive: true,
+      signal: controller ? controller.signal : undefined,
     });
+
+    if (timeoutId) clearTimeout(timeoutId);
   } catch {
-    // Ignore transient network errors
+    // Silently ignore transient network errors or aborts
   }
 }
 
 /**
- * Pushes the merged state snapshot to the persistent REST store
- */
-async function pushCloudSnapshot(force = false) {
-  const now = Date.now();
-  if (!force && now - lastSnapshotPushMs < 10000) return;
-  lastSnapshotPushMs = now;
-
-  try {
-    const presence = getStoredPresenceMap();
-    const logs = getActivityLogs().slice(0, 120);
-    const clearedAt = getClearedAtTimestamp();
-
-    await fetch(CLOUD_SNAPSHOT_URL, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: 'wmd_dashboard_tracker',
-        data: {
-          updatedAtMs: now,
-          clearedAtMs: clearedAt,
-          presence,
-          logs,
-        },
-      }),
-      keepalive: true,
-    });
-  } catch {
-    // Ignore transient network errors
-  }
-}
-
-/**
- * Pulls and merges the latest events from both the persistent REST snapshot
- * and the ntfy.sh real-time stream so all devices stay in sync
+ * Pulls and merges the latest events from the real-time ntfy cloud stream
  */
 export async function syncFromCloud() {
-  if (isSyncingFromCloud) return;
+  const now = Date.now();
+  if (isSyncingFromCloud && now - lastSyncAttemptMs < 4000) {
+    return;
+  }
   isSyncingFromCloud = true;
+  lastSyncAttemptMs = now;
 
   try {
     const presenceMap = getStoredPresenceMap();
     let logs = getActivityLogs();
 
-    // 1. First load historical baseline from REST snapshot (for older history >12h)
-    try {
-      const snapResp = await fetch(CLOUD_SNAPSHOT_URL, { cache: 'no-store' });
-      if (snapResp.ok) {
-        const snapJson = await snapResp.json();
-        const data = snapJson?.data;
-        if (data) {
-          if (data.clearedAtMs) {
-            setClearedAtTimestamp(data.clearedAtMs);
-          }
-          if (data.presence && typeof data.presence === 'object') {
-            Object.values(data.presence).forEach((entry) => {
-              mergeUserPresenceEntry(presenceMap, entry, null, null);
-            });
-          }
-          if (Array.isArray(data.logs) && data.logs.length > 0) {
-            logs = mergeLogEntries(logs, data.logs);
-          }
-        }
-      }
-    } catch {
-      // Continue to real-time stream
-    }
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
 
-    // 2. Replay real-time ntfy.sh event stream (authoritative live state across all devices)
     try {
-      const ntfyResp = await fetch(`${NTFY_BASE_URL}/json?poll=1&since=12h`, {
+      const ntfyResp = await fetch(`${PRIMARY_NTFY_URL}/json?poll=1&since=12h`, {
         cache: 'no-store',
+        signal: controller ? controller.signal : undefined,
       });
+
+      if (timeoutId) clearTimeout(timeoutId);
+
       if (ntfyResp.ok) {
         const headerDateStr = ntfyResp.headers.get('date');
         const headerNowSec = headerDateStr
           ? Math.floor(new Date(headerDateStr).getTime() / 1000)
-          : 0;
+          : Math.floor(Date.now() / 1000);
 
         const text = await ntfyResp.text();
         const lines = text
@@ -365,18 +342,20 @@ export async function syncFromCloud() {
               parsedEvents.push({ serverTimeSec, payload });
             }
           } catch {
-            // Skip malformed lines
+            // Skip invalid line
           }
         });
 
-        const referenceNowSec =
-          maxServerTimeSec > 0 ? maxServerTimeSec : Math.floor(Date.now() / 1000);
-
+        const referenceNowSec = maxServerTimeSec > 0 ? maxServerTimeSec : headerNowSec;
         const incomingLogs = [];
+
         parsedEvents.forEach(({ serverTimeSec, payload }) => {
+          if (!payload) return;
+
           if (payload.type === 'CLEAR_LOGS' && payload.clearedAtMs) {
             setClearedAtTimestamp(payload.clearedAtMs);
           }
+
           if (payload.presence) {
             const ageMs =
               serverTimeSec > 0
@@ -389,6 +368,7 @@ export async function syncFromCloud() {
               serverTimeSec
             );
           }
+
           if (payload.logEntry) {
             const normalizedLog =
               serverTimeSec > 0
@@ -406,7 +386,9 @@ export async function syncFromCloud() {
         }
       }
     } catch {
-      // Ignore stream error
+      // Ignore network timeout
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
     }
 
     savePresenceMap(presenceMap);
@@ -426,10 +408,10 @@ export function startCloudActivitySync() {
   // Initial pull from cloud immediately
   syncFromCloud();
 
-  // Open real-time Server-Sent Events connection to ntfy.sh
+  // Open real-time Server-Sent Events connection to ntfy server
   if (!eventSourceInstance && typeof EventSource !== 'undefined') {
     try {
-      eventSourceInstance = new EventSource(`${NTFY_BASE_URL}/sse`);
+      eventSourceInstance = new EventSource(`${PRIMARY_NTFY_URL}/sse`);
       eventSourceInstance.onmessage = (event) => {
         try {
           const envelope = JSON.parse(event.data);
@@ -473,16 +455,20 @@ export function startCloudActivitySync() {
           // Ignore parse errors
         }
       };
+
+      eventSourceInstance.onerror = () => {
+        // Browser automatically attempts SSE reconnection
+      };
     } catch {
       eventSourceInstance = null;
     }
   }
 
-  // Periodic background sync every 5 seconds
+  // Periodic background sync every 8 seconds
   if (!cloudPollTimer) {
     cloudPollTimer = setInterval(() => {
       syncFromCloud();
-    }, 5000);
+    }, 8000);
   }
 
   return () => {};
@@ -554,8 +540,6 @@ export function recordUserActivity({
     type: 'EVENT',
     presence: updatedPresence,
     logEntry: newEntry,
-  }).then(() => {
-    pushCloudSnapshot(!skipLog);
   });
 }
 
@@ -581,10 +565,32 @@ export function getAllTrackedUsers() {
   const presenceMap = getStoredPresenceMap();
   const nowMs = Date.now();
 
-  return AUTHORIZED_USERS.map((authUser) => {
-    const cleanEmail = authUser.email.toLowerCase();
+  const knownMap = new Map();
+
+  // 1. Authorized users from configuration
+  AUTHORIZED_USERS.forEach((authUser) => {
+    const cleanEmail = authUser.email.trim().toLowerCase();
+    knownMap.set(cleanEmail, {
+      email: cleanEmail,
+      role: isAdminEmail(cleanEmail) ? 'admin' : 'user',
+    });
+  });
+
+  // 2. Any additional accounts that have activity in presenceMap
+  Object.keys(presenceMap).forEach((emailKey) => {
+    const cleanEmail = String(emailKey).trim().toLowerCase();
+    if (cleanEmail && !knownMap.has(cleanEmail)) {
+      knownMap.set(cleanEmail, {
+        email: cleanEmail,
+        role: isAdminEmail(cleanEmail) ? 'admin' : 'user',
+      });
+    }
+  });
+
+  const list = Array.from(knownMap.values()).map((acc) => {
+    const cleanEmail = acc.email;
     const tracked = presenceMap[cleanEmail] || null;
-    const role = isAdminEmail(cleanEmail) ? 'admin' : 'user';
+    const role = acc.role;
 
     if (!tracked) {
       return {
@@ -613,7 +619,11 @@ export function getAllTrackedUsers() {
       email: cleanEmail,
       role,
       isOnline: Boolean(isRecentHeartbeat),
-      status: isRecentHeartbeat ? 'online' : 'offline',
+      status: isRecentHeartbeat
+        ? 'online'
+        : tracked.lastAccessedAt
+        ? 'offline'
+        : 'never',
       currentLocation: tracked.currentLocation || 'Homepage (Account Managers)',
       lastAction: tracked.lastAction || 'Viewing Dashboard',
       lastActionType: tracked.lastActionType || 'NAVIGATION',
@@ -624,6 +634,15 @@ export function getAllTrackedUsers() {
       totalActions: tracked.totalActions || 0,
     };
   });
+
+  // Online accounts top, then admins, then alphabetical
+  list.sort((a, b) => {
+    if (a.isOnline !== b.isOnline) return a.isOnline ? -1 : 1;
+    if (a.role !== b.role) return a.role === 'admin' ? -1 : 1;
+    return a.email.localeCompare(b.email);
+  });
+
+  return list;
 }
 
 /**
@@ -651,7 +670,6 @@ export function clearActivityLogs(adminEmail) {
         });
       }, 50);
     } else {
-      pushCloudSnapshot(true);
       notifySubscribers();
     }
   } catch (err) {

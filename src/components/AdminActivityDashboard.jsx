@@ -71,6 +71,7 @@ function AdminActivityDashboard({ currentUserEmail }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
   const [isSyncingCloud, setIsSyncingCloud] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState(() => Date.now());
 
   const refreshTrackerState = () => {
     setUsers(getAllTrackedUsers());
@@ -79,21 +80,42 @@ function AdminActivityDashboard({ currentUserEmail }) {
 
   const handleManualCloudSync = async () => {
     setIsSyncingCloud(true);
-    await syncFromCloud();
-    refreshTrackerState();
-    setIsSyncingCloud(false);
+    try {
+      await syncFromCloud();
+      refreshTrackerState();
+      setLastSyncTime(Date.now());
+    } catch (err) {
+      console.warn('Manual cloud sync error:', err);
+    } finally {
+      setIsSyncingCloud(false);
+    }
   };
 
   useEffect(() => {
     handleManualCloudSync();
-    const unsubscribe = subscribeToActivityUpdates(refreshTrackerState);
-    // Poll cloud & refresh relative timestamps every 4 seconds
-    const timer = setInterval(() => {
-      syncFromCloud().then(refreshTrackerState);
-    }, 4000);
+    const unsubscribe = subscribeToActivityUpdates(() => {
+      refreshTrackerState();
+      setLastSyncTime(Date.now());
+    });
+
+    // Local ticker: re-renders relative times ("Just now", "X s ago") and re-evaluates
+    // active status every 2 seconds without waiting for network
+    const ticker = setInterval(refreshTrackerState, 2000);
+
+    // Periodic cloud poll every 8 seconds
+    const cloudTimer = setInterval(() => {
+      syncFromCloud()
+        .then(() => {
+          refreshTrackerState();
+          setLastSyncTime(Date.now());
+        })
+        .catch(() => {});
+    }, 8000);
+
     return () => {
       unsubscribe();
-      clearInterval(timer);
+      clearInterval(ticker);
+      clearInterval(cloudTimer);
     };
   }, []);
 
