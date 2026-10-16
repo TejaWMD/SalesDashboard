@@ -1,145 +1,121 @@
 // src/components/PinLogin.jsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
+import wmdLogo from '../assets/wmd-logo.jpg';
 import './PinLogin.css';
 
-// Configured Dashboard Access PIN
+// ============================================================================
+// AUTHORIZED DASHBOARD USERS (Add or edit email & password credentials here)
+// ============================================================================
+export const AUTHORIZED_USERS = [
+  {
+    email: 'wmgteja@gmail.com',
+    password: '180403',
+  },
+  {
+    email: 'wmdklshakti@gmail.com',
+    password: '374992',
+  },
+  {
+    email: 'wmdklkavita@gmail.com',
+    password: '459982',
+  },
+  {
+    email: 'wmdlindakl@gmail.com',
+    password: '100293',
+  },
+  {
+    email: 'admin1@gmail.com', //mani sir and teja
+    password: '981834',
+  },
+];
+
+export const AUTH_STORAGE_KEY = 'wmd_sales_dashboard_auth_email';
+// Kept for backward-compatibility imports if any
 export const DASHBOARD_PIN = '040903';
-export const AUTH_STORAGE_KEY = 'sales_dashboard_pin_auth';
+
+export function isStoredAuthValid() {
+  try {
+    const savedEmail = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!savedEmail) return false;
+    return AUTHORIZED_USERS.some(
+      (u) => u.email.toLowerCase() === savedEmail.trim().toLowerCase()
+    );
+  } catch {
+    return false;
+  }
+}
 
 function PinLogin({ onSuccess }) {
-  const [pin, setPin] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [isShaking, setIsShaking] = useState(false);
-  const [showPin, setShowPin] = useState(false);
 
-  // Validate entered PIN against the configured 040903
-  const submitPin = useCallback((pinToTest) => {
-    if (pinToTest === DASHBOARD_PIN) {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    if (!cleanEmail || !cleanPassword) {
+      setErrorMsg('Please enter both your email and password.');
+      triggerShake();
+      return;
+    }
+
+    const matchedUser = AUTHORIZED_USERS.find(
+      (user) =>
+        user.email.toLowerCase() === cleanEmail &&
+        user.password === cleanPassword
+    );
+
+    if (matchedUser) {
       setErrorMsg('');
       try {
-        localStorage.setItem(AUTH_STORAGE_KEY, DASHBOARD_PIN);
-      } catch (e) {
-        console.warn('LocalStorage not available', e);
+        localStorage.setItem(AUTH_STORAGE_KEY, matchedUser.email.toLowerCase());
+      } catch (err) {
+        console.warn('LocalStorage not available', err);
       }
-      onSuccess();
+      onSuccess(matchedUser.email);
     } else {
-      setErrorMsg('Incorrect PIN. Please try again.');
-      setIsShaking(true);
-      setTimeout(() => {
-        setIsShaking(false);
-        setPin('');
-      }, 700);
+      setErrorMsg('Invalid email or password. Please try again.');
+      triggerShake();
     }
-  }, [onSuccess]);
+  };
 
-  // Handle number click / keypress
-  const handleDigit = useCallback((digit) => {
-    setErrorMsg('');
-    setPin((prev) => {
-      if (prev.length >= 6) return prev;
-      const next = prev + digit;
-      if (next.length === 6) {
-        // Auto-validate once 6 digits are entered
-        setTimeout(() => submitPin(next), 150);
-      }
-      return next;
-    });
-  }, [submitPin]);
-
-  const handleBackspace = useCallback(() => {
-    setErrorMsg('');
-    setPin((prev) => prev.slice(0, -1));
-  }, []);
-
-  const handleClear = useCallback(() => {
-    setErrorMsg('');
-    setPin('');
-  }, []);
-
-  // Physical keyboard support
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key >= '0' && e.key <= '9') {
-        handleDigit(e.key);
-      } else if (e.key === 'Backspace') {
-        handleBackspace();
-      } else if (e.key === 'Escape') {
-        handleClear();
-      } else if (e.key === 'Enter') {
-        if (pin.length > 0) {
-          submitPin(pin);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleDigit, handleBackspace, handleClear, submitPin, pin]);
+  const triggerShake = () => {
+    setIsShaking(true);
+    setTimeout(() => {
+      setIsShaking(false);
+    }, 650);
+  };
 
   return (
     <div className="pin-login-container">
       <div className={`pin-card ${isShaking ? 'pin-card--shake' : ''}`}>
-        {/* Shield Icon Header */}
+        {/* Company Logo Header at the top of the login card */}
         <div className="pin-header">
-          <div className="pin-icon-wrapper">
-            <svg
-              className="pin-shield-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              <rect x="9" y="11" width="6" height="5" rx="1" />
-              <path d="M10 11V9a2 2 0 1 1 4 0v2" />
-            </svg>
+          <div className="pin-logo-wrapper">
+            <img
+              src={wmdLogo}
+              alt="WMD Company Logo"
+              className="pin-company-logo"
+            />
           </div>
           <h1 className="pin-title">SALES & COLLECTION</h1>
-          {/* <p className="pin-subtitle">
-            Restricted Access Portal • Enter 6-Digit PIN
-          </p> */}
+          <p className="pin-subtitle">Sign in with your authorized email account</p>
         </div>
 
-        {/* PIN Dots Display */}
-        <div className="pin-display-wrapper">
-          <div className="pin-dots">
-            {[0, 1, 2, 3, 4, 5].map((idx) => {
-              const isFilled = idx < pin.length;
-              const char = pin[idx];
-              return (
-                <div
-                  key={idx}
-                  className={`pin-dot ${isFilled ? 'pin-dot--filled' : ''} ${idx === pin.length ? 'pin-dot--active' : ''
-                    }`}
-                >
-                  {isFilled && showPin ? char : isFilled ? '•' : ''}
-                </div>
-              );
-            })}
-          </div>
-
-          <button
-            type="button"
-            className="pin-reveal-toggle"
-            onClick={() => setShowPin((prev) => !prev)}
-            title={showPin ? 'Hide PIN' : 'Show PIN'}
-          >
-            {showPin ? 'Hide' : 'Show'}
-          </button>
-        </div>
-
-        {/* Error message */}
+        {/* Error Banner */}
         {errorMsg && (
-          <div className="pin-error-banner">
+          <div className="pin-error-banner" role="alert">
             <svg
               width="16"
               height="16"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="2.2"
             >
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
@@ -149,66 +125,107 @@ function PinLogin({ onSuccess }) {
           </div>
         )}
 
-        {/* Numeric Keypad */}
-        <div className="pin-keypad">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-            <button
-              key={num}
-              type="button"
-              className="pin-key"
-              onClick={() => handleDigit(String(num))}
+        {/* Email & Password Login Form */}
+        <form className="login-form" onSubmit={handleSubmit} noValidate>
+          <div className="login-field">
+            <label htmlFor="login-email" className="login-label">
+              EMAIL ADDRESS
+            </label>
+            <div className="login-input-wrapper">
+              <svg
+                className="login-input-icon"
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="2" y="4" width="20" height="16" rx="3" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+              <input
+                id="login-email"
+                type="email"
+                className="login-input"
+                placeholder="name@gmail.com"
+                value={email}
+                onChange={(e) => {
+                  setErrorMsg('');
+                  setEmail(e.target.value);
+                }}
+                autoComplete="email"
+                autoFocus
+                required
+              />
+            </div>
+          </div>
+
+          <div className="login-field">
+            <label htmlFor="login-password" className="login-label">
+              PASSWORD
+            </label>
+            <div className="login-input-wrapper">
+              <svg
+                className="login-input-icon"
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              <input
+                id="login-password"
+                type={showPassword ? 'text' : 'password'}
+                className="login-input"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => {
+                  setErrorMsg('');
+                  setPassword(e.target.value);
+                }}
+                autoComplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                className="login-password-toggle"
+                onClick={() => setShowPassword((prev) => !prev)}
+                title={showPassword ? 'Hide Password' : 'Show Password'}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="pin-submit-btn"
+            disabled={!email.trim() || !password.trim()}
+          >
+            <span>Sign In to Dashboard</span>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <span className="pin-key__number">{num}</span>
-            </button>
-          ))}
-
-          <button
-            type="button"
-            className="pin-key pin-key--action"
-            onClick={handleClear}
-            title="Clear all digits"
-          >
-            <span className="pin-key__action-text">CLEAR</span>
-          </button>
-
-          <button
-            type="button"
-            className="pin-key"
-            onClick={() => handleDigit('0')}
-          >
-            <span className="pin-key__number">0</span>
-          </button>
-
-          <button
-            type="button"
-            className="pin-key pin-key--action"
-            onClick={handleBackspace}
-            title="Delete last digit"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
-              <line x1="18" y1="9" x2="12" y2="15" />
-              <line x1="12" y1="9" x2="18" y2="15" />
+              <polyline points="9 18 15 12 9 6" />
             </svg>
           </button>
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="button"
-          className="pin-submit-btn"
-          disabled={pin.length === 0}
-          onClick={() => submitPin(pin)}
-        >
-          <span>Unlock Dashboard</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </button>
-
-        <div className="pin-footer-info">
-          {/* <span>Optimized for Smart TV & Dashboard Monitors</span> */}
-        </div>
+        </form>
       </div>
     </div>
   );

@@ -4,26 +4,26 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100vw;
   background-color: var(--bg-tv-main);
   background-image:
-    radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.5) 0%, transparent 42%),
-    radial-gradient(circle at 50% 80%, rgba(249, 215, 30, 0.2) 0%, transparent 50%),
-    linear-gradient(135deg, #ffe066 0%, #ffd740 50%, #ffcf2e 100%);
+    radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.55) 0%, transparent 42%),
+    radial-gradient(circle at 50% 80%, rgba(255, 243, 153, 0.35) 0%, transparent 50%),
+    linear-gradient(135deg, #fbe546 0%, #f9df3e 52%, #f6d735 100%);
   padding: 20px;
   box-sizing: border-box;
 }
 
 .pin-card {
-  background: var(--bg-card-translucent);
-  border: 1px solid var(--border-subtle);
-  border-top: 4px solid var(--color-lemon);
-  border-radius: 22px;
-  padding: 36px 40px;
+  background: #ffffff;
+  border: 2px solid rgba(7, 43, 97, 0.16);
+  border-top: 6px solid #072b61;
+  border-radius: 24px;
+  padding: 34px 38px;
   width: 100%;
   max-width: 440px;
-  box-shadow: var(--shadow-lg), var(--shadow-glow-lemon);
-  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 48px rgba(7, 43, 97, 0.18), 0 4px 14px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -32,8 +32,7 @@
 
 .pin-card--shake {
   animation: shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-  border-color: rgba(229, 67, 48, 0.85);
-  box-shadow: 0 20px 60px rgba(12, 11, 12, 0.5), 0 0 30px rgba(229, 67, 48, 0.3);
+  border-color: rgba(191, 81, 68, 0.85);
 }
 
 @keyframes shake {
@@ -46,104 +45,49 @@
 .pin-header {
   text-align: center;
   margin-bottom: 24px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.pin-icon-wrapper {
+.pin-logo-wrapper {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 58px;
-  height: 58px;
+  padding: 6px;
+  background: #ffffff;
   border-radius: 18px;
-  background: linear-gradient(135deg, #009bd6 0%, #007bb0 100%);
-  border: 1px solid rgba(255, 255, 255, 0.25);
   margin-bottom: 14px;
-  box-shadow: var(--shadow-glow-blue);
-  transition: transform 0.2s ease;
+  box-shadow: 0 6px 20px rgba(7, 43, 97, 0.14);
+  transition: transform 0.25s ease;
 }
 
-.pin-icon-wrapper:hover {
-  transform: scale(1.08) rotate(-3deg);
+.pin-logo-wrapper:hover {
+  transform: scale(1.04);
 }
 
-.pin-shield-icon {
-  width: 30px;
-  height: 30px;
-  color: #ffffff;
+.pin-company-logo {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+  border-radius: 12px;
+  display: block;
 }
 
 .pin-title {
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   font-weight: 900;
-  color: #ffffff;
-  letter-spacing: -0.01em;
+  color: #072b61;
+  letter-spacing: 0.02em;
   margin: 0 0 6px 0;
 }
 
 .pin-subtitle {
   font-size: 0.825rem;
-  color: var(--text-accent);
+  color: #475569;
   font-weight: 600;
   margin: 0;
-}
-
-/* PIN Display (6 dots) */
-.pin-display-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.pin-dots {
-  display: flex;
-  gap: 10px;
-}
-
-.pin-dot {
-  width: 44px;
-  height: 50px;
-  border-radius: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  background: var(--bg-card-elevated);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--color-lemon);
-  font-family: 'JetBrains Mono', monospace;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.pin-dot--active {
-  border-color: var(--color-lemon);
-  box-shadow: var(--shadow-glow-lemon);
-  transform: scale(1.04);
-}
-
-.pin-dot--filled {
-  border-color: var(--color-blue);
-  background: rgba(0, 155, 214, 0.15);
-  color: #00c0f0;
-}
-
-.pin-reveal-toggle {
-  background: var(--bg-card-elevated);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--text-muted);
-  border-radius: 10px;
-  padding: 6px 10px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.pin-reveal-toggle:hover {
-  color: #ffffff;
-  border-color: var(--color-lemon);
-  transform: translateY(-1px);
 }
 
 /* Error banner */
@@ -151,22 +95,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
   color: #ffffff;
-  background: rgba(229, 67, 48, 0.9);
+  background: #c53030;
   border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 8px 14px;
-  border-radius: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
   font-size: 0.8rem;
   font-weight: 700;
   margin-bottom: 16px;
   animation: fadeIn 0.2s ease;
-}
-
-.pin-instruction {
-  font-size: 0.775rem;
-  color: var(--text-muted);
-  margin-bottom: 16px;
-  font-weight: 500;
 }
 
 @keyframes fadeIn {
@@ -174,67 +112,96 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Keypad Grid */
-.pin-keypad {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+/* Email & Password Form */
+.login-form {
   width: 100%;
-  max-width: 320px;
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.pin-key {
-  height: 56px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: var(--bg-card-elevated);
-  color: #ffffff;
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.login-label {
+  font-size: 0.725rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #072b61;
+}
+
+.login-input-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  width: 100%;
+  background: #f4f7fc;
+  border: 1.5px solid rgba(7, 43, 97, 0.2);
+  border-radius: 12px;
+  padding: 0 12px;
+  transition: all 0.2s ease;
+}
+
+.login-input-wrapper:focus-within {
+  background: #ffffff;
+  border-color: #072b61;
+  box-shadow: 0 0 0 3px rgba(7, 43, 97, 0.12);
+}
+
+.login-input-icon {
+  color: #072b61;
+  opacity: 0.75;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.login-input {
+  width: 100%;
+  height: 46px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #072b61;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.login-input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.login-password-toggle {
+  background: rgba(7, 43, 97, 0.08);
+  border: 1px solid rgba(7, 43, 97, 0.16);
+  color: #072b61;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
   cursor: pointer;
-  user-select: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  margin-left: 8px;
+  transition: all 0.2s ease;
 }
 
-.pin-key:hover {
-  background: rgba(0, 155, 214, 0.25);
-  border-color: var(--color-blue);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-glow-blue);
-}
-
-.pin-key:active {
-  transform: translateY(1px);
-  background: rgba(0, 155, 214, 0.4);
-}
-
-.pin-key__number {
-  font-size: 1.4rem;
-  font-weight: 800;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.pin-key--action {
-  background: #0f0e13;
-  color: var(--text-muted);
-}
-
-.pin-key__action-text {
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
+.login-password-toggle:hover {
+  background: #072b61;
+  color: #ffffff;
 }
 
 /* Submit button */
 .pin-submit-btn {
   width: 100%;
-  max-width: 320px;
   height: 48px;
-  border-radius: 14px;
+  margin-top: 6px;
+  border-radius: 12px;
   border: none;
-  background: linear-gradient(135deg, #009bd6 0%, #007bb0 100%);
+  background: linear-gradient(135deg, #072b61 0%, #0d4394 100%);
   color: #ffffff;
   font-size: 0.95rem;
   font-weight: 800;
@@ -244,56 +211,43 @@
   gap: 10px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-glow-blue);
+  box-shadow: 0 6px 18px rgba(7, 43, 97, 0.28);
 }
 
 .pin-submit-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #00abeb 0%, #0088c4 100%);
+  background: linear-gradient(135deg, #0a387d 0%, #1352b0 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 155, 214, 0.5);
+  box-shadow: 0 8px 24px rgba(7, 43, 97, 0.38);
 }
 
 .pin-submit-btn:disabled {
-  opacity: 0.45;
+  opacity: 0.48;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-.pin-footer-info {
-  margin-top: 18px;
-  font-size: 0.725rem;
-  color: var(--text-muted);
-  text-align: center;
-  font-weight: 500;
-}
-
-/* TV Scaling for PIN */
+/* TV Scaling */
 @media (min-width: 1920px) {
   .pin-card {
     max-width: 500px;
-    padding: 44px 50px;
+    padding: 44px 48px;
     border-radius: 26px;
+  }
+  .pin-company-logo {
+    width: 136px;
+    height: 136px;
   }
   .pin-title {
     font-size: 1.7rem;
   }
-  .pin-dot {
-    width: 50px;
-    height: 58px;
-    font-size: 1.7rem;
-    border-radius: 16px;
-  }
-  .pin-key {
-    height: 64px;
-    border-radius: 18px;
-  }
-  .pin-key__number {
-    font-size: 1.7rem;
+  .login-input {
+    height: 54px;
+    font-size: 1.05rem;
   }
   .pin-submit-btn {
     height: 54px;
     font-size: 1.1rem;
-    border-radius: 16px;
+    border-radius: 14px;
   }
 }
 
@@ -302,20 +256,11 @@
     padding: 24px 20px;
     border-radius: 18px;
   }
-  .pin-dots {
-    gap: 8px;
+  .pin-company-logo {
+    width: 92px;
+    height: 92px;
   }
-  .pin-dot {
-    width: 36px;
-    height: 44px;
-    font-size: 1.1rem;
-    border-radius: 10px;
-  }
-  .pin-key {
-    height: 48px;
-    border-radius: 12px;
-  }
-  .pin-key__number {
+  .pin-title {
     font-size: 1.2rem;
   }
 }
