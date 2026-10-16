@@ -223,9 +223,9 @@ function AdminActivityDashboard({ currentUserEmail }) {
               <h2 className="admin-panel__title">
                 <span>👤</span> USER ACCESS & LIVE LOCATION STATUS
               </h2>
-              <p className="admin-panel__subtitle">
+              {/* <p className="admin-panel__subtitle">
                 Live multi-device cloud sync active • Click any account row to filter history
-              </p>
+              </p> */}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               {selectedUserFilter !== 'ALL' && (
@@ -361,9 +361,9 @@ function AdminActivityDashboard({ currentUserEmail }) {
               <h2 className="admin-panel__title">
                 <span>🕒</span> REAL-TIME ACTIVITY LOG
               </h2>
-              <p className="admin-panel__subtitle">
+              {/* <p className="admin-panel__subtitle">
                 Every sign-in, page switch, filter change & action across the dashboard
-              </p>
+              </p> */}
             </div>
 
             <button
@@ -404,7 +404,7 @@ function AdminActivityDashboard({ currentUserEmail }) {
               <option value="NAVIGATION">Page Navigation</option>
               <option value="SUBTAB_CHANGE">Dashboard / Table Switch</option>
               <option value="FILTER_CHANGE">Month Filter</option>
-              <option value="DATA_REFRESH">Manual Refresh</option>
+              <option value="DATA_REFRESH">manual Refresh</option>
             </select>
 
             <input
