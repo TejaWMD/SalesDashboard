@@ -1,5 +1,6 @@
 // src/components/TvControls.jsx
 import React from 'react';
+import wmdLogo from '../assets/wmd-logo.jpg';
 import './TvControls.css';
 
 function TvControls({
@@ -7,7 +8,8 @@ function TvControls({
   onMonthChange,
   availableMonths,
   activeView,
-  onViewChange,
+  activeSubTab,
+  onSubTabChange,
   lastUpdated,
   onManualRefresh,
   isLoading,
@@ -15,9 +17,11 @@ function TvControls({
   onToggleFullscreen,
   onLockDashboard,
 }) {
+  const showHeaderTabs = activeView === 'sales' || activeView === 'collection';
+
   return (
     <div className="tv-controls">
-      {/* Left controls: Month selector & Quick View switch */}
+      {/* Left controls: Month selector & Dashboard/Table Tabs */}
       <div className="tv-controls__group tv-controls__left">
         {activeView === 'sales' ? (
           <div className="tv-controls__item">
@@ -45,33 +49,31 @@ function TvControls({
           </div>
         )}
 
-        {/* View mode switcher: Sales, Collection, Online Sales */}
-        <div className="tv-view-switcher">
-          <button
-            type="button"
-            className={`tv-view-btn ${activeView === 'sales' ? 'active' : ''}`}
-            onClick={() => onViewChange('sales')}
-            title="Sales Dashboard: Target vs Actual Sales, PIC Scorecards & Charts"
-          >
-            💰 Sales
-          </button>
-          <button
-            type="button"
-            className={`tv-view-btn ${activeView === 'collection' ? 'active' : ''}`}
-            onClick={() => onViewChange('collection')}
-            title="Collection Dashboard: Payment Collected vs Pending & AM Performance"
-          >
-            💵 Collection
-          </button>
-          <button
-            type="button"
-            className={`tv-view-btn ${activeView === 'online' ? 'active' : ''}`}
-            onClick={() => onViewChange('online')}
-            title="Online Sales Dashboard: Shopee & TikTok Ecommerce Performance"
-          >
-            🛒 Online Sales
-          </button>
-        </div>
+        {/* Header Tabs for Sales & Collection: Dashboard vs Table */}
+        {showHeaderTabs && (
+          <div className="tv-view-switcher" role="tablist" aria-label="View Mode Tabs">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeSubTab === 'dashboard'}
+              className={`tv-view-btn ${activeSubTab === 'dashboard' ? 'active' : ''}`}
+              onClick={() => onSubTabChange('dashboard')}
+              title="Dashboard View: KPIs, Scorecards & Charts"
+            >
+              📊 Dashboard
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeSubTab === 'table'}
+              className={`tv-view-btn ${activeSubTab === 'table' ? 'active' : ''}`}
+              onClick={() => onSubTabChange('table')}
+              title="Table View: Searchable, Sortable & TV Scrollable Data Table"
+            >
+              📋 Table
+            </button>
+          </div>
+        )}
 
         {/* Live Status indicator */}
         <div className="tv-controls__sync-status">
@@ -82,7 +84,7 @@ function TvControls({
         </div>
       </div>
 
-      {/* Right controls: Refresh, Fullscreen, Lock */}
+      {/* Right controls: Refresh, Fullscreen, Lock + WMD Company Logo */}
       <div className="tv-controls__group tv-controls__right">
         {/* Manual Refresh Button */}
         <button
@@ -129,19 +131,28 @@ function TvControls({
           <span>{isFullscreen ? 'Exit Full' : 'Fullscreen'}</span>
         </button>
 
-        {/* Lock / Logout PIN Button */}
+        {/* Lock / Logout Button */}
         <button
           type="button"
           className="tv-btn tv-btn--lock"
           onClick={onLockDashboard}
-          title="Lock Dashboard (Return to PIN Screen)"
+          title="Sign Out (Return to Login Screen)"
         >
           <svg className="tv-btn__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
-          <span>Lock</span>
+          <span>Logout</span>
         </button>
+
+        {/* WMD Company Logo on the Top Right */}
+        <div className="tv-company-logo" title="WMD Sales & Collection Portal">
+          <img
+            src={wmdLogo}
+            alt="WMD Company Logo"
+            className="tv-company-logo__img"
+          />
+        </div>
       </div>
     </div>
   );

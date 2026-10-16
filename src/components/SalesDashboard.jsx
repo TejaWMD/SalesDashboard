@@ -315,12 +315,12 @@ function SalesDashboard({ rows }) {
         <KpiCard
           title="Total Outlets Managed"
           value={summary.totalStores}
-          subtitle={`${summary.picList.length} Team Leaders active`}
+          subtitle={`${summary.picList.length} Account Managers active`}
           status="default"
           icon="🏪"
         />
         <KpiCard
-          title="Top Performing Leader"
+          title="Top Account Manager"
           value={summary.topPic ? summary.topPic.name : '-'}
           badge={summary.topPic && summary.topPic.percent !== null ? `${summary.topPic.percent.toFixed(1)}% Rate` : undefined}
           status="success"
@@ -333,8 +333,8 @@ function SalesDashboard({ rows }) {
         {/* Left: Person In Charge Scorecard Cards */}
         <div className="tv-overview__left">
           <div className="tv-panel-header">
-            <h2 className="tv-panel-title">Person in Charge Performance</h2>
-            <span className="tv-panel-subtitle">{summary.picList.length} Team Leaders</span>
+            <h2 className="tv-panel-title">Account Managers Performance</h2>
+            <span className="tv-panel-subtitle">{summary.picList.length} Account Managers</span>
           </div>
 
           <div className="tv-pic-list">
@@ -412,7 +412,7 @@ function SalesDashboard({ rows }) {
         <div className="tv-overview__right">
           <div className="tv-chart-box">
             <div className="tv-panel-header">
-              <h2 className="tv-panel-title">Sales Target vs Actual by PIC</h2>
+              <h2 className="tv-panel-title">Sales Target vs Actual by Account Manager</h2>
               <span className="tv-panel-subtitle">Target (Blue) vs Sales (Green)</span>
             </div>
             <div className="tv-chart-container">
@@ -423,7 +423,7 @@ function SalesDashboard({ rows }) {
           <div className="tv-chart-box">
             <div className="tv-panel-header">
               <h2 className="tv-panel-title">Sales vs Target Achievement Rate (%)</h2>
-              <span className="tv-panel-subtitle">Target Fulfillment by Team Member</span>
+              {/* <span className="tv-panel-subtitle">Target Fulfillment by Team Member</span> */}
             </div>
             <div className="tv-chart-container">
               <Bar data={achievementChartData} options={percentChartOptions} />

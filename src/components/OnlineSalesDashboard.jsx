@@ -72,7 +72,7 @@ function OnlineSalesDashboard({ data }) {
   // Chart 2: Platform Total Comparison (C34 Shopee vs D34 TikTok)
   const platformComparisonData = useMemo(() => {
     return {
-      labels: ['Shopee (C34)', 'TikTok Shop (D34)'],
+      labels: ['Shopee', 'TikTok Shop'],
       datasets: [
         {
           label: 'Sales Revenue (RM)',
@@ -147,14 +147,14 @@ function OnlineSalesDashboard({ data }) {
         <KpiCard
           title="Shopee Total Sales"
           value={formatCurrency(shopeeTotal)}
-          badge={`${shopeePercent.toFixed(1)}% Share (C34)`}
+          badge={`${shopeePercent.toFixed(1)}% Share`}
           status="warning"
           icon="🛍️"
         />
         <KpiCard
-          title="TikTok Shop Total"
+          title="TikTok Shop Total Sales"
           value={formatCurrency(tiktokTotal)}
-          badge={`${tiktokPercent.toFixed(1)}% Share (D34)`}
+          badge={`${tiktokPercent.toFixed(1)}% Share`}
           status="success"
           icon="📱"
         />
@@ -187,7 +187,7 @@ function OnlineSalesDashboard({ data }) {
         <div className="tv-overview__left">
           <div className="tv-panel-header">
             <h2 className="tv-panel-title">E-commerce Platforms Breakdown</h2>
-            <span className="tv-panel-subtitle">Sheet: OKTOBER 2026 (C34 & D34)</span>
+            {/* <span className="tv-panel-subtitle">Sheet: OKTOBER 2026 (C34 & D34)</span> */}
           </div>
 
           <div className="tv-pic-list">
@@ -238,10 +238,9 @@ function OnlineSalesDashboard({ data }) {
                       <div>
                         <h3 className="tv-pic-card__name">{platform.name}</h3>
                         <span className="tv-pic-card__meta">
-                          {platform.name === "Shopee Official Store"
-                            ? "Value from C34"
-                            : "Value from D34"}{" "}
-                          • {platform.activeDays} Active Days
+                          <div className="platform-something">
+                            • {platform.activeDays} Active Days
+                          </div>
                         </span>
                       </div>
                     </div>
@@ -323,7 +322,7 @@ function OnlineSalesDashboard({ data }) {
           <div className="tv-chart-box">
             <div className="tv-panel-header">
               <h2 className="tv-panel-title">Platform Total Revenue Comparison</h2>
-              <span className="tv-panel-subtitle">Shopee (C34) vs TikTok Shop (D34)</span>
+              {/* <span className="tv-panel-subtitle">Shopee (C34) vs TikTok Shop (D34)</span> */}
             </div>
             <div className="tv-chart-container">
               <Bar

@@ -283,6 +283,9 @@
     max-height: 70vh;
   }
   .master-data-table {
-    min-width: 850px;
+    min-width: 600px;
+  }
+  .collection-data-table {
+    min-width: 500px;
   }
 }

@@ -347,7 +347,7 @@ function CollectionDashboard({ data }) {
           icon="🏬"
         />
         <KpiCard
-          title="Top Performing Leader"
+          title="Top Account Manager"
           value={computed.topAM ? computed.topAM.name : '-'}
           badge={
             computed.topAM &&
@@ -555,9 +555,9 @@ function CollectionDashboard({ data }) {
                 Payment Collected Rate (%)
               </h2>
 
-              <span className="tv-panel-subtitle">
+              {/* <span className="tv-panel-subtitle">
                 Collected Rate by Account Manager
-              </span>
+              </span> */}
             </div>
 
             <div className="tv-chart-container">

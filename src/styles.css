@@ -4,85 +4,85 @@
 
 :root {
 
-  /* Refined Yellow Background & Professional Color Palette */
+  /* WMD Brand Palette: Vibrant Yellow Background + Royal Navy Blue & Crisp White */
 
   --bg-tv-main: #fbe546;
 
-  --color-black: #302a18;
+  --color-black: #072b61;
 
-  --color-blue: #167b9b;
+  --color-blue: #0a387d;
 
   --color-red: #bf5144;
 
-  --color-green: #477c3d;
+  --color-green: #2f7a44;
 
-  --color-lemon: #d59e00;
+  --color-lemon: #c89200;
 
 
 
-  /* Warm porcelain surfaces */
+  /* Crisp white & soft navy-porcelain surfaces matching the WMD logo */
 
-  --bg-card: #fffdf5;
+  --bg-card: #ffffff;
 
-  --bg-card-elevated: #fff9e5;
+  --bg-card-elevated: #f3f7fd;
 
-  --bg-card-alt: #fff2c2;
+  --bg-card-alt: #e6eefb;
 
-  --bg-card-translucent: rgba(255, 253, 245, 0.96);
+  --bg-card-translucent: rgba(255, 255, 255, 0.96);
 
-  --bg-card-subtle: rgba(91, 66, 0, 0.05);
+  --bg-card-subtle: rgba(7, 43, 97, 0.05);
 
 
 
   /* Borders & Accents */
 
-  --border-subtle: rgba(91, 66, 0, 0.14);
+  --border-subtle: rgba(7, 43, 97, 0.15);
 
-  --border-lemon: rgba(213, 158, 0, 0.4);
+  --border-lemon: rgba(200, 146, 0, 0.45);
 
-  --border-blue: rgba(22, 123, 155, 0.3);
+  --border-blue: rgba(10, 56, 125, 0.32);
 
 
 
-  /* Typography */
+  /* Typography (WMD Deep Navy & Slate) */
 
-  --text-main: #302a18;
+  --text-main: #072b61;
 
-  --text-body: #4b4635;
+  --text-body: #1c3966;
 
-  --text-muted: #756c52;
+  --text-muted: #4b6387;
 
-  --text-dim: #857b62;
+  --text-dim: #64748b;
 
-  --text-accent: #8a6500;
+  --text-accent: #0a387d;
 
 
 
   /* Semantic status colors */
 
-  --color-primary: #167b9b;
+  --color-primary: #0a387d;
 
-  --color-success: #477c3d;
+  --color-success: #2f7a44;
 
   --color-warning: #c38a00;
 
   --color-danger: #bf5144;
 
-  --color-indigo: #167b9b;
+  --color-indigo: #072b61;
 
 
 
-  /* Warm, restrained shadows */
+  /* Shadows */
 
-  --shadow-sm: 0 2px 8px rgba(91, 66, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(7, 43, 97, 0.08);
 
-  --shadow-md: 0 4px 18px rgba(91, 66, 0, 0.1);
+  --shadow-md: 0 4px 18px rgba(7, 43, 97, 0.11);
 
-  --shadow-lg: 0 8px 28px rgba(91, 66, 0, 0.14);
+  --shadow-lg: 0 8px 28px rgba(7, 43, 97, 0.16);
 
-  --shadow-glow-lemon: 0 0 18px rgba(213, 158, 0, 0.16);
+  --shadow-glow-lemon: 0 0 18px rgba(213, 158, 0, 0.2);
 
-  --shadow-glow-blue: 0 0 14px rgba(22, 123, 155, 0.15);
+  --shadow-glow-blue: 0 0 14px rgba(10, 56, 125, 0.22);
 
 }
 
@@ -926,11 +926,11 @@ select {
 
 .tv-btn--refresh {
 
-  background: linear-gradient(135deg, #167b9b 0%, #126782 100%);
+  background: linear-gradient(135deg, #072b61 0%, #0d4394 100%);
 
   color: #fff;
 
-  box-shadow: 0 3px 10px rgba(22, 123, 155, 0.2);
+  box-shadow: 0 3px 10px rgba(7, 43, 97, 0.24);
 
 }
 
@@ -1044,7 +1044,7 @@ select {
 
 .tv-pic-card__metrics {
 
-  background: #f8f1d9;
+  background: #edf3fc;
 
 }
 
@@ -1058,7 +1058,7 @@ select {
 
 .tv-ticker-val {
 
-  color: #39733e !important;
+  color: #266c39 !important;
 
 }
 
@@ -1106,7 +1106,7 @@ select {
 
 .tv-ticker-pct {
 
-  color: #176b88 !important;
+  color: #0a387d !important;
 
 }
 
@@ -1116,7 +1116,7 @@ select {
 
 .kpi-card__badge--success {
 
-  color: #39733e;
+  color: #266c39;
 
   background: #e9f3e4;
 
@@ -1130,11 +1130,11 @@ select {
 
 .kpi-card__badge--primary {
 
-  color: #176b88;
+  color: #072b61;
 
-  background: #e3f1f5;
+  background: #e6eefb;
 
-  border-color: #bfdce5;
+  border-color: #c3d5f2;
 
 }
 
@@ -1170,11 +1170,11 @@ select {
 
 .tv-status-badge--neutral {
 
-  color: #5e5a4e;
+  color: #475569;
 
-  background: #eeece4;
+  background: #f1f5f9;
 
-  border-color: #d9d5c7;
+  border-color: #cbd5e1;
 
 }
 
@@ -1202,11 +1202,11 @@ select {
 
 .chart-card__badge {
 
-  color: #176b88;
+  color: #072b61;
 
-  background: #e3f1f5;
+  background: #e6eefb;
 
-  border-color: #bfdce5;
+  border-color: #c3d5f2;
 
 }
 
@@ -1232,7 +1232,7 @@ select {
 
 .table-summary-row td {
 
-  background: #fff5cf;
+  background: #eaf0fb;
 
   color: var(--text-main);
 
@@ -1242,7 +1242,7 @@ select {
 
 .master-data-table th {
 
-  border-bottom-color: #e1bc42;
+  border-bottom-color: #072b61;
 
 }
 
@@ -1250,7 +1250,7 @@ select {
 
 .master-data-table td {
 
-  border-bottom-color: rgba(91, 66, 0, 0.1);
+  border-bottom-color: rgba(7, 43, 97, 0.1);
 
 }
 
@@ -1258,7 +1258,7 @@ select {
 
 .master-data-table tr:hover td {
 
-  background: #fff8df;
+  background: #f4f8ff;
 
 }
 
@@ -1270,7 +1270,7 @@ select {
 
   border-color: var(--border-subtle);
 
-  color: var(--text-body);
+  color: var(--text-main);
 
 }
 
@@ -1278,9 +1278,9 @@ select {
 
 .tv-scroll-toggle {
 
-  color: #176b88;
+  color: #072b61;
 
-  background: #eaf4f6;
+  background: #e6eefb;
 
 }
 
@@ -1290,7 +1290,7 @@ select {
 
   color: #fff;
 
-  background: #167b9b;
+  background: #072b61;
 
 }
 
@@ -2293,10 +2293,19 @@ select {
   margin-bottom: 8px;
   background: var(--bg-card-translucent);
   border: 1px solid var(--border-subtle);
-  border-left: 4px solid var(--color-lemon);
+  border-left: 5px solid #072b61;
   border-radius: 14px;
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(12px);
+}
+
+.app-header__logo-icon {
+  background: linear-gradient(135deg, #072b61 0%, #0d4394 100%);
+  color: #ffffff;
+}
+
+.app-header__mobile-logo {
+  display: none;
 }
 
 /* Remove the separate card appearance from the two children. */
@@ -2359,9 +2368,87 @@ select {
 
   .app-topbar > .app-header {
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .app-topbar > .tv-controls {
     width: 100%;
   }
+
+  .app-header__mobile-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1.5px solid rgba(7, 43, 97, 0.22);
+    border-radius: 8px;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+
+  .app-header__mobile-logo img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    border-radius: 5px;
+    display: block;
+  }
 }
+
+/* ========================================================
+   SIDEBAR + WORKSPACE SHELL LAYOUT
+   ======================================================== */
+.app-container {
+  flex-direction: row;
+  gap: 10px;
+}
+
+.app-workspace {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mobile-sidebar-trigger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card-elevated);
+  color: var(--text-main);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.mobile-sidebar-trigger:hover {
+  background: var(--bg-card-alt);
+  border-color: #072b61;
+}
+
+@media (min-width: 1920px) {
+  .app-container {
+    gap: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .mobile-sidebar-trigger {
+    display: inline-flex;
+  }
+}
+
+

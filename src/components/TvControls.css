@@ -148,17 +148,17 @@
 }
 
 .tv-btn--refresh:hover:not(:disabled) {
-  background: rgba(0, 155, 214, 0.2);
+  background: rgba(1, 114, 158, 0.2);
   border-color: var(--color-blue);
-  color: #ffffff;
+  color: #513b3b;
   box-shadow: var(--shadow-glow-blue);
   transform: translateY(-1px);
 }
 
 .tv-btn--fullscreen:hover {
-  background: rgba(249, 215, 30, 0.15);
+  background: rgba(133, 115, 15, 0.15);
   border-color: var(--color-lemon);
-  color: #ffffff;
+  color: #513b3b;
   transform: translateY(-1px);
 }
 
@@ -185,6 +185,41 @@
   to { transform: rotate(360deg); }
 }
 
+/* WMD Company Logo on the Top Right */
+.tv-company-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1.5px solid rgba(7, 43, 97, 0.22);
+  border-radius: 10px;
+  padding: 2px;
+  margin-left: 4px;
+  box-shadow: 0 2px 8px rgba(7, 43, 97, 0.14);
+  flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tv-company-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(7, 43, 97, 0.24);
+}
+
+.tv-company-logo__img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  border-radius: 7px;
+  display: block;
+}
+
+@media (min-width: 1920px) {
+  .tv-company-logo__img {
+    width: 48px;
+    height: 48px;
+  }
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
   .tv-controls {
@@ -207,4 +242,9 @@
     padding: 6px 4px;
     font-size: 0.7rem;
   }
+  /* On mobile, logo is shown in the top-right of .app-header */
+  .tv-company-logo {
+    display: none;
+  }
 }
+

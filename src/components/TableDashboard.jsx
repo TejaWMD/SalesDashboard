@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { formatCurrency, formatPercent } from '../utils/fetchSheet';
 import './TableDashboard.css';
 
-function TableDashboard({ rows }) {
+function TableDashboard({ rows = [] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPerson, setSelectedPerson] = useState('ALL');
   const [sortBy, setSortBy] = useState('store');
@@ -14,7 +14,7 @@ function TableDashboard({ rows }) {
 
   // Distinct persons for filter dropdown
   const uniquePersons = useMemo(() => {
-    return Array.from(new Set(rows.map((r) => r.person))).filter(Boolean);
+    return Array.from(new Set(rows.map((r) => r.person))).filter(Boolean).sort();
   }, [rows]);
 
   // Filtered & sorted rows
@@ -26,9 +26,10 @@ function TableDashboard({ rows }) {
         }
         if (searchTerm) {
           const term = searchTerm.toLowerCase();
-          const matchStore = row.store.toLowerCase().includes(term);
-          const matchPerson = row.person.toLowerCase().includes(term);
-          if (!matchStore && !matchPerson) return false;
+          const matchStore = (row.store || '').toLowerCase().includes(term);
+          const matchPerson = (row.person || '').toLowerCase().includes(term);
+          const matchMonth = (row.month || '').toLowerCase().includes(term);
+          if (!matchStore && !matchPerson && !matchMonth) return false;
         }
         return true;
       })
@@ -38,8 +39,8 @@ function TableDashboard({ rows }) {
 
         // Handle nulls/blanks so they sort to bottom
         if (valA === null && valB === null) return 0;
-        if (valA === null) return 1;
-        if (valB === null) return -1;
+        if (valA === null || valA === undefined) return 1;
+        if (valB === null || valB === undefined) return -1;
 
         if (typeof valA === 'string') {
           return sortOrder === 'asc'
@@ -54,30 +55,17 @@ function TableDashboard({ rows }) {
   const filteredSummary = useMemo(() => {
     let targetTotal = 0;
     let salesTotal = 0;
-    let pendingTotal = 0;
-    let collectedTotal = 0;
-
     let targetCount = 0;
     let salesCount = 0;
-    let pendingCount = 0;
-    let collectedCount = 0;
 
     filteredRows.forEach((r) => {
-      if (r.target !== null) {
+      if (r.target !== null && r.target !== undefined) {
         targetTotal += r.target;
         targetCount++;
       }
-      if (r.sales !== null) {
+      if (r.sales !== null && r.sales !== undefined) {
         salesTotal += r.sales;
         salesCount++;
-      }
-      if (r.pending !== null) {
-        pendingTotal += r.pending;
-        pendingCount++;
-      }
-      if (r.collected !== null) {
-        collectedTotal += r.collected;
-        collectedCount++;
       }
     });
 
@@ -86,8 +74,6 @@ function TableDashboard({ rows }) {
     return {
       targetTotal: targetCount > 0 ? targetTotal : null,
       salesTotal: salesCount > 0 ? salesTotal : null,
-      pendingTotal: pendingCount > 0 ? pendingTotal : null,
-      collectedTotal: collectedCount > 0 ? collectedTotal : null,
       overallPct,
     };
   }, [filteredRows]);
@@ -97,7 +83,7 @@ function TableDashboard({ rows }) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
       setSortBy(column);
-      setSortOrder(column === 'store' || column === 'person' ? 'asc' : 'desc');
+      setSortOrder(column === 'store' || column === 'person' || column === 'month' ? 'asc' : 'desc');
     }
   };
 
@@ -127,10 +113,10 @@ function TableDashboard({ rows }) {
       {/* Top Filter and Controls Bar */}
       <div className="table-top-bar">
         <div className="table-info">
-          <h2 className="table-title">Master Outlets Performance Table</h2>
-          {/* <span className="table-subtitle">
-            Displaying {filteredRows.length} of {rows.length} stores • Google Sheet: Data for TV
-          </span> */}
+          <h2 className="table-title">Sales Outlets Performance Table</h2>
+          <span className="table-subtitle">
+            Showing {filteredRows.length} of {rows.length} stores
+          </span>
         </div>
 
         <div className="table-actions">
@@ -152,6 +138,7 @@ function TableDashboard({ rows }) {
                 type="button"
                 className="table-clear-search"
                 onClick={() => setSearchTerm('')}
+                title="Clear search"
               >
                 ✕
               </button>
@@ -191,35 +178,29 @@ function TableDashboard({ rows }) {
           <thead>
             <tr>
               <th onClick={() => handleSort('store')} className="sortable text-left">
-                STORE {sortBy === 'store' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                STORE {sortBy === 'store' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
               </th>
               <th onClick={() => handleSort('person')} className="sortable text-left">
-                PERSON IN CHARGE {sortBy === 'person' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                PERSON IN CHARGE {sortBy === 'person' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
               </th>
               <th onClick={() => handleSort('month')} className="sortable text-center">
-                MONTH {sortBy === 'month' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                MONTH {sortBy === 'month' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
               </th>
               <th onClick={() => handleSort('target')} className="sortable text-right">
-                TARGET {sortBy === 'target' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                TARGET {sortBy === 'target' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
               </th>
               <th onClick={() => handleSort('sales')} className="sortable text-right">
-                SALES {sortBy === 'sales' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                SALES {sortBy === 'sales' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
               </th>
               <th onClick={() => handleSort('salesPercent')} className="sortable text-right">
-                Sales vs Target % {sortBy === 'salesPercent' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
-              </th>
-              <th onClick={() => handleSort('pending')} className="sortable text-right">
-                PAYMENT PENDING {sortBy === 'pending' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
-              </th>
-              <th onClick={() => handleSort('collected')} className="sortable text-right">
-                PAYMENT COLLECTED {sortBy === 'collected' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                S vs T % {sortBy === 'salesPercent' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
               </th>
             </tr>
           </thead>
           <tbody>
             {filteredRows.length === 0 ? (
               <tr>
-                <td colSpan="8" className="table-empty-row">
+                <td colSpan="6" className="table-empty-row">
                   No records match your filter criteria.
                 </td>
               </tr>
@@ -227,7 +208,7 @@ function TableDashboard({ rows }) {
               filteredRows.map((r, i) => {
                 const sVsTPct = r.salesPercent;
                 let pctClass = 'text-dim';
-                if (sVsTPct !== null) {
+                if (sVsTPct !== null && sVsTPct !== undefined) {
                   if (sVsTPct >= 100) pctClass = 'pct-exceeded';
                   else if (sVsTPct >= 70) pctClass = 'pct-on-track';
                   else if (sVsTPct >= 40) pctClass = 'pct-in-progress';
@@ -252,12 +233,6 @@ function TableDashboard({ rows }) {
                     <td className={`text-right font-mono font-bold ${pctClass}`}>
                       {formatPercent(r.salesPercent)}
                     </td>
-                    <td className="text-right font-mono text-danger font-bold">
-                      {formatCurrency(r.pending)}
-                    </td>
-                    <td className="text-right font-mono text-success font-bold">
-                      {formatCurrency(r.collected)}
-                    </td>
                   </tr>
                 );
               })
@@ -277,12 +252,6 @@ function TableDashboard({ rows }) {
                 </td>
                 <td className="text-right font-mono font-bold text-lemon">
                   {formatPercent(filteredSummary.overallPct)}
-                </td>
-                <td className="text-right font-mono font-bold text-danger">
-                  {formatCurrency(filteredSummary.pendingTotal)}
-                </td>
-                <td className="text-right font-mono font-bold text-success">
-                  {formatCurrency(filteredSummary.collectedTotal)}
                 </td>
               </tr>
             </tfoot>
