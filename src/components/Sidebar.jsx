@@ -36,6 +36,8 @@ function Sidebar({
   onToggleCollapse,
   isMobileOpen,
   onCloseMobile,
+  currentUserEmail,
+  isAdmin,
 }) {
   const handleSelect = (viewId) => {
     onViewChange(viewId);
@@ -117,15 +119,65 @@ function Sidebar({
               </button>
             );
           })}
+
+          {/* Admin-Only Tracking Page Button */}
+          {isAdmin && (
+            <div className="app-sidebar__admin-section">
+              <div className="app-sidebar__section-divider">
+                <span>ADMIN ACCESS</span>
+              </div>
+              <button
+                type="button"
+                className={`app-sidebar__link app-sidebar__link--admin ${
+                  activeView === 'admin' ? 'active' : ''
+                }`}
+                onClick={() => handleSelect('admin')}
+                title="Track User Logins, Live Status & Dashboard Activity"
+              >
+                <span className="app-sidebar__link-icon">🛡️</span>
+                <span className="app-sidebar__link-label">User Tracker</span>
+                {activeView === 'admin' && (
+                  <span className="app-sidebar__active-indicator" />
+                )}
+              </button>
+            </div>
+          )}
         </nav>
 
-        {/* Bottom Footer Info
-        <div className="app-sidebar__footer">
-          <div className="app-sidebar__status" title="Live Google Sheets Connected">
-            <span className="app-sidebar__status-dot" />
-            <span className="app-sidebar__status-text">LIVE TV PORTAL</span>
+        {/* Bottom Logged-In User Account Pill */}
+        {currentUserEmail && (
+          <div className="app-sidebar__footer">
+            <div
+              className={`app-sidebar__user-card ${
+                isAdmin ? 'app-sidebar__user-card--admin' : ''
+              }`}
+              title={`Logged in as: ${currentUserEmail}${isAdmin ? ' (Admin)' : ''}`}
+            >
+              <div className="app-sidebar__user-avatar">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <span className="app-sidebar__user-online-dot" />
+              </div>
+              <div className="app-sidebar__user-info">
+                <span className="app-sidebar__user-role">
+                  {isAdmin ? 'ADMIN ACCOUNT' : 'LOGGED IN'}
+                </span>
+                <span className="app-sidebar__user-email">{currentUserEmail}</span>
+              </div>
+            </div>
           </div>
-        </div> */}
+        )}
       </aside>
     </>
   );

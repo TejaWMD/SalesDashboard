@@ -4,9 +4,21 @@ import wmdLogo from '../assets/wmd-logo.jpg';
 import './PinLogin.css';
 
 // ============================================================================
-// AUTHORIZED DASHBOARD USERS (Add or edit email & password credentials here)
+// 1. ADMIN ACCOUNTS (Full dashboard access + Admin Activity Tracker page)
+// To add a new admin, simply add a new { email, password } object below:
 // ============================================================================
-export const AUTHORIZED_USERS = [
+export const ADMIN_USERS = [
+  {
+    email: 'admin1@gmail.com', // mani sir and teja
+    password: '981834',
+  },
+];
+
+// ============================================================================
+// 2. STANDARD USER ACCOUNTS (Standard dashboard access)
+// To add a new regular user, simply add a new { email, password } object below:
+// ============================================================================
+export const STANDARD_USERS = [
   {
     email: 'wmgteja@gmail.com',
     password: '180403',
@@ -23,26 +35,39 @@ export const AUTHORIZED_USERS = [
     email: 'wmdlindakl@gmail.com',
     password: '100293',
   },
-  {
-    email: 'admin1@gmail.com', //mani sir and teja
-    password: '981834',
-  },
+];
+
+// Combined list of all authorized users with their assigned role ('admin' | 'user')
+export const AUTHORIZED_USERS = [
+  ...ADMIN_USERS.map((u) => ({ ...u, role: 'admin' })),
+  ...STANDARD_USERS.map((u) => ({ ...u, role: 'user' })),
 ];
 
 export const AUTH_STORAGE_KEY = 'wmd_sales_dashboard_auth_email';
 // Kept for backward-compatibility imports if any
 export const DASHBOARD_PIN = '040903';
 
-export function isStoredAuthValid() {
+export function getStoredUserEmail() {
   try {
     const savedEmail = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!savedEmail) return false;
-    return AUTHORIZED_USERS.some(
+    if (!savedEmail) return null;
+    const matched = AUTHORIZED_USERS.find(
       (u) => u.email.toLowerCase() === savedEmail.trim().toLowerCase()
     );
+    return matched ? matched.email.toLowerCase() : null;
   } catch {
-    return false;
+    return null;
   }
+}
+
+export function isStoredAuthValid() {
+  return Boolean(getStoredUserEmail());
+}
+
+export function isAdminEmail(email) {
+  if (!email) return false;
+  const clean = String(email).trim().toLowerCase();
+  return ADMIN_USERS.some((u) => u.email.toLowerCase() === clean);
 }
 
 function PinLogin({ onSuccess }) {

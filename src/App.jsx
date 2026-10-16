@@ -1,6 +1,10 @@
 // src/App.jsx
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import PinLogin, { DASHBOARD_PIN, AUTH_STORAGE_KEY } from './components/PinLogin';
+import PinLogin, {
+  AUTH_STORAGE_KEY,
+  getStoredUserEmail,
+  isAdminEmail,
+} from './components/PinLogin';
 import Sidebar from './components/Sidebar';
 import HomepageDashboard from './components/HomepageDashboard';
 import SalesDashboard from './components/SalesDashboard';
@@ -8,23 +12,26 @@ import TableDashboard from './components/TableDashboard';
 import CollectionDashboard from './components/CollectionDashboard';
 import CollectionTableDashboard from './components/CollectionTableDashboard';
 import OnlineSalesDashboard from './components/OnlineSalesDashboard';
+import AdminActivityDashboard from './components/AdminActivityDashboard';
 import TvControls from './components/TvControls';
 import { fetchSalesData, fetchPaymentData, fetchOnlineData } from './utils/fetchSheet';
+import {
+  recordUserActivity,
+  sendUserHeartbeat,
+  formatDashboardLocation,
+} from './utils/activityTracker';
 import './styles.css';
 
 const AUTO_REFRESH_INTERVAL_MS = 60000; // 60 seconds auto-sync
+const HEARTBEAT_INTERVAL_MS = 12000; // 12 seconds presence heartbeat
 
 function App() {
-  // Authentication state (PIN: 040903)
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    try {
-      return localStorage.getItem(AUTH_STORAGE_KEY) === DASHBOARD_PIN;
-    } catch {
-      return false;
-    }
-  });
+  // Currently authenticated user email (persisted in localStorage)
+  const [currentUserEmail, setCurrentUserEmail] = useState(() => getStoredUserEmail());
+  const isAuthenticated = Boolean(currentUserEmail);
+  const isAdmin = useMemo(() => isAdminEmail(currentUserEmail), [currentUserEmail]);
 
-  // Active view: 'homepage' | 'sales' | 'collection' | 'online'
+  // Active view: 'homepage' | 'sales' | 'collection' | 'online' | 'admin'
   const [activeView, setActiveView] = useState('homepage');
 
   // Header sub-tabs for Sales and Collection ('dashboard' | 'table')
@@ -62,6 +69,55 @@ function App() {
 
   // Fullscreen state
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const currentLocationLabel = useMemo(
+    () =>
+      formatDashboardLocation(
+        activeView,
+        salesSubTab,
+        collectionSubTab,
+        selectedMonth
+      ),
+    [activeView, salesSubTab, collectionSubTab, selectedMonth]
+  );
+
+  // Keep live presence heartbeat updated for the currently logged-in user
+  useEffect(() => {
+    if (!currentUserEmail) return undefined;
+
+    sendUserHeartbeat(
+      currentUserEmail,
+      currentLocationLabel,
+      `Viewing ${currentLocationLabel}`
+    );
+
+    const heartbeatTimer = setInterval(() => {
+      sendUserHeartbeat(
+        currentUserEmail,
+        currentLocationLabel,
+        `Viewing ${currentLocationLabel}`
+      );
+    }, HEARTBEAT_INTERVAL_MS);
+
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        sendUserHeartbeat(
+          currentUserEmail,
+          currentLocationLabel,
+          `Viewing ${currentLocationLabel}`
+        );
+      }
+    };
+
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+
+    return () => {
+      clearInterval(heartbeatTimer);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+    };
+  }, [currentUserEmail, currentLocationLabel]);
 
   // Fetch real-time data from all Google Sheets concurrently
   const loadData = useCallback(async (isSilent = false) => {
@@ -108,6 +164,7 @@ function App() {
       }, AUTO_REFRESH_INTERVAL_MS);
       return () => clearInterval(refreshTimer);
     }
+    return undefined;
   }, [isAuthenticated, loadData]);
 
   // Fullscreen event listener
@@ -120,7 +177,8 @@ function App() {
   }, []);
 
   const handleToggleFullscreen = () => {
-    if (!document.fullscreenElement) {
+    const entering = !document.fullscreenElement;
+    if (entering) {
       document.documentElement.requestFullscreen().catch((err) => {
         console.warn('Fullscreen request failed:', err);
       });
@@ -129,21 +187,67 @@ function App() {
         console.warn('Exit fullscreen failed:', err);
       });
     }
+    if (currentUserEmail) {
+      recordUserActivity({
+        email: currentUserEmail,
+        actionType: 'FULLSCREEN_TOGGLE',
+        location: currentLocationLabel,
+        details: entering ? 'Entered Fullscreen Mode' : 'Exited Fullscreen Mode',
+      });
+    }
   };
 
   const handleLockDashboard = () => {
+    if (currentUserEmail) {
+      recordUserActivity({
+        email: currentUserEmail,
+        actionType: 'LOGOUT',
+        location: currentLocationLabel,
+        details: 'Signed out of dashboard',
+        status: 'offline',
+      });
+    }
     try {
       localStorage.removeItem(AUTH_STORAGE_KEY);
     } catch (e) {
       console.warn('Error clearing localStorage', e);
     }
-    setIsAuthenticated(false);
+    setCurrentUserEmail(null);
     setActiveView('homepage');
   };
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (loggedInEmail) => {
+    const cleanEmail = String(loggedInEmail || getStoredUserEmail() || '')
+      .trim()
+      .toLowerCase();
+    setCurrentUserEmail(cleanEmail);
     setActiveView('homepage');
-    setIsAuthenticated(true);
+    recordUserActivity({
+      email: cleanEmail,
+      actionType: 'LOGIN',
+      location: 'Homepage (Account Managers)',
+      details: 'Signed in to the dashboard',
+      status: 'online',
+    });
+  };
+
+  const handleViewChange = (nextView) => {
+    if (nextView === 'admin' && !isAdmin) return;
+    setActiveView(nextView);
+    if (currentUserEmail) {
+      const nextLoc = formatDashboardLocation(
+        nextView,
+        salesSubTab,
+        collectionSubTab,
+        selectedMonth
+      );
+      recordUserActivity({
+        email: currentUserEmail,
+        actionType: 'NAVIGATION',
+        location: nextLoc,
+        details: `Opened ${nextLoc}`,
+      });
+    }
   };
 
   // Filter sales rows according to selected month
@@ -159,9 +263,55 @@ function App() {
     } else if (activeView === 'collection') {
       setCollectionSubTab(tab);
     }
+    if (currentUserEmail) {
+      const nextLoc = formatDashboardLocation(
+        activeView,
+        activeView === 'sales' ? tab : salesSubTab,
+        activeView === 'collection' ? tab : collectionSubTab,
+        selectedMonth
+      );
+      recordUserActivity({
+        email: currentUserEmail,
+        actionType: 'SUBTAB_CHANGE',
+        location: nextLoc,
+        details: `Switched to ${tab === 'table' ? 'Table View' : 'Dashboard View'} in ${
+          activeView === 'sales' ? 'Sales Performance' : 'Collection Tracking'
+        }`,
+      });
+    }
   };
 
-  // If user has not authenticated with PIN 040903, show the PIN Login Screen
+  const handleMonthChange = (newMonth) => {
+    setSelectedMonth(newMonth);
+    if (currentUserEmail) {
+      const nextLoc = formatDashboardLocation(
+        activeView,
+        salesSubTab,
+        collectionSubTab,
+        newMonth
+      );
+      recordUserActivity({
+        email: currentUserEmail,
+        actionType: 'FILTER_CHANGE',
+        location: nextLoc,
+        details: `Changed Sales Month filter to ${newMonth === 'ALL' ? 'All Months' : newMonth}`,
+      });
+    }
+  };
+
+  const handleManualRefresh = () => {
+    loadData(false);
+    if (currentUserEmail) {
+      recordUserActivity({
+        email: currentUserEmail,
+        actionType: 'DATA_REFRESH',
+        location: currentLocationLabel,
+        details: 'Triggered manual Google Sheets data sync',
+      });
+    }
+  };
+
+  // If user is not authenticated, show the Login Screen
   if (!isAuthenticated) {
     return <PinLogin onSuccess={handleLoginSuccess} />;
   }
@@ -171,11 +321,13 @@ function App() {
       {/* Collapsible Responsive Sidebar across all pages */}
       <Sidebar
         activeView={activeView}
-        onViewChange={setActiveView}
+        onViewChange={handleViewChange}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
         isMobileOpen={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        currentUserEmail={currentUserEmail}
+        isAdmin={isAdmin}
       />
 
       {/* Right Main Workspace */}
@@ -212,6 +364,7 @@ function App() {
                 {activeView === 'sales' && '💰'}
                 {activeView === 'collection' && '💵'}
                 {activeView === 'online' && '🛒'}
+                {activeView === 'admin' && '🛡️'}
               </div>
               <div>
                 <h1 className="app-header__title">
@@ -219,6 +372,7 @@ function App() {
                   {activeView === 'sales' && 'SALES PERFORMANCE'}
                   {activeView === 'collection' && 'COLLECTION TRACKING'}
                   {activeView === 'online' && 'ONLINE SALES'}
+                  {activeView === 'admin' && 'ADMIN USER & ACTIVITY TRACKER'}
                 </h1>
               </div>
             </div>
@@ -226,13 +380,13 @@ function App() {
 
           <TvControls
             selectedMonth={selectedMonth}
-            onMonthChange={setSelectedMonth}
+            onMonthChange={handleMonthChange}
             availableMonths={availableMonths}
             activeView={activeView}
             activeSubTab={activeSubTab}
             onSubTabChange={handleSubTabChange}
             lastUpdated={lastUpdated}
-            onManualRefresh={() => loadData(false)}
+            onManualRefresh={handleManualRefresh}
             isLoading={isLoading}
             isFullscreen={isFullscreen}
             onToggleFullscreen={handleToggleFullscreen}
@@ -254,6 +408,8 @@ function App() {
         <main className="app-main">
           {activeView === 'homepage' ? (
             <HomepageDashboard />
+          ) : activeView === 'admin' && isAdmin ? (
+            <AdminActivityDashboard currentUserEmail={currentUserEmail} />
           ) : isLoading && salesRows.length === 0 ? (
             <div className="loading-state">
               <div className="loading-spinner" />
