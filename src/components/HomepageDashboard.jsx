@@ -173,39 +173,44 @@ function HomepageDashboard() {
 
               {/* Categories & Stores Body */}
               <div className="am-card__body">
-                {am.categories.map((cat) => (
-                  <div key={cat.type} className="am-category-group">
-                    <div className="am-category-header">
-                      <span
-                        className={`am-category-badge am-category-badge--${cat.type.toLowerCase()}`}
-                      >
-                        {cat.type}
-                      </span>
-                      {cat.stores.length > 0 && (
-                        <span className="am-category-count">
-                          {cat.stores.length} {cat.stores.length === 1 ? 'Store' : 'Stores'}
-                        </span>
-                      )}
-                    </div>
+  {am.categories.map((cat) => (
+    <div key={cat.type} className="am-category-group">
+      <div className="am-category-header">
+        <span
+          className={`am-category-badge am-category-badge--${cat.type.toLowerCase()}`}
+        >
+          {cat.type}
+        </span>
+        {cat.stores.length > 0 && (
+          <span className="am-category-count">
+            {cat.stores.length} {cat.stores.length === 1 ? 'Store' : 'Stores'}
+          </span>
+        )}
+      </div>
 
-                    {cat.stores.length > 0 ? (
-                      <div className="am-store-tags">
-                        {cat.stores.map((store) => (
-                          <span key={store} className="am-store-chip">
-                            {store}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="am-store-tags">
-                        <span className="am-store-chip am-store-chip--ska">
-                          All {cat.type} Outlets
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+      {cat.stores.length > 0 ? (
+        <div className="am-store-tags">
+          {cat.stores.map((store) => (
+            <span
+              key={store}
+              className={`am-store-chip am-store-chip--${cat.type.toLowerCase()}`}
+            >
+              {store}
+            </span>
+          ))}
+        </div>
+      ) : (
+        <div className="am-store-tags">
+          <span
+            className={`am-store-chip am-store-chip--${cat.type.toLowerCase()}`}
+          >
+            All {cat.type} Outlets
+          </span>
+        </div>
+      )}
+    </div>
+  ))}
+</div>
             </div>
           );
         })}

@@ -242,26 +242,26 @@
 }
 
 .am-category-badge--ika {
-  background: #e6eefb;
-  color: #072b61;
+  background: #0f66f2;
+  color: #eaeef3;
   border: 1px solid #c3d5f2;
 }
 
 .am-category-badge--lka {
-  background: #e9f3e4;
-  color: #39733e;
+  background: #3b970d;
+  color: #eaeef3;
   border: 1px solid #c8dfbd;
 }
 
 .am-category-badge--ska {
-  background: #fff3ce;
-  color: #8b6500;
+  background: #ab840f;
+  color: #eaeef3;
   border: 1px solid #f0d88c;
 }
 
 .am-category-badge--distributor {
-  background: #fae9e5;
-  color: #a73f35;
+  background: #9d2b11;
+  color: #eaeef3;
   border: 1px solid #edc5bd;
 }
 
@@ -292,17 +292,36 @@
   transition: all 0.15s ease;
 }
 
-.am-store-chip:hover {
+/* .am-store-chip:hover {
   background: var(--bg-card-alt);
   border-color: var(--color-lemon);
+} */
+
+
+.am-store-chip--ika {
+  background: #c0d4f4;
+  color: #072b61;
+  border: 1px solid #c3d5f2;
+}
+
+.am-store-chip--lka {
+  background: #e9f3e4;
+  color: #39733e;
+  border: 1px solid #c8dfbd;
 }
 
 .am-store-chip--ska {
-  background: #fff8df;
-  border-color: #f0d88c;
+  background: #fff3ce;
   color: #8b6500;
-  font-style: italic;
+  border: 1px solid #f0d88c;
 }
+
+.am-store-chip--distributor {
+  background: #fae9e5;
+  color: #a73f35;
+  border: 1px solid #edc5bd;
+}
+
 
 /* ========================================================
    TV SPECIFIC SCALING (4K & Large Screens >= 1920px)
