@@ -35,6 +35,10 @@ export const STANDARD_USERS = [
     email: 'wmdlindakl@gmail.com',
     password: '100293',
   },
+  {
+    email: 'cs3@malayanfood.com',
+    password: '665001',
+  },
 ];
 
 // Combined list of all authorized users with their assigned role ('admin' | 'user')
