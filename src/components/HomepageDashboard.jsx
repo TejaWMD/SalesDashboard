@@ -26,7 +26,7 @@ export const ACCOUNT_MANAGERS_DATA = [
           'STAR GROCER',
           'SOON CHEONG',
           'JIMART/DOREMART',
-          'K PLUS',
+          'KC PLUS',
           'JAYA GROCER',
         ],
       },
@@ -59,6 +59,7 @@ export const ACCOUNT_MANAGERS_DATA = [
           'PANTAI TIMOR',
           'SALAMKU',
           'FRESH CHOICE',
+          'SARAWAK',
         ],
       },
       {
