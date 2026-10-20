@@ -32,7 +32,7 @@ export const STANDARD_USERS = [
     password: '459982',
   },
   {
-    email: 'wmdlindakl@gmail.com',
+    email: 'wmdkllinda@gmail.com',
     password: '100293',
   },
   {
@@ -132,7 +132,7 @@ function PinLogin({ onSuccess }) {
             />
           </div>
           <h1 className="pin-title">SALES & COLLECTION</h1>
-          <p className="pin-subtitle">Sign in with your authorized email account</p>
+          {/* <p className="pin-subtitle">Sign in with your authorized email account</p> */}
         </div>
 
         {/* Error Banner */}
