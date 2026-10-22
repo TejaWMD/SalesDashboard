@@ -2554,3 +2554,68 @@ select {
 }
 
 
+
+
+/* Executive Report Toast Banner */
+.report-toast-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-md);
+  animation: slideDownToast 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(8px);
+}
+
+.report-toast-banner--success {
+  background: linear-gradient(135deg, rgba(7, 43, 97, 0.95) 0%, rgba(13, 67, 148, 0.95) 100%);
+  border: 1px solid rgba(251, 229, 70, 0.5);
+  color: #ffffff;
+  box-shadow: 0 4px 20px rgba(7, 43, 97, 0.35);
+}
+
+.report-toast-banner--error {
+  background: rgba(229, 67, 48, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.report-toast-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.report-toast-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.report-toast-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+@keyframes slideDownToast {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

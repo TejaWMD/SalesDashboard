@@ -258,6 +258,120 @@
   border-color: #fbe546;
 }
 
+/* Month Picker Box inside Admin Sidebar */
+.app-sidebar__month-picker-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--border-subtle);
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.app-sidebar--collapsed .app-sidebar__month-picker-box {
+  display: none;
+}
+
+.app-sidebar__month-label {
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.app-sidebar__month-select {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 4px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.app-sidebar__month-select:hover,
+.app-sidebar__month-select:focus {
+  border-color: #072b61;
+}
+
+/* Executive PDF Report Button */
+.app-sidebar__link--report {
+  border: 1px solid rgba(7, 43, 97, 0.35);
+  background: linear-gradient(135deg, rgba(7, 43, 97, 0.08) 0%, rgba(13, 67, 148, 0.18) 100%);
+  color: #072b61;
+}
+
+.app-sidebar__link--report:hover {
+  background: linear-gradient(135deg, #072b61 0%, #0d4394 100%);
+  color: #ffffff;
+  border-color: #072b61;
+  box-shadow: 0 4px 14px rgba(7, 43, 97, 0.28);
+  transform: translateY(-1px);
+}
+
+.app-sidebar__link--report:disabled,
+.app-sidebar__link--report.loading {
+  opacity: 0.75;
+  cursor: wait;
+}
+
+.app-sidebar__report-badge {
+  margin-left: auto;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: #072b61;
+  color: #fbe546;
+  border: 1px solid rgba(251, 229, 70, 0.4);
+  line-height: 1.1;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.app-sidebar__link--report:hover .app-sidebar__report-badge {
+  background: #fbe546;
+  color: #072b61;
+  border-color: transparent;
+}
+
+.app-sidebar--collapsed .app-sidebar__report-badge {
+  display: none;
+}
+
+/* Inline Spinner */
+.app-sidebar__spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(7, 43, 97, 0.25);
+  border-top-color: #072b61;
+  border-radius: 50%;
+  animation: sidebarSpin 0.7s linear infinite;
+}
+
+.app-sidebar__link--report:hover .app-sidebar__spinner {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+}
+
+@keyframes sidebarSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Footer Logged-In User Card */
 .app-sidebar__footer {
   padding-top: 10px;
@@ -584,6 +698,14 @@
 
   .app-sidebar--collapsed .app-sidebar__section-divider {
     display: block;
+  }
+
+  .app-sidebar--collapsed .app-sidebar__month-picker-box {
+    display: flex;
+  }
+
+  .app-sidebar--collapsed .app-sidebar__report-badge {
+    display: inline-block;
   }
 
   .app-sidebar--collapsed .app-sidebar__user-card {

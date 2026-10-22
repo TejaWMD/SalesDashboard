@@ -38,6 +38,11 @@ function Sidebar({
   onCloseMobile,
   currentUserEmail,
   isAdmin,
+  selectedMonth = 'OCT',
+  availableMonths = ['OCT'],
+  onMonthChange,
+  onDownloadReport,
+  isGeneratingReport = false,
 }) {
   const handleSelect = (viewId) => {
     onViewChange(viewId);
@@ -120,12 +125,19 @@ function Sidebar({
             );
           })}
 
-          {/* Admin-Only Tracking Page Button */}
+          {/* Admin-Only Tracking & PDF Report Section */}
           {isAdmin && (
             <div className="app-sidebar__admin-section">
               <div className="app-sidebar__section-divider">
                 <span>ADMIN ACCESS</span>
               </div>
+
+              {/* Sub-header for Tracking */}
+              <div className="app-sidebar__section-divider app-sidebar__section-divider--sub">
+                <span>TRACKING</span>
+              </div>
+
+              {/* User Activity Tracker */}
               <button
                 type="button"
                 className={`app-sidebar__link app-sidebar__link--admin ${
@@ -139,6 +151,68 @@ function Sidebar({
                 {activeView === 'admin' && (
                   <span className="app-sidebar__active-indicator" />
                 )}
+              </button>
+
+              {/* Sub-header for Report */}
+              <div className="app-sidebar__section-divider app-sidebar__section-divider--sub">
+                <span>REPORT</span>
+              </div>
+
+              {/* Sales Month Selector for Executive Report */}
+              {availableMonths && availableMonths.length > 0 && (
+                <div
+                  className="app-sidebar__month-picker-box"
+                  title="Select Sales month for PDF report"
+                >
+                  <label htmlFor="sidebar-month-select" className="app-sidebar__month-label">
+                    <span>SALES MONTH:</span>
+                  </label>
+                  <select
+                    id="sidebar-month-select"
+                    className="app-sidebar__month-select"
+                    value={selectedMonth}
+                    onChange={(e) => onMonthChange && onMonthChange(e.target.value)}
+                  >
+                    <option value="ALL">All Months</option>
+                    {availableMonths.map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Download Executive PDF Report Button */}
+              <button
+                type="button"
+                className={`app-sidebar__link app-sidebar__link--report ${
+                  isGeneratingReport ? 'loading' : ''
+                }`}
+                onClick={() => {
+                  if (!isGeneratingReport && onDownloadReport) {
+                    onDownloadReport();
+                  }
+                }}
+                disabled={isGeneratingReport}
+                title={`Download Sales & Collection Report as PDF (Sales Month: ${selectedMonth})`}
+              >
+                <span className="app-sidebar__link-icon">
+                  {isGeneratingReport ? (
+                    <span className="app-sidebar__spinner" />
+                  ) : (
+                    '📑'
+                  )}
+                </span>
+                <span className="app-sidebar__link-label">
+                  {isGeneratingReport ? 'Exporting PDF...' : 'Executive Report'}
+                </span>
+                <span
+                  className="app-sidebar__report-badge"
+                  title={`Current Sales Period: ${selectedMonth}`}
+                >
+                  {isGeneratingReport ? '...' : selectedMonth || 'PDF'}
+                </span>
               </button>
             </div>
           )}

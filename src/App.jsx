@@ -15,6 +15,7 @@ import OnlineSalesDashboard from './components/OnlineSalesDashboard';
 import AdminActivityDashboard from './components/AdminActivityDashboard';
 import TvControls from './components/TvControls';
 import { fetchSalesData, fetchPaymentData, fetchOnlineData } from './utils/fetchSheet';
+import { generateExecutivePdfReport } from './utils/generatePdfReport';
 import {
   recordUserActivity,
   sendUserHeartbeat,
@@ -71,6 +72,10 @@ function App() {
 
   // Fullscreen state
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Executive PDF Report Generation state
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportToast, setReportToast] = useState(null);
 
   const currentLocationLabel = useMemo(
     () =>
@@ -326,6 +331,46 @@ function App() {
     }
   };
 
+  // Download Executive PDF Report for Admin
+  const handleDownloadReport = async (overrideMonth) => {
+    const monthToUse = overrideMonth || selectedMonth;
+    setIsGeneratingReport(true);
+    try {
+      const res = await generateExecutivePdfReport({
+        salesRows,
+        selectedMonth: monthToUse,
+        paymentData,
+        onlineData,
+        currentUserEmail,
+      });
+
+      setReportToast({
+        type: 'success',
+        message: `Executive Report downloaded: ${res.filename} (${res.pages} pages)`,
+      });
+
+      if (currentUserEmail) {
+        recordUserActivity({
+          email: currentUserEmail,
+          actionType: 'EXPORT_REPORT',
+          location: currentLocationLabel,
+          details: `Exported Executive PDF Report for month ${monthToUse}`,
+        });
+      }
+    } catch (err) {
+      console.error('Failed to generate PDF report:', err);
+      setReportToast({
+        type: 'error',
+        message: 'Could not generate PDF report. Please try again.',
+      });
+    } finally {
+      setIsGeneratingReport(false);
+      setTimeout(() => {
+        setReportToast(null);
+      }, 5000);
+    }
+  };
+
   // If user is not authenticated, show the Login Screen
   if (!isAuthenticated) {
     return <PinLogin onSuccess={handleLoginSuccess} />;
@@ -343,6 +388,11 @@ function App() {
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
         currentUserEmail={currentUserEmail}
         isAdmin={isAdmin}
+        selectedMonth={selectedMonth}
+        availableMonths={availableMonths}
+        onMonthChange={handleMonthChange}
+        onDownloadReport={handleDownloadReport}
+        isGeneratingReport={isGeneratingReport}
       />
 
       {/* Right Main Workspace */}
@@ -408,6 +458,24 @@ function App() {
             onLockDashboard={handleLockDashboard}
           />
         </div>
+
+        {/* Executive Report Download Toast Feedback */}
+        {reportToast && (
+          <div className={`report-toast-banner report-toast-banner--${reportToast.type}`}>
+            <div className="report-toast-content">
+              <span>{reportToast.type === 'success' ? '📄' : '⚠️'}</span>
+              <span>{reportToast.message}</span>
+            </div>
+            <button
+              type="button"
+              className="report-toast-close"
+              onClick={() => setReportToast(null)}
+              aria-label="Dismiss notification"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Error alert if any */}
         {error && (
