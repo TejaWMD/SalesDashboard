@@ -1898,17 +1898,11 @@ select {
 
 
   .tv-pic-list {
-
     display: grid;
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     align-content: start;
-
-    gap: 4px;
-
+    gap: 6px;
     overflow: auto;
-
   }
 
 
@@ -2304,17 +2298,31 @@ select {
 
 
   .tv-pic-list {
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
   }
 
-
-
   .tv-pic-card__top {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
 
-    gap: 2px;
+  .tv-pic-card__pills {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
 
+  .tv-pill {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex: 1 1 120px !important;
+    height: 26px !important;
+    padding: 0 10px !important;
   }
 
 

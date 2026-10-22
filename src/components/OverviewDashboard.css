@@ -117,107 +117,169 @@
   box-shadow: 0 0 14px rgba(255, 125, 110, 0.25);
 }
 
-/* Horizontal pill gauges, side by side (top right of PIC card) */
+/* ========================================================
+   PIC Card Header & Interactive Percentage Tracker Pills
+   ======================================================== */
 .tv-pic-card__top {
-  gap: 10px;
-  flex-wrap: wrap; /* pills drop below the name if the card is too narrow */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
+}
+
+.tv-pic-card__identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .tv-pic-card__pills {
   display: flex;
-  flex-direction: row;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
   flex-shrink: 0;
+  max-width: 100%;
 }
 
+/* Base Tracker Pill Tube */
 .tv-pill {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  width: 112px;
-  height: 24px;
+  gap: 8px;
+  min-width: 122px;
+  width: auto;
+  height: 26px;
   padding: 0 10px;
   border-radius: 9999px;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(7, 43, 97, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   overflow: hidden;
-  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(7, 43, 97, 0.12);
+  box-sizing: border-box;
+  flex: 0 1 auto;
 }
 
-/* glossy highlight for the tube look */
+/* Glossy highlight for the tube look */
 .tv-pill::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg,
-    rgba(255, 255, 255, 0.28) 0%,
-    rgba(255, 255, 255, 0) 50%,
-    rgba(0, 0, 0, 0.25) 100%);
+    rgba(255, 255, 255, 0.26) 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    rgba(0, 0, 0, 0.22) 100%);
   pointer-events: none;
+  border-radius: inherit;
 }
 
+/* Dynamic progress fill bar inside tube */
 .tv-pill__fill {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   border-radius: 9999px;
-  opacity: 0.85;
-  transition: width 0.5s ease;
+  opacity: 0.9;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
 }
 
-.tv-pill__fill--success { background: var(--color-green); }
-.tv-pill__fill--primary { background: var(--color-blue); }
-.tv-pill__fill--warning { background: var(--color-lemon); }
-.tv-pill__fill--danger  { background: var(--color-red); }
-.tv-pill__fill--neutral { background: #64748b; }
+.tv-pill__fill--success,
+.tv-pic-progress-fill--success {
+  background: linear-gradient(90deg, #15803d 0%, #22c55e 100%);
+}
+.tv-pill__fill--primary,
+.tv-pic-progress-fill--primary {
+  background: linear-gradient(90deg, #1d4ed8 0%, #38bdf8 100%);
+}
+.tv-pill__fill--warning,
+.tv-pic-progress-fill--warning {
+  background: linear-gradient(90deg, #d97706 0%, #f59e0b 100%);
+}
+.tv-pill__fill--danger,
+.tv-pic-progress-fill--danger {
+  background: linear-gradient(90deg, #b91c1c 0%, #ef4444 100%);
+}
+.tv-pill__fill--neutral,
+.tv-pic-progress-fill--neutral {
+  background: linear-gradient(90deg, #475569 0%, #64748b 100%);
+}
 
+/* Typography inside the pill — NEVER hidden, high contrast */
 .tv-pill__label,
 .tv-pill__value {
   position: relative;
-  z-index: 1;
-  font-size: 0.65rem;
-  font-weight: 800;
+  z-index: 2;
   color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 3px rgba(0, 0, 0, 0.7);
   line-height: 1;
   white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
 }
 
 .tv-pill__label {
+  font-size: 0.63rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.035em;
+  opacity: 0.96;
 }
 
 .tv-pill__value {
   font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  background: rgba(0, 0, 0, 0.28);
+  padding: 2px 6px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Bigger on Full HD 50" TV (1080p >= 1920px) */
 @media (min-width: 1920px) {
   .tv-pill {
-    width: 138px;
-    height: 30px;
+    min-width: 148px;
+    height: 32px;
+    padding: 0 12px;
+    gap: 10px;
   }
-  .tv-pill__label,
+  .tv-pill__label {
+    font-size: 0.76rem;
+  }
   .tv-pill__value {
-    font-size: 0.78rem;
+    font-size: 0.84rem;
+    padding: 2px 8px;
   }
 }
 
 /* Bigger on 4K UHD 50" TV (>= 2560px) */
 @media (min-width: 2560px) {
   .tv-pill {
-    width: 180px;
-    height: 40px;
-    padding: 0 14px;
+    min-width: 190px;
+    height: 42px;
+    padding: 0 16px;
+    gap: 12px;
   }
-  .tv-pill__label,
+  .tv-pill__label {
+    font-size: 0.92rem;
+  }
   .tv-pill__value {
-    font-size: 1rem;
+    font-size: 1.05rem;
+    padding: 3px 10px;
   }
 }
 
@@ -756,6 +818,29 @@
   }
 }
 
+/* Tablet Layout (<= 1024px) */
+@media (max-width: 1024px) {
+  .tv-pic-card__top {
+    gap: 8px;
+  }
+  .tv-pic-card__pills {
+    gap: 6px;
+  }
+  .tv-pill {
+    min-width: 116px;
+    height: 25px;
+    padding: 0 8px;
+    gap: 6px;
+  }
+  .tv-pill__label {
+    font-size: 0.6rem;
+  }
+  .tv-pill__value {
+    font-size: 0.68rem;
+    padding: 1.5px 5px;
+  }
+}
+
 /* Mobile Layout — 1 KPI card per row */
 @media (max-width: 768px) {
   .tv-overview {
@@ -774,7 +859,7 @@
   }
   .tv-overview__left {
     height: auto;
-    max-height: 400px;
+    max-height: 480px;
   }
   .tv-overview__right {
     grid-template-rows: auto auto;
@@ -782,6 +867,45 @@
   }
   .tv-chart-box {
     height: 250px;
+  }
+
+  .tv-pic-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .tv-pic-card__identity {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .tv-pic-card__pills {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  .tv-pill {
+    min-width: 110px;
+    height: 25px;
+    padding: 0 8px;
+    gap: 6px;
+    flex: 1 1 auto;
+  }
+
+  .tv-pill__label {
+    font-size: 0.6rem;
+  }
+
+  .tv-pill__value {
+    font-size: 0.68rem;
+    padding: 1.5px 5px;
   }
 
   /* Stack the ticker label above items on mobile */
@@ -800,5 +924,44 @@
   }
   .tv-ticker-pic {
     max-width: 80px;
+  }
+}
+
+/* Mobile Phone Layout (<= 540px) — Stack headers cleanly so pill text is 100% visible */
+@media (max-width: 540px) {
+  .tv-pic-card__top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .tv-pic-card__identity {
+    width: 100%;
+  }
+
+  .tv-pic-card__pills {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tv-pill {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 120px;
+    height: 26px;
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .tv-pill__label {
+    font-size: 0.62rem;
+  }
+
+  .tv-pill__value {
+    font-size: 0.7rem;
+    padding: 2px 6px;
   }
 }

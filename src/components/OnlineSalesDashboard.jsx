@@ -259,10 +259,10 @@ function OnlineSalesDashboard({ data }) {
                     </div>
 
                     <div className="tv-pic-card__pills">
-                      <div className="tv-pill" style={{ width: "130px" }}>
+                      <div className="tv-pill">
                         <div
                           className={`tv-pill__fill ${platform.fillClass}`}
-                          style={{ width: `${platform.percent}%` }}
+                          style={{ width: `${Math.min(100, Math.max(0, platform.percent || 0))}%` }}
                         />
                         <span className="tv-pill__label">Share</span>
                         <span className="tv-pill__value">

@@ -369,7 +369,7 @@ function SalesDashboard({ rows }) {
                     {[
                       { label: 'Achieved', value: pic.percent },
                     ].map((c) => (
-                      <div key={c.label} className="tv-pill" style={{ width: '130px' }}>
+                      <div key={c.label} className="tv-pill">
                         <div
                           className={`tv-pill__fill tv-pill__fill--${rateStatus(c.value)}`}
                           style={{ width: `${clampPct(c.value)}%` }}

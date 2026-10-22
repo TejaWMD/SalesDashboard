@@ -437,7 +437,6 @@ function CollectionDashboard({ data }) {
                       <div
                         key={item.label}
                         className="tv-pill"
-                        style={{ width: '120px' }}
                       >
 
                         <div
