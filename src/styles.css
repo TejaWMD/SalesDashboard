@@ -2546,6 +2546,11 @@ select {
   .mobile-sidebar-trigger {
     display: inline-flex;
   }
+
+  .app-main {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 

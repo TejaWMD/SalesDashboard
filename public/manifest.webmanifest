@@ -1,0 +1,19 @@
+{
+  "name": "Sales & Collection Dashboard",
+  "short_name": "SalesApp",
+  "description": "Real-time Sales & Collection Management Dashboard",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070b19",
+  "theme_color": "#070b19",
+  "icons": [
+    {
+      "src": "app-icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

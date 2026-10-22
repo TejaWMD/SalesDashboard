@@ -1,0 +1,9 @@
+{
+  "appId": "com.tejawmd.salesdashboard",
+  "appName": "Sales Dashboard",
+  "webDir": "dist",
+  "server": {
+    "url": "https://tejawmd.github.io/SalesDashboard/",
+    "cleartext": true
+  }
+}
