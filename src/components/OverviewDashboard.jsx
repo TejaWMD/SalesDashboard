@@ -437,7 +437,7 @@ function OverviewDashboard({ rows }) {
         </div>
       </div>
 
-      {/* Bottom Ticker: Top Stores & Outlets Overview */}
+      {/* Bottom Ticker: Top Stores & Outlets Overview
       <div className="tv-overview__bottom-ticker">
         <div className="tv-ticker-label">
           <span className="tv-ticker-dot" />
@@ -468,7 +468,7 @@ function OverviewDashboard({ rows }) {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

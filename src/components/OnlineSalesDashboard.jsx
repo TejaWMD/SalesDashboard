@@ -353,7 +353,7 @@ function OnlineSalesDashboard({ data }) {
         </div>
       </div>
 
-      {/* Bottom Ticker: Daily Peak Days */}
+      {/* Bottom Ticker: Daily Peak Days
       <div className="tv-overview__bottom-ticker">
         <div className="tv-ticker-label">
           <span className="tv-ticker-dot" />
@@ -377,7 +377,7 @@ function OnlineSalesDashboard({ data }) {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

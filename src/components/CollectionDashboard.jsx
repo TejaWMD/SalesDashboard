@@ -580,7 +580,7 @@ function CollectionDashboard({ data }) {
         </div>
       </div>
 
-      {/* Top Pending Customers */}
+      {/* Top Pending Customers
       <div className="tv-overview__bottom-ticker">
 
         <div className="tv-ticker-label">
@@ -660,7 +660,7 @@ function CollectionDashboard({ data }) {
           )}
 
         </div>
-      </div>
+      </div> */}
 
     </div>
   );

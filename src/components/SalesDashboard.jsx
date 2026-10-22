@@ -444,8 +444,8 @@ function SalesDashboard({ rows }) {
           </div>
         </div>
       </div>
-
-      {/* Bottom Ticker: Top Stores & Outlets Overview */}
+{/* 
+      Bottom Ticker: Top Stores & Outlets Overview
       <div className="tv-overview__bottom-ticker">
         <div className="tv-ticker-label">
           <span className="tv-ticker-dot" />
@@ -476,7 +476,7 @@ function SalesDashboard({ rows }) {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
