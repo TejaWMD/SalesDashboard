@@ -354,23 +354,6 @@ function KpiDashboard({ salesRows = [], paymentData = {} }) {
                   </div>
                 </div>
               </div>
-
-              {/* Card Footer Insight */}
-              <div className="kpi-card-footer">
-                <span className="kpi-footer-badge">
-                  {am.collectionRate >= am.salesRate ? (
-                    <>
-                      📈 Collection leads Sales by{' '}
-                      <strong>+{(am.collectionRate - am.salesRate).toFixed(1)}%</strong>
-                    </>
-                  ) : (
-                    <>
-                      💰 Sales leads Collection by{' '}
-                      <strong>+{(am.salesRate - am.collectionRate).toFixed(1)}%</strong>
-                    </>
-                  )}
-                </span>
-              </div>
             </div>
           );
         })}

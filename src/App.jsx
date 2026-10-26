@@ -35,8 +35,17 @@ function App() {
   const isAuthenticated = Boolean(currentUserEmail);
   const isAdmin = useMemo(() => isAdminEmail(currentUserEmail), [currentUserEmail]);
 
-  // Active view: 'homepage' | 'sales' | 'collection' | 'online' | 'admin'
-  const [activeView, setActiveView] = useState('homepage');
+  // Active view: 'homepage' | 'kpi' | 'sales' | 'collection' | 'online' | 'admin'
+  const [activeView, setActiveView] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const v = params.get('view');
+      if (v && ['homepage', 'kpi', 'sales', 'collection', 'online', 'admin'].includes(v)) {
+        return v;
+      }
+    } catch (e) {}
+    return 'homepage';
+  });
 
   // Header sub-tabs for Sales and Collection ('dashboard' | 'table')
   const [salesSubTab, setSalesSubTab] = useState('dashboard');
