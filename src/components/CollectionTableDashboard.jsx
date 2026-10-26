@@ -1,6 +1,6 @@
 // src/components/CollectionTableDashboard.jsx
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { formatCurrency } from '../utils/fetchSheet';
+import { formatCurrency, formatPercent } from '../utils/fetchSheet';
 import './TableDashboard.css';
 
 function CollectionTableDashboard({ rows = [] }) {
@@ -52,12 +52,18 @@ function CollectionTableDashboard({ rows = [] }) {
 
   // Computed summary totals for filtered rows
   const filteredSummary = useMemo(() => {
+    let targetTotal = 0;
     let collectedTotal = 0;
     let pendingTotal = 0;
+    let targetCount = 0;
     let collectedCount = 0;
     let pendingCount = 0;
 
     filteredRows.forEach((r) => {
+      if (r.target !== null && r.target !== undefined) {
+        targetTotal += r.target;
+        targetCount++;
+      }
       if (r.collected !== null && r.collected !== undefined) {
         collectedTotal += r.collected;
         collectedCount++;
@@ -68,9 +74,18 @@ function CollectionTableDashboard({ rows = [] }) {
       }
     });
 
+    const overallRate =
+      targetTotal > 0
+        ? (collectedTotal / targetTotal) * 100
+        : (collectedTotal + pendingTotal) > 0
+          ? (collectedTotal / (collectedTotal + pendingTotal)) * 100
+          : null;
+
     return {
+      targetTotal: targetCount > 0 ? targetTotal : null,
       collectedTotal: collectedCount > 0 ? collectedTotal : null,
       pendingTotal: pendingCount > 0 ? pendingTotal : null,
+      overallRate,
     };
   }, [filteredRows]);
 
@@ -178,38 +193,61 @@ function CollectionTableDashboard({ rows = [] }) {
               <th onClick={() => handleSort('person')} className="sortable text-left">
                 ACCOUNT MANAGERS {sortBy === 'person' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
               </th>
+              <th onClick={() => handleSort('target')} className="sortable text-right">
+                TARGET {sortBy === 'target' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
+              </th>
               <th onClick={() => handleSort('collected')} className="sortable text-right">
                 PAYMENT COLLECTED {sortBy === 'collected' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
               </th>
               <th onClick={() => handleSort('pending')} className="sortable text-right">
                 PAYMENT PENDING {sortBy === 'pending' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
               </th>
+              <th onClick={() => handleSort('collectionRate')} className="sortable text-right">
+                RATE % {sortBy === 'collectionRate' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
+              </th>
             </tr>
           </thead>
           <tbody>
             {filteredRows.length === 0 ? (
               <tr>
-                <td colSpan="4" className="table-empty-row">
+                <td colSpan="6" className="table-empty-row">
                   No records match your filter criteria.
                 </td>
               </tr>
             ) : (
-              filteredRows.map((r, i) => (
-                <tr key={r.id || i}>
-                  <td className="store-name-cell font-semibold">
-                    {r.customer}
-                  </td>
-                  <td>
-                    <span className="pic-badge">{r.person}</span>
-                  </td>
-                  <td className="text-right font-mono font-bold text-success">
-                    {formatCurrency(r.collected)}
-                  </td>
-                  <td className="text-right font-mono font-bold text-danger">
-                    {formatCurrency(r.pending)}
-                  </td>
-                </tr>
-              ))
+              filteredRows.map((r, i) => {
+                const ratePct = r.collectionRate;
+                let pctClass = 'text-dim';
+                if (ratePct !== null && ratePct !== undefined) {
+                  if (ratePct >= 90) pctClass = 'pct-exceeded';
+                  else if (ratePct >= 60) pctClass = 'pct-on-track';
+                  else if (ratePct >= 30) pctClass = 'pct-in-progress';
+                  else pctClass = 'pct-lagging';
+                }
+
+                return (
+                  <tr key={r.id || i}>
+                    <td className="store-name-cell font-semibold">
+                      {r.customer}
+                    </td>
+                    <td>
+                      <span className="pic-badge">{r.person}</span>
+                    </td>
+                    <td className="text-right font-mono text-primary font-bold">
+                      {formatCurrency(r.target)}
+                    </td>
+                    <td className="text-right font-mono font-bold text-success">
+                      {formatCurrency(r.collected)}
+                    </td>
+                    <td className="text-right font-mono font-bold text-danger">
+                      {formatCurrency(r.pending)}
+                    </td>
+                    <td className={`text-right font-mono font-bold ${pctClass}`}>
+                      {formatPercent(ratePct)}
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
           {filteredRows.length > 0 && (
@@ -218,11 +256,17 @@ function CollectionTableDashboard({ rows = [] }) {
                 <td colSpan="2" className="font-bold text-left">
                   SUMMARY TOTALS ({filteredRows.length} Customers)
                 </td>
+                <td className="text-right font-mono text-primary font-bold">
+                  {formatCurrency(filteredSummary.targetTotal)}
+                </td>
                 <td className="text-right font-mono font-bold text-success">
                   {formatCurrency(filteredSummary.collectedTotal)}
                 </td>
                 <td className="text-right font-mono font-bold text-danger">
                   {formatCurrency(filteredSummary.pendingTotal)}
+                </td>
+                <td className="text-right font-mono font-bold text-accent">
+                  {formatPercent(filteredSummary.overallRate)}
                 </td>
               </tr>
             </tfoot>

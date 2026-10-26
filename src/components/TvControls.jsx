@@ -23,7 +23,7 @@ function TvControls({
     <div className="tv-controls">
       {/* Left controls: Month selector & Dashboard/Table Tabs */}
       <div className="tv-controls__group tv-controls__left">
-        {activeView === 'sales' ? (
+        {activeView === 'sales' || activeView === 'kpi' ? (
           <div className="tv-controls__item">
             <label htmlFor="month-select" className="tv-controls__label">
               MONTH:

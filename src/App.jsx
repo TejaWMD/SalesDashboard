@@ -7,6 +7,7 @@ import PinLogin, {
 } from './components/PinLogin';
 import Sidebar from './components/Sidebar';
 import HomepageDashboard from './components/HomepageDashboard';
+import KpiDashboard from './components/KpiDashboard';
 import SalesDashboard from './components/SalesDashboard';
 import TableDashboard from './components/TableDashboard';
 import CollectionDashboard from './components/CollectionDashboard';
@@ -426,6 +427,7 @@ function App() {
 
               <div className="app-header__logo-icon">
                 {activeView === 'homepage' && <span style={{ filter: "grayscale(1) brightness(0) invert(1)" }}>👥</span>}
+                {activeView === 'kpi' && '🎯'}
                 {activeView === 'sales' && '💰'}
                 {activeView === 'collection' && '💵'}
                 {activeView === 'online' && '🛒'}
@@ -434,6 +436,7 @@ function App() {
               <div>
                 <h1 className="app-header__title">
                   {activeView === 'homepage' && 'ACCOUNT MANAGERS'}
+                  {activeView === 'kpi' && 'ACCOUNT MANAGERS BALANCED KPI'}
                   {activeView === 'sales' && 'SALES PERFORMANCE'}
                   {activeView === 'collection' && 'COLLECTION TRACKING'}
                   {activeView === 'online' && 'ONLINE SALES'}
@@ -500,6 +503,13 @@ function App() {
             </div>
           ) : (
             <>
+              {activeView === 'kpi' && (
+                <KpiDashboard
+                  salesRows={filteredSalesRows}
+                  paymentData={paymentData}
+                  selectedMonth={selectedMonth}
+                />
+              )}
               {activeView === 'sales' &&
                 (salesSubTab === 'dashboard' ? (
                   <SalesDashboard rows={filteredSalesRows} />

@@ -65,6 +65,7 @@ function CollectionDashboard({ data }) {
       (row) => row.pending !== null && row.pending > 0
     ).length;
 
+    const totalTarget = summary.totalTarget ?? null;
     const totalCollected = summary.totalCollected ?? 0;
     const totalPending = summary.totalPending ?? 0;
 
@@ -89,6 +90,7 @@ function CollectionDashboard({ data }) {
     );
 
     return {
+      totalTarget,
       totalCollected,
       totalPending,
       overallCollectionRate,
@@ -101,11 +103,21 @@ function CollectionDashboard({ data }) {
     };
   }, [rows, picList, summary]);
 
-  // Chart 1: Payment Collected vs Payment Pending.
+  // Chart 1: Target vs Payment Collected vs Payment Pending by Account Manager.
   const comparisonChartData = useMemo(() => ({
     labels: computed.picList.map((pic) => pic.name),
 
     datasets: [
+      {
+        label: 'Target (RM)',
+        data: computed.picList.map(
+          (pic) => pic.target || 0
+        ),
+        backgroundColor: 'rgba(0, 155, 214, 0.45)',
+        borderColor: '#009bd6',
+        borderWidth: 1.5,
+        borderRadius: 5,
+      },
       {
         label: 'Payment Collected (RM)',
 
@@ -299,6 +311,13 @@ function CollectionDashboard({ data }) {
       <div className="tv-overview__kpis">
 
         <KpiCard
+          title="Total Target"
+          value={formatCurrency(computed.totalTarget)}
+          status="primary"
+          icon="🎯"
+        />
+
+        <KpiCard
           title="Payment Collected"
           value={formatCurrency(computed.totalCollected)}
           badge={
@@ -323,37 +342,26 @@ function CollectionDashboard({ data }) {
         />
 
         <KpiCard
-          title="Payment Collected Rate"
+          title="Collection vs Target Rate"
           value={formatPercent(computed.overallCollectionRate)}
           status={
             computed.overallCollectionRate !== null &&
-              computed.overallCollectionRate >= 70
+            computed.overallCollectionRate >= 100
               ? 'success'
               : computed.overallCollectionRate !== null &&
-                computed.overallCollectionRate >= 40
+                computed.overallCollectionRate >= 70
                 ? 'primary'
                 : 'warning'
           }
-          icon="📊"
+          icon="📈"
         />
 
         <KpiCard
-          title="Payment Pending Rate"
-          value={formatPercent(computed.overallPendingRate)}
-          status={
-            computed.overallPendingRate > 50
-              ? 'danger'
-              : 'warning'
-          }
-          icon="📉"
-        />
-
-        <KpiCard
-          title="Customers"
+          title="Total Customers Managed"
           value={computed.totalCustomers}
-          subtitle={`${computed.picList.length} Account Managers`}
+          subtitle={`${computed.picList.length} Account Managers active`}
           status="default"
-          icon="🏬"
+          icon="🏪"
         />
         <KpiCard
           title="Top Account Manager"
@@ -474,6 +482,15 @@ function CollectionDashboard({ data }) {
 
                   <div className="tv-metric-item">
                     <span className="tv-metric-label">
+                      Target:
+                    </span>
+                    <span className="tv-metric-value text-primary font-bold">
+                      {formatCurrency(pic.target)}
+                    </span>
+                  </div>
+
+                  <div className="tv-metric-item">
+                    <span className="tv-metric-label">
                       Payment Collected:
                     </span>
 
@@ -494,21 +511,11 @@ function CollectionDashboard({ data }) {
 
                   <div className="tv-metric-item">
                     <span className="tv-metric-label">
-                      Collected Rate:
+                      Rate:
                     </span>
 
                     <span className="tv-metric-value font-bold">
                       {formatPercent(pic.collectionPercent)}
-                    </span>
-                  </div>
-
-                  <div className="tv-metric-item">
-                    <span className="tv-metric-label">
-                      Pending Rate:
-                    </span>
-
-                    <span className="tv-metric-value font-bold">
-                      {formatPercent(pic.pendingPercent)}
                     </span>
                   </div>
 

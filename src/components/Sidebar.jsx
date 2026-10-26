@@ -10,6 +10,12 @@ const NAV_ITEMS = [
     description: 'Account Managers',
   },
   {
+    id: 'kpi',
+    label: 'KPI',
+    icon: '🎯',
+    description: 'Account Managers KPI',
+  },
+  {
     id: 'sales',
     label: 'Sales',
     icon: '💰',

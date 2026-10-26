@@ -1,0 +1,566 @@
+/* src/components/KpiDashboard.css */
+
+/* ========================================================
+   BASE KPI PAGE: Strictly Non-Scrollable (100% Height)
+   ======================================================== */
+.kpi-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ========================================================
+   5 ACCOUNT MANAGERS CARDS GRID
+   3 in 1st row (cols 1-2, 3-4, 5-6)
+   2 in 2nd row centered (cols 2-3, 4-5)
+   ======================================================== */
+.kpi-am-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  height: 100%;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+/* Row 1: 3 cards */
+.kpi-card-box:nth-child(1) {
+  grid-column: 1 / span 2;
+  grid-row: 1;
+}
+
+.kpi-card-box:nth-child(2) {
+  grid-column: 3 / span 2;
+  grid-row: 1;
+}
+
+.kpi-card-box:nth-child(3) {
+  grid-column: 5 / span 2;
+  grid-row: 1;
+}
+
+/* Row 2: 2 cards centered */
+.kpi-card-box:nth-child(4) {
+  grid-column: 2 / span 2;
+  grid-row: 2;
+}
+
+.kpi-card-box:nth-child(5) {
+  grid-column: 4 / span 2;
+  grid-row: 2;
+}
+
+/* ========================================================
+   CARD BOX STYLING (Normal Balanced Dashboard Cards)
+   ======================================================== */
+.kpi-card-box {
+  background: #ffffff;
+  border: 1.5px solid rgba(7, 43, 97, 0.12);
+  border-top: 4px solid var(--am-accent, #0a387d);
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.kpi-card-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(7, 43, 97, 0.14);
+  border-color: var(--am-accent, #0a387d);
+}
+
+/* Card Header */
+.kpi-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.kpi-card-header__left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kpi-am-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 1rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.kpi-am-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.kpi-am-name {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-black);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpi-am-role {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpi-card-header__right {
+  flex-shrink: 0;
+}
+
+.kpi-rank-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: -0.01em;
+}
+
+.rank-gold {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.rank-silver {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.rank-bronze {
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+.rank-standard {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+/* ========================================================
+   AVERAGE KPI BANNER (Compact Horizontal Hero)
+   ======================================================== */
+.kpi-average-banner {
+  background: linear-gradient(135deg, #f8fafd, #edf3fc);
+  border: 1.5px solid rgba(7, 43, 97, 0.1);
+  border-radius: 9px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.kpi-average-banner__info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.kpi-average-banner__title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--color-black);
+  text-transform: uppercase;
+}
+
+.kpi-status-badge {
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.status-excellent {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-good {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.status-progress {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status-danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-neutral {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.kpi-average-banner__bar-wrap {
+  flex: 1;
+  min-width: 50px;
+}
+
+.kpi-average-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(7, 43, 97, 0.09);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.kpi-average-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kpi-average-banner__score {
+  flex-shrink: 0;
+}
+
+.kpi-average-score__number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--color-black);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/* ========================================================
+   DUAL KPI METRICS: Sales (Left) vs Collection (Right)
+   ======================================================== */
+.kpi-dual-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.kpi-metric-col {
+  background: #f8fafc;
+  border: 1px solid rgba(7, 43, 97, 0.08);
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3px;
+  min-height: 0;
+}
+
+.kpi-metric-col--sales {
+  border-left: 3px solid #0ea5e9;
+}
+
+.kpi-metric-col--collection {
+  border-left: 3px solid #10b981;
+}
+
+.kpi-metric-col__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kpi-metric-col__title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kpi-col-icon {
+  font-size: 0.8rem;
+}
+
+.kpi-col-title {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--color-black);
+}
+
+.kpi-col-rate {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+}
+
+.text-blue {
+  color: #0284c7;
+}
+
+.text-green {
+  color: #059669;
+}
+
+.kpi-progress-track {
+  height: 4px;
+  background: rgba(7, 43, 97, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.kpi-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.kpi-progress-fill--blue {
+  background: linear-gradient(90deg, #0284c7, #38bdf8);
+}
+
+.kpi-progress-fill--green {
+  background: linear-gradient(90deg, #059669, #34d399);
+}
+
+.kpi-numbers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kpi-number-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.65rem;
+}
+
+.kpi-num-label {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.kpi-num-val {
+  font-size: 0.67rem;
+}
+
+.kpi-scope-tag {
+  display: flex;
+  align-items: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: #f1f5f9;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+/* ========================================================
+   CARD FOOTER INSIGHT
+   ======================================================== */
+.kpi-card-footer {
+  padding-top: 4px;
+  border-top: 1px dashed rgba(7, 43, 97, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-footer-badge {
+  font-size: 0.64rem;
+  font-weight: 600;
+  color: var(--text-body);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpi-footer-badge strong {
+  font-weight: 800;
+  color: var(--color-black);
+}
+
+/* ========================================================
+   RESPONSIVE DESIGN (TV, PC, Laptop, Mobile)
+   ======================================================== */
+
+/* Large 50" TV / 4K UHD Screen (>= 1920px) */
+@media (min-width: 1920px) {
+  .kpi-am-grid {
+    gap: 16px;
+  }
+
+  .kpi-card-box {
+    padding: 14px 18px;
+  }
+
+  .kpi-am-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 1.2rem;
+  }
+
+  .kpi-am-name {
+    font-size: 1.1rem;
+  }
+
+  .kpi-am-role {
+    font-size: 0.72rem;
+  }
+
+  .kpi-rank-badge {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+  }
+
+  .kpi-average-banner {
+    padding: 8px 14px;
+  }
+
+  .kpi-average-score__number {
+    font-size: 1.55rem;
+  }
+
+  .kpi-metric-col {
+    padding: 8px 12px;
+  }
+
+  .kpi-col-title {
+    font-size: 0.78rem;
+  }
+
+  .kpi-col-rate {
+    font-size: 0.95rem;
+  }
+
+  .kpi-number-row {
+    font-size: 0.72rem;
+  }
+
+  .kpi-num-val {
+    font-size: 0.74rem;
+  }
+
+  .kpi-scope-tag {
+    font-size: 0.68rem;
+  }
+
+  .kpi-footer-badge {
+    font-size: 0.72rem;
+  }
+}
+
+/* Tablet & Netbook (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .kpi-am-grid {
+    gap: 8px;
+  }
+
+  .kpi-card-box {
+    padding: 8px 10px;
+  }
+
+  .kpi-am-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+  }
+
+  .kpi-am-name {
+    font-size: 0.82rem;
+  }
+
+  .kpi-average-score__number {
+    font-size: 1.15rem;
+  }
+
+  .kpi-num-val {
+    font-size: 0.63rem;
+  }
+}
+
+/* Mobile Screen (< 768px) */
+@media (max-width: 767px) {
+  .kpi-page {
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100%;
+  }
+
+  .kpi-am-grid {
+    display: flex;
+    flex-direction: column;
+    height: auto !important;
+    gap: 12px;
+    padding-bottom: 24px;
+  }
+
+  .kpi-card-box {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    width: 100%;
+    height: auto;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .kpi-average-banner {
+    padding: 10px 12px;
+  }
+
+  .kpi-average-score__number {
+    font-size: 1.4rem;
+  }
+
+  .kpi-dual-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .kpi-metric-col {
+    padding: 10px 12px;
+  }
+}

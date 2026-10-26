@@ -370,8 +370,10 @@ export async function fetchPaymentData() {
           const processed = [];
           const picMap = {};
 
+          let totalTarget = 0;
           let totalCollected = 0;
           let totalPending = 0;
+          let hasTarget = false;
           let hasCollected = false;
           let hasPending = false;
 
@@ -388,11 +390,18 @@ export async function fetchPaymentData() {
             // Skip rows without a customer or account manager.
             if (!customer && !person) continue;
 
+            // Column D: Target (Column index 3 in SUMMARY OCTOBER TEJA)
+            const targetVal = parseSheetValue(row[3]);
+
             // Column E: Payment Collected
             const collectedVal = parseSheetValue(row[4]);
 
             // Column J: Payment Pending
             const pendingVal = parseSheetValue(row[9]);
+
+            const target = targetVal.isBlank
+              ? 0
+              : (targetVal.num ?? 0);
 
             const collected = collectedVal.isBlank
               ? 0
@@ -402,27 +411,29 @@ export async function fetchPaymentData() {
               ? 0
               : (pendingVal.num ?? 0);
 
+            if (!targetVal.isBlank) hasTarget = true;
             if (!collectedVal.isBlank) hasCollected = true;
             if (!pendingVal.isBlank) hasPending = true;
 
+            totalTarget += target;
             totalCollected += collected;
             totalPending += pending;
 
             /*
              * Collection and pending rates are calculated directly
-             * from the collected and pending amounts.
-             * No receivable property is stored in the data.
+             * using target (Column D) when available, or combined amount.
              */
             const combinedAmount = collected + pending;
+            const basis = target > 0 ? target : combinedAmount;
 
             const collectionRate =
-              combinedAmount > 0
-                ? (collected / combinedAmount) * 100
+              basis > 0
+                ? (collected / basis) * 100
                 : null;
 
             const pendingRate =
-              combinedAmount > 0
-                ? (pending / combinedAmount) * 100
+              basis > 0
+                ? (pending / basis) * 100
                 : null;
 
             const accountManager = person || 'Unassigned';
@@ -430,6 +441,8 @@ export async function fetchPaymentData() {
             if (!picMap[accountManager]) {
               picMap[accountManager] = {
                 name: accountManager,
+                target: 0,
+                hasTarget: false,
                 collected: 0,
                 pending: 0,
                 customerCount: 0,
@@ -437,6 +450,10 @@ export async function fetchPaymentData() {
             }
 
             // Group amounts by account manager.
+            if (!targetVal.isBlank) {
+              picMap[accountManager].target += target;
+              picMap[accountManager].hasTarget = true;
+            }
             picMap[accountManager].collected += collected;
             picMap[accountManager].pending += pending;
             picMap[accountManager].customerCount += 1;
@@ -446,6 +463,10 @@ export async function fetchPaymentData() {
 
               customer: customer || 'Unknown Customer',
               person: accountManager,
+
+              target: targetVal.isBlank
+                ? null
+                : targetVal.num,
 
               collected: collectedVal.isBlank
                 ? null
@@ -458,9 +479,11 @@ export async function fetchPaymentData() {
               collectionRate,
               pendingRate,
 
+              targetRaw: targetVal.raw,
               collectedRaw: collectedVal.raw,
               pendingRaw: pendingVal.raw,
 
+              isTargetBlank: targetVal.isBlank,
               isCollectedBlank: collectedVal.isBlank,
               isPendingBlank: pendingVal.isBlank,
             });
@@ -468,29 +491,31 @@ export async function fetchPaymentData() {
 
           // Calculate overall payment rates.
           const combinedTotal = totalCollected + totalPending;
+          const overallBasis = hasTarget && totalTarget > 0 ? totalTarget : combinedTotal;
 
           const overallCollectionRate =
-            combinedTotal > 0
-              ? (totalCollected / combinedTotal) * 100
+            overallBasis > 0
+              ? (totalCollected / overallBasis) * 100
               : null;
 
           const overallPendingRate =
-            combinedTotal > 0
-              ? (totalPending / combinedTotal) * 100
+            overallBasis > 0
+              ? (totalPending / overallBasis) * 100
               : null;
 
           // Build account manager analysis.
           const picList = Object.values(picMap).map((pic) => {
             const combined = pic.collected + pic.pending;
+            const picBasis = pic.hasTarget && pic.target > 0 ? pic.target : combined;
 
             const collectionPercent =
-              combined > 0
-                ? (pic.collected / combined) * 100
+              picBasis > 0
+                ? (pic.collected / picBasis) * 100
                 : null;
 
             const pendingPercent =
-              combined > 0
-                ? (pic.pending / combined) * 100
+              picBasis > 0
+                ? (pic.pending / picBasis) * 100
                 : null;
 
             let status = 'neutral';
@@ -554,6 +579,10 @@ export async function fetchPaymentData() {
             picList: rankedPicList,
 
             summary: {
+              totalTarget: hasTarget
+                ? totalTarget
+                : null,
+
               totalCollected: hasCollected
                 ? totalCollected
                 : null,

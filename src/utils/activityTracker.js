@@ -49,6 +49,10 @@ export function formatDashboardLocation(activeView, salesSubTab, collectionSubTa
   switch (activeView) {
     case 'homepage':
       return 'Homepage (Account Managers)';
+    case 'kpi': {
+      const monthLabel = selectedMonth === 'ALL' ? 'All Months' : selectedMonth || 'OCT';
+      return `Account Managers KPI (${monthLabel})`;
+    }
     case 'sales': {
       const mode = salesSubTab === 'table' ? 'Table View' : 'Dashboard View';
       const monthLabel = selectedMonth === 'ALL' ? 'All Months' : selectedMonth || 'OCT';
