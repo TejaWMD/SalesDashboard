@@ -7,7 +7,8 @@
   flex: 1;
   min-height: 0;
   gap: 8px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .homepage-header-banner {
@@ -85,9 +86,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1;
-  min-height: 0;
-  height: 100%;
+  flex: 1 0 auto;
+  min-height: min-content;
 }
 
 .am-card {
@@ -99,8 +99,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1;
-  min-height: 0;
+  flex: 1 1 auto;
+  min-height: min-content;
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(12px);
   transition: transform 0.22s ease, box-shadow 0.22s ease;
@@ -208,8 +208,8 @@
   display: flex;
   flex-direction: column;
   gap: 7px;
-  flex: 1;
-  min-height: 0;
+  flex: 1 1 auto;
+  min-height: min-content;
 }
 
 .am-category-group {
@@ -221,8 +221,8 @@
   flex-direction: row;
   align-items: center;
   gap: 12px;
-  flex: 1;
-  min-height: 0;
+  flex: 1 1 auto;
+  min-height: min-content;
 }
 
 .am-category-header {
@@ -277,39 +277,51 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
+/* ========================================================
+   STORE CHIPS (responsive grid)
+   All sizing is driven by 4 variables, so each breakpoint
+   below only needs to change those values.
+   - Grid auto-fit: chips share each row equally, so rows
+     always fill the card edge to edge (no ragged gaps).
+   - Long names wrap onto 2 lines instead of overflowing.
+   ======================================================== */
 .am-store-tags {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 7px;
+  --chip-font: 0.78rem;
+  --chip-pad-y: 5px;
+  --chip-pad-x: 8px;
+  --chip-min: 100px;
+  --chip-gap: 6px;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--chip-min), 1fr));
+  grid-auto-rows: auto;
+  align-content: center;
+  align-items: stretch;
+  gap: var(--chip-gap);
   flex: 1;
   min-width: 0;
 }
 
 .am-store-chip {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 5px 12px;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: var(--chip-pad-y) var(--chip-pad-x);
   border-radius: 8px;
   background: var(--bg-card-elevated);
   border: 1px solid var(--border-subtle);
-  font-size: 0.78rem;
+  font-size: var(--chip-font);
   font-weight: 700;
   color: var(--text-main);
-  line-height: 1.25;
-  flex: 1 1 auto;
-  min-width: 85px;
-  max-width: 240px;
+  line-height: 1.2;
+  letter-spacing: 0.005em;
+  overflow-wrap: anywhere;       /* never overflow the card */
+  text-wrap: balance;            /* nicer line breaks on 2-line names */
   transition: all 0.15s ease;
 }
-
-/* .am-store-chip:hover {
-  background: var(--bg-card-alt);
-  border-color: var(--color-lemon);
-} */
-
 
 .am-store-chip--ika {
   background: #c0d4f4;
@@ -416,15 +428,15 @@
   }
 
   .am-store-tags {
-    gap: 8px;
+    --chip-font: 0.95rem;
+    --chip-pad-y: 7px;
+    --chip-pad-x: 10px;
+    --chip-min: 125px;
+    --chip-gap: 8px;
   }
 
   .am-store-chip {
-    font-size: 0.95rem;
-    padding: 6px 16px;
     border-radius: 9px;
-    min-width: 100px;
-    max-width: 260px;
   }
 }
 
@@ -509,15 +521,15 @@
   }
 
   .am-store-tags {
-    gap: 10px;
+    --chip-font: 1.2rem;
+    --chip-pad-y: 9px;
+    --chip-pad-x: 14px;
+    --chip-min: 170px;
+    --chip-gap: 10px;
   }
 
   .am-store-chip {
-    font-size: 1.12rem;
-    padding: 8px 18px;
     border-radius: 11px;
-    min-width: 130px;
-    max-width: 320px;
   }
 }
 
@@ -601,15 +613,16 @@
   }
 
   .am-store-tags {
-    gap: 5px;
+    --chip-font: 0.7rem;
+    --chip-pad-y: 3px;
+    --chip-pad-x: 6px;
+    --chip-min: 82px;
+    --chip-gap: 4px;
   }
 
   .am-store-chip {
-    font-size: 0.72rem;
-    padding: 3px 8px;
     border-radius: 6px;
-    min-width: 75px;
-    max-width: 180px;
+    line-height: 1.15;
   }
 }
 
@@ -662,7 +675,7 @@
 
   .am-category-group {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 6px;
     padding: 8px 10px;
   }
@@ -674,10 +687,13 @@
     justify-content: space-between;
   }
 
-  .am-store-chip {
-    font-size: 0.72rem;
-    padding: 4px 10px;
-    min-width: 70px;
-    max-width: none;
+  .am-store-tags {
+    --chip-font: 0.72rem;
+    --chip-pad-y: 5px;
+    --chip-pad-x: 6px;
+    --chip-min: 92px;   /* ~3 chips per row on a 360px phone */
+    --chip-gap: 5px;
+    width: 100%;
+    flex: none;
   }
 }
