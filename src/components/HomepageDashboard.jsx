@@ -12,7 +12,7 @@ export const ACCOUNT_MANAGERS_DATA = [
     categories: [
       {
         type: 'IKA',
-        stores: ['AEON', 'AEON BIG', 'GIANT', 'PANDAMART'],
+        stores: ['AEON', 'AEON BIG', 'GIANT', 'PANDAMART', 'MYDIN', 'TF VALUE'],
       },
       {
         type: 'LKA',
@@ -28,6 +28,9 @@ export const ACCOUNT_MANAGERS_DATA = [
           'JIMART/DOREMART',
           'KC PLUS',
           'JAYA GROCER',
+          'SUGO',
+          'SUNSHINE WHOLESALE',
+          'BINTANG FRESH'
         ],
       },
       {
@@ -60,6 +63,10 @@ export const ACCOUNT_MANAGERS_DATA = [
           'SALAMKU',
           'FRESH CHOICE',
           'SARAWAK',
+          'SRI TERNAK/ST ROSYAM',
+          'AOMORI',
+          'TY PASARAYA',
+          'V SEGAR'
         ],
       },
       {
@@ -90,39 +97,14 @@ export const ACCOUNT_MANAGERS_DATA = [
           'MEMIZOOZOO',
           'HOCK MEI',
           'BILLION',
-        ],
-      },
-    ],
-  },
-  {
-    id: 'loshny',
-    name: 'LOSHNY',
-    role: 'Account Manager',
-    avatar: 'L',
-    accent: 'coral',
-    categories: [
-      {
-        type: 'IKA',
-        stores: ['MYDIN', 'TF VALUE'],
-      },
-      {
-        type: 'LKA',
-        stores: [
-          'SRI TERNAK/ST ROSYAM',
           'BORONG DIN',
           'PAK TORI',
-          'AOMORI',
-          'TY PASARAYA',
-          'V SEGAR',
           'LS MART',
-          'SUGO',
-          'SUNSHINE WHOLESALE',
-          'BINTANG FRESH',
           'C MART',
         ],
       },
     ],
-  },
+  }
 ];
 
 function HomepageDashboard() {
@@ -139,7 +121,7 @@ function HomepageDashboard() {
           </div>
         </div>
         <div className="homepage-header-banner__badges">
-          <span className="homepage-summary-pill">4 Account Managers</span>
+          <span className="homepage-summary-pill">3 Account Managers</span>
           <span className="homepage-summary-pill homepage-summary-pill--accent">
             54 Key Store Groups
           </span>
@@ -182,11 +164,11 @@ function HomepageDashboard() {
         >
           {cat.type}
         </span>
-        {cat.stores.length > 0 && (
+        {/* {cat.stores.length > 0 && (
           <span className="am-category-count">
             {cat.stores.length} {cat.stores.length === 1 ? 'Store' : 'Stores'}
           </span>
-        )}
+        )} */}
       </div>
 
       {cat.stores.length > 0 ? (
