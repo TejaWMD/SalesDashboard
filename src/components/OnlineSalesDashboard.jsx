@@ -22,7 +22,7 @@ import './OverviewDashboard.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
-function OnlineSalesDashboard({ data }) {
+function OnlineSalesDashboard({ data, monthLabel = '' }) {
   const [chartFonts, setChartFonts] = React.useState(getChartResponsiveFonts);
 
   React.useEffect(() => {
@@ -174,7 +174,7 @@ function OnlineSalesDashboard({ data }) {
         <KpiCard
           title="Daily Average Sales"
           value={formatCurrency(dailyAverage)}
-          subtitle={`Across ${activeDaysCount} Days in Oct`}
+          subtitle={`Across ${activeDaysCount} Days${monthLabel ? ` in ${monthLabel.split(' ')[0].charAt(0)}${monthLabel.split(' ')[0].slice(1, 3).toLowerCase()}` : ''}`}
           status="primary"
           icon="📅"
         />
@@ -325,7 +325,7 @@ function OnlineSalesDashboard({ data }) {
           <div className="tv-chart-box">
             <div className="tv-panel-header">
               <h2 className="tv-panel-title">Daily Sales Trend (Shopee vs TikTok)</h2>
-              <span className="tv-panel-subtitle">October Daily Performance</span>
+              <span className="tv-panel-subtitle">{monthLabel ? `${monthLabel.split(' ')[0].charAt(0)}${monthLabel.split(' ')[0].slice(1).toLowerCase()} Daily Performance` : 'Daily Performance'}</span>
             </div>
             <div className="tv-chart-container">
               <Bar data={dailyTrendData} options={compactChartOptions} />

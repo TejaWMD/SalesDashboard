@@ -7,6 +7,9 @@ function TvControls({
   selectedMonth,
   onMonthChange,
   availableMonths,
+  onlineTabs = [],
+  selectedOnlineTab = '',
+  onOnlineTabChange,
   activeView,
   activeSubTab,
   onSubTabChange,
@@ -42,10 +45,28 @@ function TvControls({
               ))}
             </select>
           </div>
+        ) : activeView === 'online' && onlineTabs.length > 0 ? (
+          <div className="tv-controls__item">
+            <label htmlFor="online-month-select" className="tv-controls__label">
+              MONTH:
+            </label>
+            <select
+              id="online-month-select"
+              className="tv-controls__select"
+              value={selectedOnlineTab}
+              onChange={(e) => onOnlineTabChange(e.target.value)}
+            >
+              {onlineTabs.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
         ) : (
           <div className="tv-controls__item">
-            <span className="tv-controls__label">PERIOD:</span>
-            <span className="tv-controls__badge-pill">OCT 2026</span>
+            {/* <span className="tv-controls__label">PERIOD:</span>
+            <span className="tv-controls__badge-pill">OCT 2026</span> */}
           </div>
         )}
 

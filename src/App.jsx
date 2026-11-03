@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import PinLogin, {
   AUTH_STORAGE_KEY,
   getStoredUserEmail,
@@ -15,7 +15,7 @@ import CollectionTableDashboard from './components/CollectionTableDashboard';
 import OnlineSalesDashboard from './components/OnlineSalesDashboard';
 import AdminActivityDashboard from './components/AdminActivityDashboard';
 import TvControls from './components/TvControls';
-import { fetchSalesData, fetchPaymentData, fetchOnlineData } from './utils/fetchSheet';
+import { fetchSalesData, fetchPaymentData, fetchOnlineData, fetchOnlineTabs } from './utils/fetchSheet';
 import { generateExecutivePdfReport } from './utils/generatePdfReport';
 import {
   recordUserActivity,
@@ -62,6 +62,12 @@ function App() {
 
   // Payment data states
   const [paymentData, setPaymentData] = useState({ rows: [], picList: [], summary: {} });
+
+  // Online sales month tabs (one sheet tab per month, discovered automatically)
+  const [onlineTabs, setOnlineTabs] = useState([]);
+  const [selectedOnlineTab, setSelectedOnlineTab] = useState('');
+  const onlineTabsRef = useRef([]);
+  const selectedOnlineTabRef = useRef('');
 
   // Online sales data states
   const [onlineData, setOnlineData] = useState({
@@ -157,13 +163,32 @@ function App() {
       const [salesRes, paymentRes, onlineRes] = await Promise.all([
         fetchSalesData(),
         fetchPaymentData(),
-        fetchOnlineData(),
+        (async () => {
+          const tabs = await fetchOnlineTabs(onlineTabsRef.current);
+          if (tabs.length === 0) return null;
+          let tab = selectedOnlineTabRef.current;
+          if (!tabs.includes(tab)) {
+            // Default: current calendar month if it has a tab, otherwise the latest tab
+            const monthNames = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DECEMBER'];
+            const nowDate = new Date();
+            const currentName = `${monthNames[nowDate.getMonth()]} ${nowDate.getFullYear()}`;
+            tab = tabs.includes(currentName) ? currentName : tabs[tabs.length - 1];
+          }
+          const data = await fetchOnlineData(tab);
+          return { tabs, tab, data };
+        })(),
       ]);
 
       setSalesRows(salesRes.rows);
       setAvailableMonths(salesRes.availableMonths);
       setPaymentData(paymentRes);
-      setOnlineData(onlineRes);
+      if (onlineRes) {
+        onlineTabsRef.current = onlineRes.tabs;
+        selectedOnlineTabRef.current = onlineRes.tab;
+        setOnlineTabs(onlineRes.tabs);
+        setSelectedOnlineTab(onlineRes.tab);
+        setOnlineData(onlineRes.data);
+      }
 
       // Default month to OCT or latest available month
       if (salesRes.availableMonths.length > 0 && (!selectedMonth || selectedMonth === 'ALL')) {
@@ -308,6 +333,19 @@ function App() {
           activeView === 'sales' ? 'Sales Performance' : 'Collection Tracking'
         }`,
       });
+    }
+  };
+
+  const handleOnlineTabChange = async (newTab) => {
+    selectedOnlineTabRef.current = newTab;
+    setSelectedOnlineTab(newTab);
+    try {
+      const data = await fetchOnlineData(newTab);
+      // Ignore stale responses if the user switched again meanwhile
+      if (selectedOnlineTabRef.current === newTab) setOnlineData(data);
+    } catch (err) {
+      console.error('Failed to fetch online sales tab:', err);
+      setError('Could not fetch online sales for the selected month.');
     }
   };
 
@@ -459,6 +497,9 @@ function App() {
             selectedMonth={selectedMonth}
             onMonthChange={handleMonthChange}
             availableMonths={availableMonths}
+            onlineTabs={onlineTabs}
+            selectedOnlineTab={selectedOnlineTab}
+            onOnlineTabChange={handleOnlineTabChange}
             activeView={activeView}
             activeSubTab={activeSubTab}
             onSubTabChange={handleSubTabChange}
@@ -531,7 +572,7 @@ function App() {
                 ) : (
                   <CollectionTableDashboard rows={paymentData.rows} />
                 ))}
-              {activeView === 'online' && <OnlineSalesDashboard data={onlineData} />}
+              {activeView === 'online' && <OnlineSalesDashboard data={onlineData} monthLabel={selectedOnlineTab} />}
             </>
           )}
         </main>

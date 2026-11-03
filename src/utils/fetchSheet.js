@@ -16,8 +16,8 @@ export const PAYMENT_SHEET = {
 
 export const ONLINE_SHEET = {
   id: '1Ca_p2pDurpAjeO0hdCeAqTPpcLO2EMZ86emzvhYXlJY',
-  gid: '388466216',
-  tab: 'OKTOBER 2026',
+  gid: '626150938',
+  tab: 'NOVEMBER 2026',
 };
 
 // Backward-compatibility aliases
@@ -607,28 +607,98 @@ export async function fetchPaymentData() {
 }
 
 /**
- * 3. Fetches Online Sales Data from Sheet 3 ("OKTOBER 2026" tab)
- * Requirement:
- * - Take sales value for now from C34 and D34
- * - C34: Shopee sales
- * - D34: TikTok sales
- * - Also parses daily sales rows for trends & charts
+ * 3. Online Sales (one tab per month, e.g. "NOVEMBER 2026")
+ * All month tabs share the same layout:
+ * - Column B: date, Column C: Shopee, Column D: TikTok, Column E: total
+ * - A final row with a blank (or "TOTAL") Column B holds the monthly totals
  */
-export async function fetchOnlineData() {
-  const timestamp = Date.now();
-  const directExportUrl = `https://docs.google.com/spreadsheets/d/${ONLINE_SHEET.id}/export?format=csv&gid=${ONLINE_SHEET.gid}&_t=${timestamp}`;
-  const fallbackUrl = `https://docs.google.com/spreadsheets/d/${ONLINE_SHEET.id}/gviz/tq?tqx=out:csv&gid=${ONLINE_SHEET.gid}&_t=${timestamp}`;
+const ONLINE_MONTH_NAMES = [
+  ['JANUARY'],
+  ['FEBRUARY'],
+  ['MARCH'],
+  ['APRIL'],
+  ['MAY'],
+  ['JUNE'],
+  ['JULY'],
+  ['AUGUST'],
+  ['SEPTEMBER'],
+  ['OKTOBER', 'OCTOBER'],
+  ['NOVEMBER'],
+  ['DECEMBER'],
+];
 
-  let csvText = '';
-  try {
-    const response = await fetch(directExportUrl, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    csvText = await response.text();
-  } catch (err) {
-    console.warn('Direct export failed for Online, trying gviz fallback...', err);
-    const response = await fetch(fallbackUrl, { cache: 'no-store' });
-    csvText = await response.text();
+// Years searched for month tabs. Add more here when needed.
+const ONLINE_YEARS = [2026, 2027];
+
+// Every possible tab name in chronological order (alias names grouped together)
+const ONLINE_TAB_CANDIDATES = ONLINE_YEARS.flatMap((year) =>
+  ONLINE_MONTH_NAMES.map((names) => names.map((n) => `${n} ${year}`))
+);
+
+async function fetchOnlineTabCsv(tab) {
+  const url =
+    `https://docs.google.com/spreadsheets/d/${ONLINE_SHEET.id}` +
+    `/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}&_t=${Date.now()}`;
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.text();
+}
+
+/**
+ * Discovers which month tabs exist in the online sales spreadsheet.
+ * Google silently returns the first tab when a sheet name does not exist,
+ * so a candidate counts as existing only if its content differs from that fallback.
+ *
+ * Pass the previously found tabs as `known` to only look for newer tabs
+ * (e.g. a new DECEMBER 2026 tab) instead of re-checking everything.
+ */
+export async function fetchOnlineTabs(known = []) {
+  let startIndex = 0;
+  if (known.length > 0) {
+    const lastIdx = Math.max(
+      ...known.map((k) => ONLINE_TAB_CANDIDATES.findIndex((g) => g.includes(k)))
+    );
+    startIndex = lastIdx + 1;
   }
+  const groups = known.length > 0
+    ? ONLINE_TAB_CANDIDATES.slice(startIndex, startIndex + 3)
+    : ONLINE_TAB_CANDIDATES;
+
+  if (groups.length === 0) return known;
+
+  let fallbackText = null;
+  try {
+    fallbackText = await fetchOnlineTabCsv('__NO_SUCH_TAB__');
+  } catch (err) {
+    console.warn('Could not fetch fallback tab for comparison', err);
+  }
+
+  const found = await Promise.all(
+    groups.map(async (names) => {
+      for (const name of names) {
+        try {
+          const text = await fetchOnlineTabCsv(name);
+          if (text && text.trim() && text !== fallbackText) return name;
+        } catch {
+          // ignore, try next alias
+        }
+      }
+      return null;
+    })
+  );
+
+  const merged = [...known, ...found.filter(Boolean)];
+  const order = (n) => ONLINE_TAB_CANDIDATES.findIndex((g) => g.includes(n));
+  return Array.from(new Set(merged)).sort((a, b) => order(a) - order(b));
+}
+
+/**
+ * Fetches Online Sales Data for one month tab.
+ * - Shopee = column C, TikTok = column D
+ * - Totals come from the TOTAL row when present, otherwise from the daily rows
+ */
+export async function fetchOnlineData(tab = ONLINE_SHEET.tab) {
+  const csvText = await fetchOnlineTabCsv(tab);
 
   return new Promise((resolve, reject) => {
     Papa.parse(csvText, {
@@ -641,28 +711,14 @@ export async function fetchOnlineData() {
           let tiktokTotal = null;
           let totalSales = null;
           const dailyRecords = [];
+          const dateRegex = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
 
           for (let r = 0; r < rawRows.length; r++) {
             const row = rawRows[r];
-            const colB = (row[1] || '').trim().toUpperCase();
+            const colB = (row[1] || '').trim();
 
-            // Look for TOTAL row (row 34 or marked TOTAL)
-            if (colB === 'TOTAL' || r === 33) {
-              const c34Val = parseSheetValue(row[2]); // Col C
-              const d34Val = parseSheetValue(row[3]); // Col D
-              const e34Val = parseSheetValue(row[4]); // Col E
-
-              if (!c34Val.isBlank) shopeeTotal = c34Val.num;
-              if (!d34Val.isBlank) tiktokTotal = d34Val.num;
-
-              if (shopeeTotal !== null || tiktokTotal !== null) {
-                totalSales = (shopeeTotal || 0) + (tiktokTotal || 0);
-              } else if (!e34Val.isBlank) {
-                totalSales = e34Val.num;
-              }
-            } else if (row[1] && (row[1].includes('/') || row[1].toLowerCase().includes('oct') || row[1].toLowerCase().includes('okt'))) {
-              // Daily sales records (e.g. 1/10/2026)
-              const date = (row[1] || '').trim();
+            if (dateRegex.test(colB)) {
+              // Daily sales records (e.g. 1/11/2026)
               const shopee = parseSheetValue(row[2]);
               const tiktok = parseSheetValue(row[3]);
               const total = parseSheetValue(row[4]);
@@ -673,16 +729,32 @@ export async function fetchOnlineData() {
 
               if (sNum > 0 || tNum > 0 || totNum > 0) {
                 dailyRecords.push({
-                  date,
+                  date: colB,
                   shopee: sNum,
                   tiktok: tNum,
                   total: totNum,
                 });
               }
+            } else if (colB === '' || colB.toUpperCase() === 'TOTAL') {
+              // Totals row (column B is blank or says TOTAL)
+              const cVal = parseSheetValue(row[2]); // Col C: Shopee
+              const dVal = parseSheetValue(row[3]); // Col D: TikTok
+              const eVal = parseSheetValue(row[4]); // Col E
+
+              if (cVal.isBlank && dVal.isBlank && eVal.isBlank) continue;
+
+              if (!cVal.isBlank) shopeeTotal = cVal.num;
+              if (!dVal.isBlank) tiktokTotal = dVal.num;
+
+              if (shopeeTotal !== null || tiktokTotal !== null) {
+                totalSales = (shopeeTotal || 0) + (tiktokTotal || 0);
+              } else if (!eVal.isBlank) {
+                totalSales = eVal.num;
+              }
             }
           }
 
-          // If TOTAL row wasn't found in loop, calculate from daily
+          // If TOTAL row wasn't found, calculate from daily
           if (shopeeTotal === null && tiktokTotal === null && dailyRecords.length > 0) {
             shopeeTotal = dailyRecords.reduce((acc, d) => acc + d.shopee, 0);
             tiktokTotal = dailyRecords.reduce((acc, d) => acc + d.tiktok, 0);
@@ -702,6 +774,7 @@ export async function fetchOnlineData() {
           }
 
           resolve({
+            tab,
             shopeeTotal: shopeeTotal !== null ? shopeeTotal : 0,
             tiktokTotal: tiktokTotal !== null ? tiktokTotal : 0,
             totalSales: safeTotal,
