@@ -234,7 +234,7 @@ function PaymentUpdateTable({
               {/* Column 3: Update 1 */}
               <th className="pu-col-update pu-col-u1">
                 <div className="pu-th-content">
-                  <span className="pu-th-tag">WEEK 1</span>
+                  <span className="pu-th-tag">17/10/2026-24/10/2026</span>
                   <span className="pu-th-title">{columns[0] || 'Update 1'}</span>
                 </div>
               </th>
@@ -242,7 +242,7 @@ function PaymentUpdateTable({
               {/* Column 4: Update 2 */}
               <th className="pu-col-update pu-col-u2">
                 <div className="pu-th-content">
-                  <span className="pu-th-tag">WEEK 2</span>
+                  <span className="pu-th-tag">25/10/2026-31/10/2026</span>
                   <span className="pu-th-title">{columns[1] || 'Update 2'}</span>
                 </div>
               </th>
@@ -250,7 +250,7 @@ function PaymentUpdateTable({
               {/* Column 5: Update 3 */}
               <th className="pu-col-update pu-col-u3">
                 <div className="pu-th-content">
-                  <span className="pu-th-tag">WEEK 3</span>
+                  <span className="pu-th-tag">01/11/2026-07/11/2026</span>
                   <span className="pu-th-title">{columns[2] || 'Update 3'}</span>
                 </div>
               </th>
