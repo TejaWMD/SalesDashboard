@@ -1,0 +1,636 @@
+/* src/components/PaymentUpdateTable.css */
+
+.pu-dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+  gap: 10px;
+  overflow: hidden;
+}
+
+/* =========================================================================
+   TOP CONTROLS & FILTER BAR (Matches TableDashboard.css)
+   ========================================================================= */
+.pu-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--bg-card-translucent);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 8px 14px;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.pu-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pu-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.pu-subtitle {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.pu-controls-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Search Box */
+.pu-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 5px 10px;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.pu-search-box:focus-within {
+  border-color: var(--color-blue);
+  box-shadow: 0 0 0 2px rgba(10, 56, 125, 0.15);
+}
+
+.pu-search-icon {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.pu-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-main);
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: 170px;
+}
+
+.pu-search-input::placeholder {
+  color: var(--text-dim);
+}
+
+.pu-clear-search {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.75rem;
+  transition: color 0.2s ease;
+}
+
+.pu-clear-search:hover {
+  color: var(--text-main);
+}
+
+/* Section Filter Pills (ALL, IKA, LKA, SKA, GT) */
+.pu-section-pills {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pu-section-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-body);
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pu-section-pill:hover {
+  border-color: var(--color-blue);
+  background: #eaf1fc;
+}
+
+.pu-section-pill.active {
+  background: var(--color-blue);
+  border-color: var(--color-blue);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(10, 56, 125, 0.25);
+}
+
+.pu-pill-count {
+  font-size: 0.68rem;
+  background: rgba(7, 43, 97, 0.12);
+  padding: 1px 5px;
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+.pu-section-pill.active .pu-pill-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Customer Select Dropdown */
+.pu-customer-select-wrap {
+  position: relative;
+}
+
+.pu-customer-select {
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  border-radius: 10px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+  max-width: 170px;
+  transition: all 0.2s ease;
+}
+
+.pu-customer-select:focus,
+.pu-customer-select:hover {
+  border-color: var(--color-blue);
+}
+
+/* Results Badge */
+.pu-results-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+
+.pu-results-badge strong {
+  color: var(--color-blue);
+}
+
+/* TV Scroll Toggle */
+.pu-scroll-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card-elevated);
+  border: 1px solid rgba(10, 56, 125, 0.35);
+  color: var(--color-blue);
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-size: 0.775rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pu-scroll-toggle:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-blue);
+}
+
+.pu-scroll-toggle.active {
+  background: var(--color-blue);
+  border-color: var(--color-blue);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(10, 56, 125, 0.3);
+}
+
+/* =========================================================================
+   SCROLL WRAPPER & 5-COLUMN TABLE
+   ========================================================================= */
+.pu-table-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  background: var(--bg-card-translucent);
+  position: relative;
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.pu-master-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8rem;
+  color: var(--text-body);
+}
+
+/* Table Header (5 Columns) */
+.pu-master-table th {
+  position: sticky;
+  top: 0;
+  background: #072b61;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.725rem;
+  letter-spacing: 0.04em;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--color-lemon);
+  z-index: 10;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.pu-col-customer {
+  width: 20%;
+  min-width: 170px;
+}
+
+.pu-col-outlet {
+  width: 20%;
+  min-width: 170px;
+}
+
+.pu-col-update {
+  width: 20%;
+  min-width: 210px;
+}
+
+.pu-th-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pu-th-tag {
+  font-size: 0.62rem;
+  font-weight: 900;
+  color: var(--bg-tv-main);
+  letter-spacing: 0.08em;
+}
+
+.pu-th-title {
+  font-size: 0.725rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Table Body Cells */
+.pu-master-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(7, 43, 97, 0.08);
+  vertical-align: top;
+  transition: background 0.15s ease;
+  font-size: 0.8rem;
+}
+
+.pu-master-table tr:hover td {
+  background: rgba(251, 229, 70, 0.14);
+}
+
+/* Customer grouping divider line */
+.pu-row--new-customer td {
+  border-top: 1.5px solid rgba(10, 56, 125, 0.22);
+}
+
+/* Column 1: Customer Pill */
+.pu-customer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0f5fc;
+  border: 1px solid rgba(10, 56, 125, 0.18);
+  padding: 4px 9px;
+  border-radius: 8px;
+  max-width: 100%;
+}
+
+.pu-customer-icon {
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+.pu-customer-name {
+  font-weight: 800;
+  color: var(--color-blue);
+  font-size: 0.775rem;
+  word-break: break-word;
+}
+
+.pu-section-tag {
+  font-size: 0.62rem;
+  font-weight: 900;
+  background: var(--color-blue);
+  color: #ffffff;
+  padding: 1px 5px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Column 2: Outlet Name */
+.pu-outlet-name {
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 0.8rem;
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+/* Column 3, 4, 5: Weekly Updates */
+.pu-cell-update {
+  font-size: 0.775rem;
+  line-height: 1.45;
+  color: var(--text-body);
+}
+
+.pu-update-text {
+  white-space: pre-line;
+  word-break: break-word;
+  background: rgba(243, 247, 253, 0.6);
+  border: 1px solid rgba(7, 43, 97, 0.08);
+  border-radius: 6px;
+  padding: 6px 9px;
+  transition: all 0.15s ease;
+}
+
+.pu-update-text:hover {
+  background: #ffffff;
+  border-color: rgba(10, 56, 125, 0.2);
+  box-shadow: 0 1px 4px rgba(7, 43, 97, 0.06);
+}
+
+.pu-update--received {
+  background: #f0fdf4 !important;
+  border-color: rgba(47, 122, 68, 0.25) !important;
+  color: #1e5e32;
+  font-weight: 600;
+}
+
+.pu-update--pending {
+  background: #fffbeb !important;
+  border-color: rgba(195, 138, 0, 0.3) !important;
+  color: #855d00;
+}
+
+.pu-dash {
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+/* Empty State */
+.pu-empty-cell {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.pu-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(10, 56, 125, 0.15);
+  border-top-color: var(--color-blue);
+  border-radius: 50%;
+  animation: pu-spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes pu-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pu-reset-filters-btn {
+  display: block;
+  margin: 12px auto 0;
+  background: var(--color-blue);
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.775rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.pu-reset-filters-btn:hover {
+  opacity: 0.9;
+}
+
+/* =========================================================================
+   RESPONSIVE DESIGN: TV, LAPTOP, PC, MOBILE
+   ========================================================================= */
+
+/* 1080p Full HD TV (>= 1920px) */
+@media (min-width: 1920px) {
+  .pu-dashboard {
+    gap: 12px;
+  }
+  .pu-top-bar {
+    padding: 10px 18px;
+    border-radius: 16px;
+    gap: 14px;
+  }
+  .pu-title {
+    font-size: 1.15rem;
+  }
+  .pu-subtitle {
+    font-size: 0.82rem;
+  }
+  .pu-search-box {
+    padding: 6px 12px;
+    border-radius: 11px;
+  }
+  .pu-search-input {
+    font-size: 0.88rem;
+    width: 210px;
+  }
+  .pu-section-pill {
+    font-size: 0.85rem;
+    padding: 6px 13px;
+  }
+  .pu-customer-select {
+    font-size: 0.88rem;
+    padding: 6px 14px;
+    max-width: 220px;
+  }
+  .pu-scroll-toggle {
+    font-size: 0.85rem;
+    padding: 6px 14px;
+  }
+  .pu-results-badge {
+    font-size: 0.85rem;
+    padding: 5px 10px;
+  }
+  .pu-table-wrapper {
+    border-radius: 16px;
+  }
+  .pu-master-table {
+    font-size: 0.92rem;
+  }
+  .pu-master-table th {
+    font-size: 0.82rem;
+    padding: 12px 16px;
+  }
+  .pu-th-tag {
+    font-size: 0.7rem;
+  }
+  .pu-th-title {
+    font-size: 0.82rem;
+  }
+  .pu-master-table td {
+    padding: 11px 16px;
+    font-size: 0.88rem;
+  }
+  .pu-customer-name {
+    font-size: 0.85rem;
+  }
+  .pu-outlet-name {
+    font-size: 0.88rem;
+  }
+  .pu-update-text {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+}
+
+/* 4K UHD TV (>= 2560px) */
+@media (min-width: 2560px) {
+  .pu-dashboard {
+    gap: 18px;
+  }
+  .pu-top-bar {
+    padding: 16px 24px;
+    border-radius: 20px;
+    gap: 20px;
+  }
+  .pu-title {
+    font-size: 1.55rem;
+  }
+  .pu-subtitle {
+    font-size: 1.15rem;
+  }
+  .pu-search-box {
+    padding: 10px 16px;
+    border-radius: 14px;
+  }
+  .pu-search-input {
+    font-size: 1.15rem;
+    width: 300px;
+  }
+  .pu-section-pill {
+    font-size: 1.15rem;
+    padding: 10px 18px;
+  }
+  .pu-customer-select {
+    font-size: 1.15rem;
+    padding: 10px 20px;
+    max-width: 320px;
+  }
+  .pu-scroll-toggle {
+    font-size: 1.1rem;
+    padding: 10px 20px;
+  }
+  .pu-results-badge {
+    font-size: 1.1rem;
+    padding: 8px 14px;
+  }
+  .pu-table-wrapper {
+    border-radius: 20px;
+  }
+  .pu-master-table {
+    font-size: 1.25rem;
+  }
+  .pu-master-table th {
+    font-size: 1.1rem;
+    padding: 16px 22px;
+  }
+  .pu-th-tag {
+    font-size: 0.9rem;
+  }
+  .pu-th-title {
+    font-size: 1.1rem;
+  }
+  .pu-master-table td {
+    padding: 15px 22px;
+    font-size: 1.15rem;
+  }
+  .pu-customer-name {
+    font-size: 1.15rem;
+  }
+  .pu-outlet-name {
+    font-size: 1.2rem;
+  }
+  .pu-update-text {
+    font-size: 1.15rem;
+    padding: 12px 18px;
+  }
+}
+
+/* Mobile & Small Tablets (<= 768px) */
+@media (max-width: 768px) {
+  .pu-dashboard {
+    height: auto;
+    overflow: visible;
+  }
+  .pu-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+    gap: 10px;
+  }
+  .pu-controls-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .pu-search-box,
+  .pu-customer-select-wrap,
+  .pu-customer-select,
+  .pu-scroll-toggle {
+    width: 100%;
+    max-width: 100%;
+  }
+  .pu-section-pills {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    justify-content: flex-start;
+  }
+  .pu-section-pill {
+    flex-shrink: 0;
+  }
+  .pu-table-wrapper {
+    max-height: 70vh;
+    border-radius: 10px;
+  }
+  .pu-master-table {
+    min-width: 720px;
+  }
+  .pu-master-table th,
+  .pu-master-table td {
+    padding: 8px 10px;
+  }
+}

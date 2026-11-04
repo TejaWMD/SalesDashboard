@@ -93,6 +93,18 @@ function TvControls({
             >
               📋 Table
             </button>
+            {activeView === 'collection' && (
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeSubTab === 'payment-update'}
+                className={`tv-view-btn ${activeSubTab === 'payment-update' ? 'active' : ''}`}
+                onClick={() => onSubTabChange('payment-update')}
+                title="Payment Update View: Outlets, Invoices & Weekly Updates"
+              >
+                📝 Payment Update
+              </button>
+            )}
           </div>
         )}
 

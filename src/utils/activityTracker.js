@@ -59,9 +59,16 @@ export function formatDashboardLocation(activeView, salesSubTab, collectionSubTa
       return `Sales Performance • ${mode} (${monthLabel})`;
     }
     case 'collection': {
-      const mode = collectionSubTab === 'table' ? 'Table View' : 'Dashboard View';
+      const mode =
+        collectionSubTab === 'payment-update'
+          ? 'Payment Update'
+          : collectionSubTab === 'table'
+          ? 'Table View'
+          : 'Dashboard View';
       return `Collection Tracking • ${mode}`;
     }
+    case 'payment-update':
+      return 'Payment Update Tracking';
     case 'online':
       return 'Online Sales (Shopee & TikTok)';
     case 'admin':

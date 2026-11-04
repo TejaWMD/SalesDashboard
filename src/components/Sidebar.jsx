@@ -27,6 +27,12 @@ const NAV_ITEMS = [
     icon: '💵',
     description: 'Collection Tracking',
   },
+  // {
+  //   id: 'payment-update',
+  //   label: 'Payment Update',
+  //   icon: '📝',
+  //   description: 'Weekly Outlet Payment Updates',
+  // },
   {
     id: 'online',
     label: 'Online',

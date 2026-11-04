@@ -12,10 +12,12 @@ import SalesDashboard from './components/SalesDashboard';
 import TableDashboard from './components/TableDashboard';
 import CollectionDashboard from './components/CollectionDashboard';
 import CollectionTableDashboard from './components/CollectionTableDashboard';
+import PaymentUpdateTable from './components/PaymentUpdateTable';
 import OnlineSalesDashboard from './components/OnlineSalesDashboard';
 import AdminActivityDashboard from './components/AdminActivityDashboard';
 import TvControls from './components/TvControls';
 import { fetchSalesData, fetchPaymentData, fetchOnlineData, fetchOnlineTabs } from './utils/fetchSheet';
+import { fetchPaymentUpdateData } from './utils/fetchPaymentUpdate';
 import { generateExecutivePdfReport } from './utils/generatePdfReport';
 import {
   recordUserActivity,
@@ -35,12 +37,12 @@ function App() {
   const isAuthenticated = Boolean(currentUserEmail);
   const isAdmin = useMemo(() => isAdminEmail(currentUserEmail), [currentUserEmail]);
 
-  // Active view: 'homepage' | 'kpi' | 'sales' | 'collection' | 'online' | 'admin'
+  // Active view: 'homepage' | 'kpi' | 'sales' | 'collection' | 'payment-update' | 'online' | 'admin'
   const [activeView, setActiveView] = useState(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const v = params.get('view');
-      if (v && ['homepage', 'kpi', 'sales', 'collection', 'online', 'admin'].includes(v)) {
+      if (v && ['homepage', 'kpi', 'sales', 'collection', 'payment-update', 'online', 'admin'].includes(v)) {
         return v;
       }
     } catch (e) {}
@@ -62,6 +64,7 @@ function App() {
 
   // Payment data states
   const [paymentData, setPaymentData] = useState({ rows: [], picList: [], summary: {} });
+  const [paymentUpdateData, setPaymentUpdateData] = useState({ rows: [], columns: [], sections: [] });
 
   // Online sales month tabs (one sheet tab per month, discovered automatically)
   const [onlineTabs, setOnlineTabs] = useState([]);
@@ -160,7 +163,7 @@ function App() {
     if (!isSilent) setIsLoading(true);
     setError(null);
     try {
-      const [salesRes, paymentRes, onlineRes] = await Promise.all([
+      const [salesRes, paymentRes, onlineRes, paymentUpdateRes] = await Promise.all([
         fetchSalesData(),
         fetchPaymentData(),
         (async () => {
@@ -177,11 +180,15 @@ function App() {
           const data = await fetchOnlineData(tab);
           return { tabs, tab, data };
         })(),
+        fetchPaymentUpdateData(),
       ]);
 
       setSalesRows(salesRes.rows);
       setAvailableMonths(salesRes.availableMonths);
       setPaymentData(paymentRes);
+      if (paymentUpdateRes) {
+        setPaymentUpdateData(paymentUpdateRes);
+      }
       if (onlineRes) {
         onlineTabsRef.current = onlineRes.tabs;
         selectedOnlineTabRef.current = onlineRes.tab;
@@ -325,11 +332,12 @@ function App() {
         activeView === 'collection' ? tab : collectionSubTab,
         selectedMonth
       );
+      const subTabTitle = tab === 'table' ? 'Table View' : tab === 'payment-update' ? 'Payment Update View' : 'Dashboard View';
       recordUserActivity({
         email: currentUserEmail,
         actionType: 'SUBTAB_CHANGE',
         location: nextLoc,
-        details: `Switched to ${tab === 'table' ? 'Table View' : 'Dashboard View'} in ${
+        details: `Switched to ${subTabTitle} in ${
           activeView === 'sales' ? 'Sales Performance' : 'Collection Tracking'
         }`,
       });
@@ -477,6 +485,7 @@ function App() {
                 {activeView === 'kpi' && '🎯'}
                 {activeView === 'sales' && '💰'}
                 {activeView === 'collection' && '💵'}
+                {activeView === 'payment-update' && '📝'}
                 {activeView === 'online' && '🛒'}
                 {activeView === 'admin' && '🛡️'}
               </div>
@@ -486,6 +495,7 @@ function App() {
                   {activeView === 'kpi' && 'ACCOUNT MANAGERS BALANCED KPI'}
                   {activeView === 'sales' && 'SALES PERFORMANCE'}
                   {activeView === 'collection' && 'COLLECTION TRACKING'}
+                  {activeView === 'payment-update' && 'PAYMENT UPDATE TRACKING'}
                   {activeView === 'online' && 'ONLINE SALES'}
                   {activeView === 'admin' && 'ADMIN USER & ACTIVITY TRACKER'}
                 </h1>
@@ -569,9 +579,14 @@ function App() {
               {activeView === 'collection' &&
                 (collectionSubTab === 'dashboard' ? (
                   <CollectionDashboard data={paymentData} />
-                ) : (
+                ) : collectionSubTab === 'table' ? (
                   <CollectionTableDashboard rows={paymentData.rows} />
+                ) : (
+                  <PaymentUpdateTable data={paymentUpdateData} isLoading={isLoading} />
                 ))}
+              {activeView === 'payment-update' && (
+                <PaymentUpdateTable data={paymentUpdateData} isLoading={isLoading} />
+              )}
               {activeView === 'online' && <OnlineSalesDashboard data={onlineData} monthLabel={selectedOnlineTab} />}
             </>
           )}
