@@ -10,6 +10,9 @@ function TvControls({
   onlineTabs = [],
   selectedOnlineTab = '',
   onOnlineTabChange,
+  collectionMonths = [],
+  selectedCollectionGid = '',
+  onCollectionMonthChange,
   activeView,
   activeSubTab,
   onSubTabChange,
@@ -59,6 +62,24 @@ function TvControls({
               {onlineTabs.map((t) => (
                 <option key={t} value={t}>
                   {t}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : activeView === 'collection' && collectionMonths.length > 0 ? (
+          <div className="tv-controls__item">
+            <label htmlFor="collection-month-select" className="tv-controls__label">
+              MONTH:
+            </label>
+            <select
+              id="collection-month-select"
+              className="tv-controls__select"
+              value={selectedCollectionGid}
+              onChange={(e) => onCollectionMonthChange(e.target.value)}
+            >
+              {collectionMonths.map((m) => (
+                <option key={m.gid} value={m.gid}>
+                  {m.label}
                 </option>
               ))}
             </select>

@@ -14,6 +14,15 @@ export const PAYMENT_SHEET = {
   tab: 'SUMMARY OCTOBER TEJA',
 };
 
+/**
+ * Collection Month Tabs & GIDs
+ * Add or update upcoming months and their Google Sheet GIDs here!
+ */
+export const COLLECTION_MONTHS = [
+  { label: 'OCTOBER', gid: '969611760', tab: 'SUMMARY OCTOBER TEJA' },
+  { label: 'NOVEMBER', gid: '182735412', tab: 'SUMMARY NOVEMBER TEJA' },
+];
+
 export const ONLINE_SHEET = {
   id: '1Ca_p2pDurpAjeO0hdCeAqTPpcLO2EMZ86emzvhYXlJY',
   gid: '626150938',
@@ -302,17 +311,25 @@ export async function fetchSalesData() {
  *
  * No receivable field is created or returned.
  */
-export async function fetchPaymentData() {
+export async function fetchPaymentData(monthGid = null) {
   const timestamp = Date.now();
-  const encodedTab = encodeURIComponent(PAYMENT_SHEET.tab);
 
-  const gvizUrl =
-    `https://docs.google.com/spreadsheets/d/${PAYMENT_SHEET.id}` +
-    `/gviz/tq?tqx=out:csv&sheet=${encodedTab}&_t=${timestamp}`;
+  // Find matching month config or fallback
+  const matchedMonth = monthGid
+    ? COLLECTION_MONTHS.find((m) => String(m.gid) === String(monthGid))
+    : null;
+  const config = matchedMonth || COLLECTION_MONTHS[COLLECTION_MONTHS.length - 1] || PAYMENT_SHEET;
+  const targetGid = String(config.gid || monthGid || PAYMENT_SHEET.gid);
+  const targetTab = config.tab || PAYMENT_SHEET.tab;
+  const encodedTab = encodeURIComponent(targetTab);
 
-  const directExportUrl =
-    `https://docs.google.com/spreadsheets/d/${PAYMENT_SHEET.id}` +
-    `/export?format=csv&sheet=${encodedTab}&_t=${timestamp}`;
+  const gvizUrl = targetGid
+    ? `https://docs.google.com/spreadsheets/d/${PAYMENT_SHEET.id}/gviz/tq?tqx=out:csv&gid=${targetGid}&_t=${timestamp}`
+    : `https://docs.google.com/spreadsheets/d/${PAYMENT_SHEET.id}/gviz/tq?tqx=out:csv&sheet=${encodedTab}&_t=${timestamp}`;
+
+  const directExportUrl = targetGid
+    ? `https://docs.google.com/spreadsheets/d/${PAYMENT_SHEET.id}/export?format=csv&gid=${targetGid}&_t=${timestamp}`
+    : `https://docs.google.com/spreadsheets/d/${PAYMENT_SHEET.id}/export?format=csv&sheet=${encodedTab}&_t=${timestamp}`;
 
   let csvText = '';
 
@@ -330,17 +347,31 @@ export async function fetchPaymentData() {
       error
     );
 
-    const response = await fetch(directExportUrl, {
-      cache: 'no-store',
-    });
+    try {
+      const response = await fetch(directExportUrl, {
+        cache: 'no-store',
+      });
 
-    if (!response.ok) {
-      throw new Error(
-        `Payment sheet request failed: HTTP ${response.status}`
-      );
+      if (!response.ok) {
+        throw new Error(
+          `Payment sheet request failed: HTTP ${response.status}`
+        );
+      }
+
+      csvText = await response.text();
+    } catch (exportErr) {
+      if (encodedTab) {
+        console.warn('Direct GID export failed. Trying sheet name export...', exportErr);
+        const nameUrl = `https://docs.google.com/spreadsheets/d/${PAYMENT_SHEET.id}/gviz/tq?tqx=out:csv&sheet=${encodedTab}&_t=${timestamp}`;
+        const res = await fetch(nameUrl, { cache: 'no-store' });
+        if (!res.ok) {
+          throw new Error(`Payment sheet request failed: HTTP ${res.status}`);
+        }
+        csvText = await res.text();
+      } else {
+        throw exportErr;
+      }
     }
-
-    csvText = await response.text();
   }
 
   return new Promise((resolve, reject) => {

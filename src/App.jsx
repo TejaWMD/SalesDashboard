@@ -16,7 +16,13 @@ import PaymentUpdateTable from './components/PaymentUpdateTable';
 import OnlineSalesDashboard from './components/OnlineSalesDashboard';
 import AdminActivityDashboard from './components/AdminActivityDashboard';
 import TvControls from './components/TvControls';
-import { fetchSalesData, fetchPaymentData, fetchOnlineData, fetchOnlineTabs } from './utils/fetchSheet';
+import {
+  fetchSalesData,
+  fetchPaymentData,
+  fetchOnlineData,
+  fetchOnlineTabs,
+  COLLECTION_MONTHS,
+} from './utils/fetchSheet';
 import { fetchPaymentUpdateData } from './utils/fetchPaymentUpdate';
 import { generateExecutivePdfReport } from './utils/generatePdfReport';
 import {
@@ -65,6 +71,13 @@ function App() {
   // Payment data states
   const [paymentData, setPaymentData] = useState({ rows: [], picList: [], summary: {} });
   const [paymentUpdateData, setPaymentUpdateData] = useState({ rows: [], columns: [], sections: [] });
+
+  // Collection month tabs (configured with GIDs in fetchSheet.js)
+  const [selectedCollectionGid, setSelectedCollectionGid] = useState(() => {
+    const novMonth = COLLECTION_MONTHS.find((m) => m.gid === '182735412');
+    return novMonth ? novMonth.gid : (COLLECTION_MONTHS[COLLECTION_MONTHS.length - 1]?.gid || '182735412');
+  });
+  const selectedCollectionGidRef = useRef(selectedCollectionGid);
 
   // Online sales month tabs (one sheet tab per month, discovered automatically)
   const [onlineTabs, setOnlineTabs] = useState([]);
@@ -165,7 +178,7 @@ function App() {
     try {
       const [salesRes, paymentRes, onlineRes, paymentUpdateRes] = await Promise.all([
         fetchSalesData(),
-        fetchPaymentData(),
+        fetchPaymentData(selectedCollectionGidRef.current),
         (async () => {
           const tabs = await fetchOnlineTabs(onlineTabsRef.current);
           if (tabs.length === 0) return null;
@@ -357,6 +370,34 @@ function App() {
     }
   };
 
+  const handleCollectionMonthChange = async (newGid) => {
+    selectedCollectionGidRef.current = newGid;
+    setSelectedCollectionGid(newGid);
+    setIsLoading(true);
+    try {
+      const data = await fetchPaymentData(newGid);
+      if (selectedCollectionGidRef.current === newGid) {
+        setPaymentData(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch collection tab for selected month:', err);
+      setError('Could not fetch collection data for the selected month.');
+    } finally {
+      setIsLoading(false);
+    }
+
+    if (currentUserEmail) {
+      const monthObj = COLLECTION_MONTHS.find((m) => String(m.gid) === String(newGid));
+      const monthLabel = monthObj?.label || newGid;
+      recordUserActivity({
+        email: currentUserEmail,
+        actionType: 'FILTER_CHANGE',
+        location: currentLocationLabel,
+        details: `Changed Collection Month filter to ${monthLabel}`,
+      });
+    }
+  };
+
   const handleMonthChange = (newMonth) => {
     setSelectedMonth(newMonth);
     if (currentUserEmail) {
@@ -510,6 +551,9 @@ function App() {
             onlineTabs={onlineTabs}
             selectedOnlineTab={selectedOnlineTab}
             onOnlineTabChange={handleOnlineTabChange}
+            collectionMonths={COLLECTION_MONTHS}
+            selectedCollectionGid={selectedCollectionGid}
+            onCollectionMonthChange={handleCollectionMonthChange}
             activeView={activeView}
             activeSubTab={activeSubTab}
             onSubTabChange={handleSubTabChange}
