@@ -1,6 +1,5 @@
 // src/App.jsx
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import UnauthorizedAccess from './components/UnauthorizedAccess';
 import {
   getSSOSession,
   clearSSOSession,
@@ -474,9 +473,17 @@ function App() {
     }
   };
 
-  // If user is not authenticated via MainApp Portal, show the Access Restricted Screen
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const baseUrl = ssoSession?.portal_url || DEFAULT_MAIN_PORTAL_URL;
+      const separator = baseUrl.includes('?') ? '&' : '?';
+      window.location.replace(`${baseUrl}${separator}restricted=true`);
+    }
+  }, [isAuthenticated, ssoSession]);
+
+  // If user is not authenticated via MainApp Portal, redirect to MainApp Restricted page
   if (!isAuthenticated) {
-    return <UnauthorizedAccess portalUrl={ssoSession?.portal_url || DEFAULT_MAIN_PORTAL_URL} />;
+    return null;
   }
 
   return (
