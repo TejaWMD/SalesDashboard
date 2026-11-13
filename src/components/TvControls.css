@@ -197,12 +197,15 @@
   margin-left: 4px;
   box-shadow: 0 2px 8px rgba(7, 43, 97, 0.14);
   flex-shrink: 0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .tv-company-logo:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(7, 43, 97, 0.24);
+  transform: scale(1.07);
+  border-color: #bf944b;
+  box-shadow: 0 4px 14px rgba(191, 148, 75, 0.35);
 }
 
 .tv-company-logo__img {
@@ -372,9 +375,8 @@
     padding: 6px 4px;
     font-size: 0.7rem;
   }
-  /* On mobile, logo is shown in the top-right of .app-header */
   .tv-company-logo {
-    display: none;
+    display: inline-flex;
   }
 }
 

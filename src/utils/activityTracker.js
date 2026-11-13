@@ -1,5 +1,6 @@
 // src/utils/activityTracker.js
 import { AUTHORIZED_USERS, isAdminEmail } from '../components/PinLogin';
+import { getSSOSession, isSSOAdmin } from './ssoAuth';
 
 export const PRESENCE_STORAGE_KEY = 'wmd_dashboard_user_presence_v2';
 export const ACTIVITY_LOGS_STORAGE_KEY = 'wmd_dashboard_activity_logs_v2';
@@ -14,6 +15,18 @@ const MSG_PREFIX = 'WMD_SYNC:';
 // Users with a heartbeat within the last 90 seconds and status === 'online' are considered actively online
 export const ONLINE_TIMEOUT_MS = 90000;
 const MAX_LOG_ENTRIES = 300;
+
+export function resolveUserRole(email) {
+  if (!email) return 'user';
+  const clean = String(email).trim().toLowerCase();
+  try {
+    const sso = getSSOSession();
+    if (sso && sso.email && sso.email.toLowerCase() === clean && isSSOAdmin(sso)) {
+      return 'admin';
+    }
+  } catch {}
+  return isAdminEmail(clean) ? 'admin' : 'user';
+}
 
 let broadcastChannel = null;
 try {
@@ -224,7 +237,7 @@ function mergeUserPresenceEntry(
       ...existing,
       ...incoming,
       email: cleanEmail,
-      role: isAdminEmail(cleanEmail) ? 'admin' : 'user',
+      role: resolveUserRole(cleanEmail),
       status: incoming.status === 'offline' ? 'offline' : (isStillOnline ? 'online' : 'offline'),
       lastAccessedAt: normalizedIso || existing?.lastAccessedAt,
       lastHeartbeatMs: incoming.status === 'offline' ? 0 : computedHeartbeatMs,
@@ -498,7 +511,7 @@ export function recordUserActivity({
 }) {
   if (!email) return;
   const cleanEmail = String(email).trim().toLowerCase();
-  const role = isAdminEmail(cleanEmail) ? 'admin' : 'user';
+  const role = resolveUserRole(cleanEmail);
   const nowIso = new Date().toISOString();
   const nowMs = Date.now();
   const nowSec = Math.floor(nowMs / 1000);
@@ -583,7 +596,7 @@ export function getAllTrackedUsers() {
     const cleanEmail = authUser.email.trim().toLowerCase();
     knownMap.set(cleanEmail, {
       email: cleanEmail,
-      role: isAdminEmail(cleanEmail) ? 'admin' : 'user',
+      role: resolveUserRole(cleanEmail),
     });
   });
 
@@ -593,7 +606,7 @@ export function getAllTrackedUsers() {
     if (cleanEmail && !knownMap.has(cleanEmail)) {
       knownMap.set(cleanEmail, {
         email: cleanEmail,
-        role: isAdminEmail(cleanEmail) ? 'admin' : 'user',
+        role: resolveUserRole(cleanEmail),
       });
     }
   });

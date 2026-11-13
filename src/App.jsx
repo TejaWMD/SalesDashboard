@@ -1,10 +1,12 @@
 // src/App.jsx
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import PinLogin, {
-  AUTH_STORAGE_KEY,
-  getStoredUserEmail,
-  isAdminEmail,
-} from './components/PinLogin';
+import UnauthorizedAccess from './components/UnauthorizedAccess';
+import {
+  getSSOSession,
+  clearSSOSession,
+  isSSOAdmin,
+  DEFAULT_MAIN_PORTAL_URL,
+} from './utils/ssoAuth';
 import Sidebar from './components/Sidebar';
 import HomepageDashboard from './components/HomepageDashboard';
 import KpiDashboard from './components/KpiDashboard';
@@ -38,10 +40,14 @@ const AUTO_REFRESH_INTERVAL_MS = 60000; // 60 seconds auto-sync
 const HEARTBEAT_INTERVAL_MS = 12000; // 12 seconds presence heartbeat
 
 function App() {
-  // Currently authenticated user email (persisted in localStorage)
-  const [currentUserEmail, setCurrentUserEmail] = useState(() => getStoredUserEmail());
-  const isAuthenticated = Boolean(currentUserEmail);
-  const isAdmin = useMemo(() => isAdminEmail(currentUserEmail), [currentUserEmail]);
+  // SSO session hand-off from MainApp Portal
+  const [ssoSession, setSsoSession] = useState(() => getSSOSession());
+  const isAuthenticated = Boolean(ssoSession && ssoSession.email);
+  const currentUserEmail = useMemo(
+    () => (ssoSession?.email ? String(ssoSession.email).trim().toLowerCase() : null),
+    [ssoSession]
+  );
+  const isAdmin = useMemo(() => isSSOAdmin(ssoSession), [ssoSession]);
 
   // Active view: 'homepage' | 'kpi' | 'sales' | 'collection' | 'payment-update' | 'online' | 'admin'
   const [activeView, setActiveView] = useState(() => {
@@ -272,39 +278,39 @@ function App() {
     }
   };
 
+  const handleReturnToMainApp = () => {
+    const target = ssoSession?.portal_url || DEFAULT_MAIN_PORTAL_URL;
+    window.location.href = target;
+  };
+
   const handleLockDashboard = () => {
     if (currentUserEmail) {
       recordUserActivity({
         email: currentUserEmail,
         actionType: 'LOGOUT',
         location: currentLocationLabel,
-        details: 'Signed out of dashboard',
+        details: 'Signed out of dashboard (returned to Main Portal)',
         status: 'offline',
       });
     }
-    try {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-    } catch (e) {
-      console.warn('Error clearing localStorage', e);
-    }
-    setCurrentUserEmail(null);
-    setActiveView('homepage');
+    clearSSOSession();
+    setSsoSession(null);
+    const target = ssoSession?.portal_url || DEFAULT_MAIN_PORTAL_URL;
+    window.location.href = target;
   };
 
-  const handleLoginSuccess = (loggedInEmail) => {
-    const cleanEmail = String(loggedInEmail || getStoredUserEmail() || '')
-      .trim()
-      .toLowerCase();
-    setCurrentUserEmail(cleanEmail);
-    setActiveView('homepage');
-    recordUserActivity({
-      email: cleanEmail,
-      actionType: 'LOGIN',
-      location: 'Homepage (Account Managers)',
-      details: 'Signed in to the dashboard',
-      status: 'online',
-    });
-  };
+  // Record SSO login presence on entry
+  useEffect(() => {
+    if (currentUserEmail) {
+      recordUserActivity({
+        email: currentUserEmail,
+        actionType: 'LOGIN',
+        location: 'Homepage (Account Managers)',
+        details: `Connected via Main Portal SSO (${ssoSession?.role_label || ssoSession?.role || 'Staff'})`,
+        status: 'online',
+      });
+    }
+  }, [currentUserEmail]);
 
   const handleViewChange = (nextView) => {
     if (nextView === 'admin' && !isAdmin) return;
@@ -468,9 +474,9 @@ function App() {
     }
   };
 
-  // If user is not authenticated, show the Login Screen
+  // If user is not authenticated via MainApp Portal, show the Access Restricted Screen
   if (!isAuthenticated) {
-    return <PinLogin onSuccess={handleLoginSuccess} />;
+    return <UnauthorizedAccess portalUrl={ssoSession?.portal_url || DEFAULT_MAIN_PORTAL_URL} />;
   }
 
   return (
@@ -490,6 +496,7 @@ function App() {
         onMonthChange={handleMonthChange}
         onDownloadReport={handleDownloadReport}
         isGeneratingReport={isGeneratingReport}
+        onReturnToMainApp={handleReturnToMainApp}
       />
 
       {/* Right Main Workspace */}
@@ -563,6 +570,7 @@ function App() {
             isFullscreen={isFullscreen}
             onToggleFullscreen={handleToggleFullscreen}
             onLockDashboard={handleLockDashboard}
+            onReturnToMainApp={handleReturnToMainApp}
           />
         </div>
 

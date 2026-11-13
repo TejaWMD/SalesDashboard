@@ -55,6 +55,7 @@ function Sidebar({
   onMonthChange,
   onDownloadReport,
   isGeneratingReport = false,
+  onReturnToMainApp,
 }) {
   const handleSelect = (viewId) => {
     onViewChange(viewId);
@@ -230,9 +231,21 @@ function Sidebar({
           )}
         </nav>
 
-        {/* Bottom Logged-In User Account Pill */}
+        {/* Bottom Logged-In User Account Pill & Return to Portal */}
         {currentUserEmail && (
           <div className="app-sidebar__footer">
+            <button
+              type="button"
+              className="app-sidebar__portal-btn"
+              onClick={onReturnToMainApp}
+              title="Return to MainApp Portal"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              <span>Main Portal</span>
+            </button>
+
             <div
               className={`app-sidebar__user-card ${
                 isAdmin ? 'app-sidebar__user-card--admin' : ''

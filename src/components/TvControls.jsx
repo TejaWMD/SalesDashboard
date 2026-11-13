@@ -22,6 +22,7 @@ function TvControls({
   isFullscreen,
   onToggleFullscreen,
   onLockDashboard,
+  onReturnToMainApp,
 }) {
   const showHeaderTabs = activeView === 'sales' || activeView === 'collection';
 
@@ -199,14 +200,20 @@ function TvControls({
           <span>Logout</span>
         </button>
 
-        {/* WMD Company Logo on the Top Right */}
-        <div className="tv-company-logo" title="WMD Sales & Collection Portal">
+        {/* WMD Company Logo Button -> Return to MainApp Homepage */}
+        <button
+          type="button"
+          className="tv-company-logo tv-company-logo--btn"
+          onClick={onReturnToMainApp}
+          title="Return to MainApp Portal"
+          aria-label="Return to MainApp Portal"
+        >
           <img
             src={wmdLogo}
             alt="WMD Company Logo"
             className="tv-company-logo__img"
           />
-        </div>
+        </button>
       </div>
     </div>
   );
