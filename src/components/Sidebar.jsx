@@ -82,7 +82,6 @@ function Sidebar({
         {/* Top Header / Collapse Toggle */}
         <div className="app-sidebar__header">
           <div className="app-sidebar__brand">
-            <span className="app-sidebar__brand-icon">📊</span>
             <span className="app-sidebar__brand-text">MENU</span>
           </div>
 
