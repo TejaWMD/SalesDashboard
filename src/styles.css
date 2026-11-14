@@ -2452,6 +2452,11 @@ select {
   color: var(--text-main);
 }
 
+.app-header__mobile-logo {
+  display: none;
+  cursor: pointer;
+}
+
 /* Laptop and smaller desktop layouts. */
 @media (max-width: 1024px) {
   .app-topbar {

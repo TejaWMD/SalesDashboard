@@ -376,7 +376,7 @@
     font-size: 0.7rem;
   }
   .tv-company-logo {
-    display: inline-flex;
+    display: none;
   }
 }
 

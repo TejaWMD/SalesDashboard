@@ -17,6 +17,7 @@ import PaymentUpdateTable from './components/PaymentUpdateTable';
 import OnlineSalesDashboard from './components/OnlineSalesDashboard';
 import AdminActivityDashboard from './components/AdminActivityDashboard';
 import TvControls from './components/TvControls';
+import wmdLogo from './assets/wmd-logo.jpg';
 import {
   fetchSalesData,
   fetchPaymentData,
@@ -556,6 +557,16 @@ function App() {
                 </h1>
               </div>
             </div>
+
+            <button
+              type="button"
+              className="app-header__mobile-logo"
+              onClick={handleReturnToMainApp}
+              title="Return to MainApp Portal"
+              aria-label="Return to MainApp Portal"
+            >
+              <img src={wmdLogo} alt="WMD Company Logo" />
+            </button>
           </header>
 
           <TvControls
