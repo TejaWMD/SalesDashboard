@@ -318,11 +318,11 @@ function CollectionDashboard({ data }) {
         />
 
         <KpiCard
-          title="Payment Collected"
+          title="Collected"
           value={formatCurrency(computed.totalCollected)}
           badge={
             computed.overallCollectionRate !== null
-              ? `${computed.overallCollectionRate.toFixed(1)}% Collected`
+              ? `${computed.overallCollectionRate.toFixed(1)}%`
               : 'No Data'
           }
           status="success"
@@ -330,9 +330,9 @@ function CollectionDashboard({ data }) {
         />
 
         <KpiCard
-          title="Payment Pending"
+          title="Pending"
           value={formatCurrency(computed.totalPending)}
-          badge={`${computed.pendingCustomerCount} Customers Pending`}
+          badge={`${computed.pendingCustomerCount} Pending`}
           status={
             computed.totalPending > 0
               ? 'danger'
@@ -342,7 +342,7 @@ function CollectionDashboard({ data }) {
         />
 
         <KpiCard
-          title="Collection vs Target Rate"
+          title="Collection Rate"
           value={formatPercent(computed.overallCollectionRate)}
           status={
             computed.overallCollectionRate !== null &&
@@ -357,19 +357,19 @@ function CollectionDashboard({ data }) {
         />
 
         <KpiCard
-          title="Total Customers Managed"
+          title="Customers"
           value={computed.totalCustomers}
-          subtitle={`${computed.picList.length} Account Managers active`}
+          subtitle={`${computed.picList.length} AMs active`}
           status="default"
           icon="🏪"
         />
         <KpiCard
-          title="Top Account Manager"
+          title="Top Manager"
           value={computed.topAM ? computed.topAM.name : '-'}
           badge={
             computed.topAM &&
               computed.topAM.collectionPercent !== null
-              ? `${computed.topAM.collectionPercent.toFixed(1)}% Rate`
+              ? `${computed.topAM.collectionPercent.toFixed(1)}%`
               : undefined
           }
           status="success"
@@ -386,7 +386,7 @@ function CollectionDashboard({ data }) {
 
           <div className="tv-panel-header">
             <h2 className="tv-panel-title">
-              Account Manager Payment Performance
+              Account Managers
             </h2>
 
             <span className="tv-panel-subtitle">

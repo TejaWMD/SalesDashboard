@@ -371,13 +371,20 @@
   }
   .table-actions {
     width: 100%;
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
   }
-  .table-search-box,
-  .table-pic-select,
+  .table-search-box {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .table-pic-select {
+    flex: 0 0 auto;
+    max-width: 140px;
+  }
   .tv-scroll-toggle {
-    width: 100%;
+    display: none;
   }
   .table-search-input {
     width: 100%;

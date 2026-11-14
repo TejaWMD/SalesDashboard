@@ -49,7 +49,7 @@ export async function fetchPaymentUpdateData() {
             ACTIVE_UPDATE_COLUMNS && ACTIVE_UPDATE_COLUMNS.length === 3
           )
             ? ACTIVE_UPDATE_COLUMNS.map(columnLetterToIndex)
-            : [13, 14, 15];
+            : [16,17,18];
 
           // Determine column headers for the 3 chosen columns
           // Look for date patterns (e.g. "17/10 - 24/10/2026") or "UPDATE" in early rows

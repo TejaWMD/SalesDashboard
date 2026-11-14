@@ -500,11 +500,10 @@ function App() {
         currentUserEmail={currentUserEmail}
         isAdmin={isAdmin}
         selectedMonth={selectedMonth}
-        availableMonths={availableMonths}
-        onMonthChange={handleMonthChange}
         onDownloadReport={handleDownloadReport}
         isGeneratingReport={isGeneratingReport}
         onReturnToMainApp={handleReturnToMainApp}
+        onLockDashboard={handleLockDashboard}
       />
 
       {/* Right Main Workspace */}
@@ -547,13 +546,13 @@ function App() {
               </div>
               <div>
                 <h1 className="app-header__title">
-                  {activeView === 'homepage' && 'ACCOUNT MANAGERS'}
-                  {activeView === 'kpi' && 'ACCOUNT MANAGERS BALANCED KPI'}
-                  {activeView === 'sales' && 'SALES PERFORMANCE'}
-                  {activeView === 'collection' && 'COLLECTION TRACKING'}
-                  {activeView === 'payment-update' && 'PAYMENT UPDATE TRACKING'}
-                  {activeView === 'online' && 'ONLINE SALES'}
-                  {activeView === 'admin' && 'ADMIN USER & ACTIVITY TRACKER'}
+                  {activeView === 'homepage' && 'Account Managers'}
+                  {activeView === 'kpi' && 'Balanced KPI'}
+                  {activeView === 'sales' && 'Sales'}
+                  {activeView === 'collection' && 'Collection'}
+                  {activeView === 'payment-update' && 'Payment Updates'}
+                  {activeView === 'online' && 'Online Sales'}
+                  {activeView === 'admin' && 'Activity Tracker'}
                 </h1>
               </div>
             </div>

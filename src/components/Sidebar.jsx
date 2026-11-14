@@ -5,37 +5,36 @@ import './Sidebar.css';
 const NAV_ITEMS = [
   {
     id: 'homepage',
-    label: 'Homepage',
+    label: 'Managers',
+    shortLabel: 'Team',
     icon: '🏠',
     description: 'Account Managers',
   },
   {
     id: 'kpi',
     label: 'KPI',
+    shortLabel: 'KPI',
     icon: '🎯',
     description: 'Account Managers KPI',
   },
   {
     id: 'sales',
     label: 'Sales',
+    shortLabel: 'Sales',
     icon: '💰',
     description: 'Sales Performance',
   },
   {
     id: 'collection',
     label: 'Collection',
+    shortLabel: 'Collect',
     icon: '💵',
     description: 'Collection Tracking',
   },
-  // {
-  //   id: 'payment-update',
-  //   label: 'Payment Update',
-  //   icon: '📝',
-  //   description: 'Weekly Outlet Payment Updates',
-  // },
   {
     id: 'online',
     label: 'Online',
+    shortLabel: 'Online',
     icon: '🛒',
     description: 'Online Sales Performance',
   },
@@ -51,11 +50,10 @@ function Sidebar({
   currentUserEmail,
   isAdmin,
   selectedMonth = 'OCT',
-  availableMonths = ['OCT'],
-  onMonthChange,
   onDownloadReport,
   isGeneratingReport = false,
   onReturnToMainApp,
+  onLockDashboard,
 }) {
   const handleSelect = (viewId) => {
     onViewChange(viewId);
@@ -141,12 +139,7 @@ function Sidebar({
           {isAdmin && (
             <div className="app-sidebar__admin-section">
               <div className="app-sidebar__section-divider">
-                <span>ADMIN ACCESS</span>
-              </div>
-
-              {/* Sub-header for Tracking */}
-              <div className="app-sidebar__section-divider app-sidebar__section-divider--sub">
-                <span>TRACKING</span>
+                <span>ADMIN</span>
               </div>
 
               {/* User Activity Tracker */}
@@ -165,37 +158,7 @@ function Sidebar({
                 )}
               </button>
 
-              {/* Sub-header for Report */}
-              <div className="app-sidebar__section-divider app-sidebar__section-divider--sub">
-                <span>REPORT</span>
-              </div>
-
-              {/* Sales Month Selector for Executive Report */}
-              {availableMonths && availableMonths.length > 0 && (
-                <div
-                  className="app-sidebar__month-picker-box"
-                  title="Select Sales month for PDF report"
-                >
-                  <label htmlFor="sidebar-month-select" className="app-sidebar__month-label">
-                    <span>SALES MONTH:</span>
-                  </label>
-                  <select
-                    id="sidebar-month-select"
-                    className="app-sidebar__month-select"
-                    value={selectedMonth}
-                    onChange={(e) => onMonthChange && onMonthChange(e.target.value)}
-                  >
-                    <option value="ALL">All Months</option>
-                    {availableMonths.map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* Download Executive PDF Report Button */}
+              {/* Download Executive PDF Report Button
               <button
                 type="button"
                 className={`app-sidebar__link app-sidebar__link--report ${
@@ -207,7 +170,7 @@ function Sidebar({
                   }
                 }}
                 disabled={isGeneratingReport}
-                title={`Download Sales & Collection Report as PDF (Sales Month: ${selectedMonth})`}
+                title={`Download PDF Report (Month: ${selectedMonth})`}
               >
                 <span className="app-sidebar__link-icon">
                   {isGeneratingReport ? (
@@ -217,7 +180,7 @@ function Sidebar({
                   )}
                 </span>
                 <span className="app-sidebar__link-label">
-                  {isGeneratingReport ? 'Exporting PDF...' : 'Executive Report'}
+                  {isGeneratingReport ? 'Exporting...' : 'Export PDF'}
                 </span>
                 <span
                   className="app-sidebar__report-badge"
@@ -225,25 +188,34 @@ function Sidebar({
                 >
                   {isGeneratingReport ? '...' : selectedMonth || 'PDF'}
                 </span>
-              </button>
+              </button> */}
             </div>
           )}
         </nav>
 
-        {/* Bottom Logged-In User Account Pill & Return to Portal */}
+        {/* Bottom Logged-In User Account Pill, Portal & Logout */}
         {currentUserEmail && (
           <div className="app-sidebar__footer">
-            <button
-              type="button"
-              className="app-sidebar__portal-btn"
-              onClick={onReturnToMainApp}
-              title="Return to MainApp Portal"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-              <span>Main Portal</span>
-            </button>
+            <div className="app-sidebar__footer-actions">
+              
+
+              {onLockDashboard && (
+                <button
+                  type="button"
+                  className="app-sidebar__logout-btn"
+                  onClick={onLockDashboard}
+                  title="Sign Out"
+                  aria-label="Sign Out"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  <span>Logout</span>
+                </button>
+              )}
+            </div>
 
             <div
               className={`app-sidebar__user-card ${
@@ -269,7 +241,7 @@ function Sidebar({
               </div>
               <div className="app-sidebar__user-info">
                 <span className="app-sidebar__user-role">
-                  {isAdmin ? 'ADMIN ACCOUNT' : 'LOGGED IN'}
+                  {isAdmin ? 'ADMIN' : 'STAFF'}
                 </span>
                 <span className="app-sidebar__user-email">{currentUserEmail}</span>
               </div>
@@ -277,6 +249,36 @@ function Sidebar({
           </div>
         )}
       </aside>
+
+      {/* Mobile Bottom Tab Navigation (<= 768px) */}
+      <nav className="mobile-bottom-nav" aria-label="Mobile Navigation">
+        {NAV_ITEMS.map((item) => {
+          const isActive = activeView === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={`mobile-bottom-nav__btn ${isActive ? 'active' : ''}`}
+              onClick={() => handleSelect(item.id)}
+              aria-label={item.label}
+            >
+              <span className="mobile-bottom-nav__icon">{item.icon}</span>
+              <span className="mobile-bottom-nav__label">{item.shortLabel}</span>
+            </button>
+          );
+        })}
+        {isAdmin && (
+          <button
+            type="button"
+            className={`mobile-bottom-nav__btn ${activeView === 'admin' ? 'active' : ''}`}
+            onClick={() => handleSelect('admin')}
+            aria-label="User Tracker"
+          >
+            <span className="mobile-bottom-nav__icon">🛡️</span>
+            <span className="mobile-bottom-nav__label">Admin</span>
+          </button>
+        )}
+      </nav>
     </>
   );
 }

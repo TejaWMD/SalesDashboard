@@ -43,7 +43,7 @@ export function columnLetterToIndex(column) {
  * Current 3 weeks: ['N', 'O', 'P']
  * When next week is added, simply change this array to: ['O', 'P', 'Q']
  */
-export const ACTIVE_UPDATE_COLUMNS = ['N', 'O', 'P'];
+export const ACTIVE_UPDATE_COLUMNS = ['P', 'Q', 'R'];
 
 // Resolved 0-based indices
 export const ACTIVE_UPDATE_COLUMN_INDICES = ACTIVE_UPDATE_COLUMNS.map(columnLetterToIndex);

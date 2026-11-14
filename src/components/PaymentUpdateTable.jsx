@@ -167,24 +167,7 @@ function PaymentUpdateTable({
             )}
           </div>
 
-          {/* Section Filter Pills */}
-          <div className="pu-section-pills" role="tablist" aria-label="Section Filter">
-            {sections.map((sec) => (
-              <button
-                key={sec}
-                type="button"
-                role="tab"
-                aria-selected={selectedSection === sec}
-                className={`pu-section-pill ${selectedSection === sec ? 'active' : ''}`}
-                onClick={() => setSelectedSection(sec)}
-              >
-                {sec}
-                <span className="pu-pill-count">
-                  {sectionCounts[sec] || 0}
-                </span>
-              </button>
-            ))}
-          </div>
+         
 
           {/* Customer Dropdown Filter */}
           <div className="pu-customer-select-wrap">
@@ -234,7 +217,7 @@ function PaymentUpdateTable({
               {/* Column 3: Update 1 */}
               <th className="pu-col-update pu-col-u1">
                 <div className="pu-th-content">
-                  <span className="pu-th-tag">17/10/2026-24/10/2026</span>
+                  <span className="pu-th-tag">01/11/2026 - 07/11/2026</span>
                   <span className="pu-th-title">{columns[0] || 'Update 1'}</span>
                 </div>
               </th>
@@ -242,7 +225,7 @@ function PaymentUpdateTable({
               {/* Column 4: Update 2 */}
               <th className="pu-col-update pu-col-u2">
                 <div className="pu-th-content">
-                  <span className="pu-th-tag">25/10/2026-31/10/2026</span>
+                  <span className="pu-th-tag">08/11/ 2026 - 14/11/2026</span>
                   <span className="pu-th-title">{columns[1] || 'Update 2'}</span>
                 </div>
               </th>
@@ -250,7 +233,7 @@ function PaymentUpdateTable({
               {/* Column 5: Update 3 */}
               <th className="pu-col-update pu-col-u3">
                 <div className="pu-th-content">
-                  <span className="pu-th-tag">01/11/2026-07/11/2026</span>
+                  <span className="pu-th-tag">15/11/2026 - 21/11/2026</span>
                   <span className="pu-th-title">{columns[2] || 'Update 3'}</span>
                 </div>
               </th>

@@ -303,7 +303,7 @@ function SalesDashboard({ rows }) {
           icon="💰"
         />
         <KpiCard
-          title="Sales vs Target Rate"
+          title="Sales Rate"
           value={formatPercent(summary.overallSalesPercent)}
           status={
             summary.overallSalesPercent !== null && summary.overallSalesPercent >= 100
@@ -315,27 +315,27 @@ function SalesDashboard({ rows }) {
           icon="📈"
         />
         <KpiCard
-          title="Remaining Target"
+          title="Remaining"
           value={formatCurrency(summary.totalRemaining)}
           badge={
             summary.totalRemaining === 0 && summary.totalSales > 0
               ? 'Target Hit!'
-              : `Quota Balance`
+              : 'Balance'
           }
           status={summary.totalRemaining === 0 ? 'success' : 'purple'}
           icon="⏳"
         />
         <KpiCard
-          title="Total Outlets Managed"
+          title="Outlets"
           value={summary.totalStores}
-          subtitle={`${summary.picList.length} Account Managers active`}
+          subtitle={`${summary.picList.length} AMs active`}
           status="default"
           icon="🏪"
         />
         <KpiCard
-          title="Top Account Manager"
+          title="Top Manager"
           value={summary.topPic ? summary.topPic.name : '-'}
-          badge={summary.topPic && summary.topPic.percent !== null ? `${summary.topPic.percent.toFixed(1)}% Rate` : undefined}
+          badge={summary.topPic && summary.topPic.percent !== null ? `${summary.topPic.percent.toFixed(1)}%` : undefined}
           status="success"
           icon="🏆"
         />
@@ -346,8 +346,8 @@ function SalesDashboard({ rows }) {
         {/* Left: Person In Charge Scorecard Cards */}
         <div className="tv-overview__left">
           <div className="tv-panel-header">
-            <h2 className="tv-panel-title">Account Managers Performance</h2>
-            <span className="tv-panel-subtitle">{summary.picList.length} Account Managers</span>
+            <h2 className="tv-panel-title">Account Managers</h2>
+            <span className="tv-panel-subtitle">{summary.picList.length} AMs</span>
           </div>
 
           <div className="tv-pic-list">

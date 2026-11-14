@@ -151,44 +151,44 @@ function OnlineSalesDashboard({ data, monthLabel = '' }) {
       {/* Top KPI Cards */}
       <div className="tv-overview__kpis">
         <KpiCard
-          title="Total Online Sales"
+          title="Online Sales"
           value={formatCurrency(totalSales)}
           badge="Shopee + TikTok"
           status="primary"
           icon="🛒"
         />
         <KpiCard
-          title="Shopee Total Sales"
+          title="Shopee"
           value={formatCurrency(shopeeTotal)}
           badge={`${shopeePercent.toFixed(1)}% Share`}
           status="warning"
           icon="🛍️"
         />
         <KpiCard
-          title="TikTok Shop Total Sales"
+          title="TikTok Shop"
           value={formatCurrency(tiktokTotal)}
           badge={`${tiktokPercent.toFixed(1)}% Share`}
           status="success"
           icon="📱"
         />
         <KpiCard
-          title="Daily Average Sales"
+          title="Daily Avg"
           value={formatCurrency(dailyAverage)}
-          subtitle={`Across ${activeDaysCount} Days${monthLabel ? ` in ${monthLabel.split(' ')[0].charAt(0)}${monthLabel.split(' ')[0].slice(1, 3).toLowerCase()}` : ''}`}
+          subtitle={`${activeDaysCount} Days${monthLabel ? ` (${monthLabel.split(' ')[0].charAt(0)}${monthLabel.split(' ')[0].slice(1, 3).toLowerCase()})` : ''}`}
           status="primary"
           icon="📅"
         />
         <KpiCard
-          title="Highest Single Day"
+          title="Peak Day"
           value={formatCurrency(peakDay?.total)}
-          subtitle={peakDay ? `Peak on ${peakDay.date}` : '-'}
+          subtitle={peakDay ? peakDay.date : '-'}
           status="success"
           icon="⚡"
         />
         <KpiCard
-          title="Leading Platform"
-          value={tiktokTotal >= shopeeTotal ? 'TikTok Shop' : 'Shopee'}
-          badge={`${Math.max(tiktokPercent, shopeePercent).toFixed(1)}% Contribution`}
+          title="Top Platform"
+          value={tiktokTotal >= shopeeTotal ? 'TikTok' : 'Shopee'}
+          badge={`${Math.max(tiktokPercent, shopeePercent).toFixed(1)}% Share`}
           status="success"
           icon="👑"
         />
@@ -199,7 +199,7 @@ function OnlineSalesDashboard({ data, monthLabel = '' }) {
         {/* Left: Platform Cards */}
         <div className="tv-overview__left">
           <div className="tv-panel-header">
-            <h2 className="tv-panel-title">E-commerce Platforms Breakdown</h2>
+            <h2 className="tv-panel-title">Platforms</h2>
             {/* <span className="tv-panel-subtitle">Sheet: OKTOBER 2026 (C34 & D34)</span> */}
           </div>
 

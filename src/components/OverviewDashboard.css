@@ -841,32 +841,36 @@
   }
 }
 
-/* Mobile Layout — 1 KPI card per row */
+/* Mobile Layout — 2 KPI cards per row, natural page scroll */
 @media (max-width: 768px) {
   .tv-overview {
     height: auto;
-    overflow-y: visible;
+    overflow: visible;
+    gap: 8px;
   }
   .tv-overview__kpis {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
   }
   .tv-overview__main {
     grid-template-columns: 1fr;
     height: auto;
     flex: none;
     overflow: visible;
+    gap: 8px;
   }
   .tv-overview__left {
     height: auto;
-    max-height: 480px;
+    max-height: none;
+    overflow: visible;
   }
   .tv-overview__right {
     grid-template-rows: auto auto;
     height: auto;
+    gap: 8px;
   }
   .tv-chart-box {
-    height: 250px;
+    height: 230px;
   }
 
   .tv-pic-card__top {
@@ -908,15 +912,20 @@
     padding: 1.5px 5px;
   }
 
-  /* Stack the ticker label above items on mobile */
+  /* Horizontal scrollable ticker on mobile */
   .tv-overview__bottom-ticker {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    padding: 8px 12px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    overflow: hidden;
   }
   .tv-ticker-items {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     padding-right: 0;
   }
   .tv-ticker-store {

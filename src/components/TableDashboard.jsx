@@ -113,9 +113,9 @@ function TableDashboard({ rows = [] }) {
       {/* Top Filter and Controls Bar */}
       <div className="table-top-bar">
         <div className="table-info">
-          <h2 className="table-title">Sales Outlets Performance Table</h2>
+          <h2 className="table-title">Outlets Table</h2>
           <span className="table-subtitle">
-            Showing {filteredRows.length} of {rows.length} stores
+            {filteredRows.length} of {rows.length} stores
           </span>
         </div>
 
@@ -151,24 +151,13 @@ function TableDashboard({ rows = [] }) {
             value={selectedPerson}
             onChange={(e) => setSelectedPerson(e.target.value)}
           >
-            <option value="ALL">All Persons in Charge ({uniquePersons.length})</option>
+            <option value="ALL">All PICs ({uniquePersons.length})</option>
             {uniquePersons.map((p) => (
               <option key={p} value={p}>
                 {p}
               </option>
             ))}
           </select>
-
-          {/* TV Auto-Scroll Button */}
-          <button
-            type="button"
-            className={`tv-scroll-toggle ${isTvAutoScroll ? 'active' : ''}`}
-            onClick={() => setIsTvAutoScroll((prev) => !prev)}
-            title="Auto-scroll table smoothly on TV screen"
-          >
-            <span className="tv-scroll-icon">{isTvAutoScroll ? '⏸' : '▶'}</span>
-            <span>{isTvAutoScroll ? 'Auto-Scroll ON' : 'TV Auto-Scroll'}</span>
-          </button>
         </div>
       </div>
 

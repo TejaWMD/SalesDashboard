@@ -47,7 +47,8 @@
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tv-controls__select:hover, .tv-controls__select:focus {
+.tv-controls__select:hover,
+.tv-controls__select:focus {
   border-color: var(--color-lemon);
   box-shadow: var(--shadow-glow-lemon);
 }
@@ -125,8 +126,8 @@
 }
 
 @keyframes pulse {
-  0% { opacity: 0.3; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.15); }
+  0%   { opacity: 0.3; transform: scale(0.9); }
+  50%  { opacity: 1;   transform: scale(1.15); }
   100% { opacity: 0.3; transform: scale(0.9); }
 }
 
@@ -134,6 +135,7 @@
 .tv-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 5px 12px;
   border-radius: 10px;
@@ -147,18 +149,50 @@
   user-select: none;
 }
 
+.tv-btn--icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  flex-shrink: 0;
+  color: var(--color-lemon);
+}
+
+/* ─── SVG icon fix: ensure icons are always visible ─── */
+.tv-btn__icon {
+  display: block;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  stroke: currentColor;
+  color: inherit;
+  overflow: visible;
+}
+
+.tv-btn--refresh {
+  color: var(--color-blue);
+}
+
 .tv-btn--refresh:hover:not(:disabled) {
   background: rgba(1, 114, 158, 0.2);
   border-color: var(--color-blue);
-  color: #513b3b;
+  color: #ffffff;               /* FIXED: was #513b3b (dark brown) */
   box-shadow: var(--shadow-glow-blue);
   transform: translateY(-1px);
+}
+
+.tv-btn--refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tv-btn--fullscreen {
+  color: var(--color-lemon);
 }
 
 .tv-btn--fullscreen:hover {
   background: rgba(133, 115, 15, 0.15);
   border-color: var(--color-lemon);
-  color: #513b3b;
+  color: #ffffff;               /* FIXED: was #513b3b (dark brown) */
   transform: translateY(-1px);
 }
 
@@ -182,7 +216,7 @@
 
 @keyframes spin {
   from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  to   { transform: rotate(360deg); }
 }
 
 /* WMD Company Logo on the Top Right */
@@ -272,6 +306,16 @@
     gap: 7px;
   }
 
+  .tv-btn--icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .tv-btn__icon {
+    width: 17px;
+    height: 17px;
+  }
+
   .tv-company-logo {
     padding: 3px;
     border-radius: 11px;
@@ -340,6 +384,16 @@
     gap: 10px;
   }
 
+  .tv-btn--icon {
+    width: 46px;
+    height: 46px;
+  }
+
+  .tv-btn__icon {
+    width: 22px;
+    height: 22px;
+  }
+
   .tv-company-logo {
     padding: 4px;
     border-radius: 14px;
@@ -352,31 +406,67 @@
   }
 }
 
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .tv-controls {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 8px 10px;
-    gap: 8px;
-  }
-  .tv-controls__group {
-    width: 100%;
-    justify-content: space-between;
-  }
-  .tv-view-switcher {
-    width: 100%;
-    justify-content: space-between;
-  }
-  .tv-view-btn {
-    flex: 1;
-    text-align: center;
-    padding: 6px 4px;
-    font-size: 0.7rem;
-  }
-  .tv-company-logo {
+/* Tablet & Laptop (<= 1024px) */
+@media (max-width: 1024px) {
+  .tv-btn--fullscreen {
     display: none;
   }
 }
 
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .tv-controls {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    padding: 0;
+    gap: 6px;
+  }
+
+  .tv-controls__left {
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tv-controls__right {
+    flex: 0 0 auto;
+    width: auto;
+    gap: 6px;
+  }
+
+  .tv-controls__label {
+    display: none;
+  }
+
+  .tv-controls__select {
+    padding: 5px 8px;
+    font-size: 0.74rem;
+    border-radius: 8px;
+  }
+
+  .tv-view-switcher {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: space-between;
+  }
+
+  .tv-view-btn {
+    flex: 1;
+    text-align: center;
+    padding: 5px 8px;
+    font-size: 0.72rem;
+  }
+
+  .tv-controls__sync-status {
+    font-size: 0.68rem;
+    gap: 4px;
+  }
+
+  .tv-company-logo {
+    display: none;
+  }
+}

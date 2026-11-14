@@ -21,7 +21,6 @@ function TvControls({
   isLoading,
   isFullscreen,
   onToggleFullscreen,
-  onLockDashboard,
   onReturnToMainApp,
 }) {
   const showHeaderTabs = activeView === 'sales' || activeView === 'collection';
@@ -33,10 +32,11 @@ function TvControls({
         {activeView === 'sales' || activeView === 'kpi' ? (
           <div className="tv-controls__item">
             <label htmlFor="month-select" className="tv-controls__label">
-              MONTH:
+              Month
             </label>
             <select
               id="month-select"
+              aria-label="Select sales month"
               className="tv-controls__select"
               value={selectedMonth}
               onChange={(e) => onMonthChange(e.target.value)}
@@ -52,10 +52,11 @@ function TvControls({
         ) : activeView === 'online' && onlineTabs.length > 0 ? (
           <div className="tv-controls__item">
             <label htmlFor="online-month-select" className="tv-controls__label">
-              MONTH:
+              Month
             </label>
             <select
               id="online-month-select"
+              aria-label="Select online month"
               className="tv-controls__select"
               value={selectedOnlineTab}
               onChange={(e) => onOnlineTabChange(e.target.value)}
@@ -70,10 +71,11 @@ function TvControls({
         ) : activeView === 'collection' && collectionMonths.length > 0 ? (
           <div className="tv-controls__item">
             <label htmlFor="collection-month-select" className="tv-controls__label">
-              MONTH:
+              Month
             </label>
             <select
               id="collection-month-select"
+              aria-label="Select collection month"
               className="tv-controls__select"
               value={selectedCollectionGid}
               onChange={(e) => onCollectionMonthChange(e.target.value)}
@@ -85,12 +87,7 @@ function TvControls({
               ))}
             </select>
           </div>
-        ) : (
-          <div className="tv-controls__item">
-            {/* <span className="tv-controls__label">PERIOD:</span>
-            <span className="tv-controls__badge-pill">OCT 2026</span> */}
-          </div>
-        )}
+        ) : null}
 
         {/* Header Tabs for Sales & Collection: Dashboard vs Table */}
         {showHeaderTabs && (
@@ -101,9 +98,9 @@ function TvControls({
               aria-selected={activeSubTab === 'dashboard'}
               className={`tv-view-btn ${activeSubTab === 'dashboard' ? 'active' : ''}`}
               onClick={() => onSubTabChange('dashboard')}
-              title="Dashboard View: KPIs, Scorecards & Charts"
+              title="Dashboard View"
             >
-              📊 Dashboard
+              Dashboard
             </button>
             <button
               type="button"
@@ -111,9 +108,9 @@ function TvControls({
               aria-selected={activeSubTab === 'table'}
               className={`tv-view-btn ${activeSubTab === 'table' ? 'active' : ''}`}
               onClick={() => onSubTabChange('table')}
-              title="Table View: Searchable, Sortable & TV Scrollable Data Table"
+              title="Table View"
             >
-              📋 Table
+              Table
             </button>
             {activeView === 'collection' && (
               <button
@@ -122,37 +119,40 @@ function TvControls({
                 aria-selected={activeSubTab === 'payment-update'}
                 className={`tv-view-btn ${activeSubTab === 'payment-update' ? 'active' : ''}`}
                 onClick={() => onSubTabChange('payment-update')}
-                title="Payment Update View: Outlets, Invoices & Weekly Updates"
+                title="Payment Updates"
               >
-                📝 Payment Update
+                Updates
               </button>
             )}
           </div>
         )}
-
-        {/* Live Status indicator */}
-        <div className="tv-controls__sync-status">
-          <span className={`tv-controls__live-dot ${isLoading ? 'pulsing' : ''}`} />
-          <span className="tv-controls__last-sync">
-            {isLoading ? 'Syncing...' : `Live Synced: ${lastUpdated || 'Just now'}`}
-          </span>
-        </div>
       </div>
 
-      {/* Right controls: Refresh, Fullscreen, Lock + WMD Company Logo */}
+      {/* Right controls: Live sync, Refresh, Fullscreen (desktop/TV), WMD Logo (desktop/TV) */}
       <div className="tv-controls__group tv-controls__right">
-        {/* Manual Refresh Button */}
+        <div
+          className="tv-controls__sync-status"
+          title={isLoading ? 'Syncing Google Sheets...' : `Last synced: ${lastUpdated || 'Just now'}`}
+        >
+          <span className={`tv-controls__live-dot ${isLoading ? 'pulsing' : ''}`} />
+          <span className="tv-controls__last-sync">
+            {isLoading ? 'Syncing...' : lastUpdated || 'Live'}
+          </span>
+        </div>
+
+        {/* Manual Refresh Button (icon-only) */}
         <button
           type="button"
-          className="tv-btn tv-btn--refresh"
+          className="tv-btn tv-btn--icon tv-btn--refresh"
           onClick={onManualRefresh}
           disabled={isLoading}
-          title="Fetch latest data from all Google Sheets"
+          title="Refresh data"
+          aria-label="Refresh data"
         >
           <svg
             className={`tv-btn__icon ${isLoading ? 'spin' : ''}`}
-            width="14"
-            height="14"
+            width="15"
+            height="15"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -164,53 +164,38 @@ function TvControls({
             <polyline points="1 20 1 14 7 14" />
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
           </svg>
-          <span>Refresh</span>
         </button>
 
-        {/* Fullscreen Button */}
+        {/* Fullscreen Button (desktop/TV only) */}
         <button
           type="button"
-          className="tv-btn tv-btn--fullscreen"
+          className="tv-btn tv-btn--icon tv-btn--fullscreen"
           onClick={onToggleFullscreen}
-          title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen (Best for TV)'}
+          title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+          aria-label={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
         >
           {isFullscreen ? (
-            <svg className="tv-btn__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="tv-btn__icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
             </svg>
           ) : (
-            <svg className="tv-btn__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="tv-btn__icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
             </svg>
           )}
-          <span>{isFullscreen ? 'Exit Full' : 'Fullscreen'}</span>
         </button>
 
-        {/* Lock / Logout Button */}
-        <button
-          type="button"
-          className="tv-btn tv-btn--lock"
-          onClick={onLockDashboard}
-          title="Sign Out (Return to Login Screen)"
-        >
-          <svg className="tv-btn__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-          </svg>
-          <span>Logout</span>
-        </button>
-
-        {/* WMD Company Logo Button -> Return to MainApp Homepage */}
+        {/* WMD Company Logo Button -> Return to MainApp Homepage (desktop/TV) */}
         <button
           type="button"
           className="tv-company-logo tv-company-logo--btn"
           onClick={onReturnToMainApp}
-          title="Return to MainApp Portal"
-          aria-label="Return to MainApp Portal"
+          title="Main Portal"
+          aria-label="Return to Main Portal"
         >
           <img
             src={wmdLogo}
-            alt="WMD Company Logo"
+            alt="WMD Logo"
             className="tv-company-logo__img"
           />
         </button>

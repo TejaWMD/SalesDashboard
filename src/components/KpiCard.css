@@ -56,12 +56,24 @@
   margin-bottom: 6px;
 }
 
+/* src/components/KpiCard.css — replace the .kpi-card__value rule */
+.kpi-card__value {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #0f172a;              /* ← was #ffffff */
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* also fix title contrast */
 .kpi-card__title {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--text-muted);
+  color: #64748b;
 }
 
 .kpi-card__icon {
@@ -71,15 +83,6 @@
 
 .kpi-card:hover .kpi-card__icon {
   transform: scale(1.15);
-}
-
-.kpi-card__value {
-  font-size: 1.45rem;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  font-family: 'JetBrains Mono', monospace;
 }
 
 .kpi-card__footer {

@@ -123,9 +123,9 @@ function CollectionTableDashboard({ rows = [] }) {
       {/* Top Filter and Controls Bar */}
       <div className="table-top-bar">
         <div className="table-info">
-          <h2 className="table-title">Customer Collection Tracking Table</h2>
+          <h2 className="table-title">Collection Table</h2>
           <span className="table-subtitle">
-            Showing {filteredRows.length} of {rows.length} customers
+            {filteredRows.length} of {rows.length} customers
           </span>
         </div>
 
@@ -161,7 +161,7 @@ function CollectionTableDashboard({ rows = [] }) {
             value={selectedPerson}
             onChange={(e) => setSelectedPerson(e.target.value)}
           >
-            <option value="ALL">All Account Managers ({uniquePersons.length})</option>
+            <option value="ALL">All AMs ({uniquePersons.length})</option>
             {uniquePersons.map((p) => (
               <option key={p} value={p}>
                 {p}
@@ -169,16 +169,6 @@ function CollectionTableDashboard({ rows = [] }) {
             ))}
           </select>
 
-          {/* TV Auto-Scroll Button */}
-          <button
-            type="button"
-            className={`tv-scroll-toggle ${isTvAutoScroll ? 'active' : ''}`}
-            onClick={() => setIsTvAutoScroll((prev) => !prev)}
-            title="Auto-scroll table smoothly on TV screen"
-          >
-            <span className="tv-scroll-icon">{isTvAutoScroll ? '⏸' : '▶'}</span>
-            <span>{isTvAutoScroll ? 'Auto-Scroll ON' : 'TV Auto-Scroll'}</span>
-          </button>
         </div>
       </div>
 
