@@ -47,3 +47,14 @@ export const ACTIVE_UPDATE_COLUMNS = ['P', 'Q', 'R'];
 
 // Resolved 0-based indices
 export const ACTIVE_UPDATE_COLUMN_INDICES = ACTIVE_UPDATE_COLUMNS.map(columnLetterToIndex);
+
+/**
+ * =========================================================================
+ * EASY START ROW CONFIGURATION
+ * =========================================================================
+ * 1-based Google Sheet row number where data rows start being read.
+ * Set to 1 to scan from the very top (section headers like "IKA (NOV'26)"
+ * are automatically skipped), or set to a higher row number (e.g. 5) to
+ * start taking data from a specific row onward.
+ */
+export const PAYMENT_UPDATE_START_ROW = 1;

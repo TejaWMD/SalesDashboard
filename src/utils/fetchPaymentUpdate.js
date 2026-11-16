@@ -3,6 +3,7 @@ import Papa from 'papaparse';
 import {
   PAYMENT_UPDATE_SHEET,
   ACTIVE_UPDATE_COLUMNS,
+  PAYMENT_UPDATE_START_ROW,
   columnLetterToIndex,
 } from '../config/paymentUpdateConfig';
 
@@ -86,7 +87,7 @@ export async function fetchPaymentUpdateData() {
           const columns = [
             cleanHeader(headerCol1, `Week 1 (Col ${targetCols[0] + 1})`),
             cleanHeader(headerCol2, `Week 2 (Col ${targetCols[1] + 1})`),
-            cleanHeader(headerCol3, `Week 3 (Col ${targetCols[2] + 1})`),
+            cleanHeader(headerCol3, 'UPDATE'),
           ];
 
           let currentSection = 'IKA';
@@ -95,25 +96,27 @@ export async function fetchPaymentUpdateData() {
           const sectionsSet = new Set(['ALL', 'IKA']);
           const customersSet = new Set();
 
-          for (let i = 0; i < rawRows.length; i++) {
+          const startRowIndex = Math.max(0, (Number(PAYMENT_UPDATE_START_ROW) || 1) - 1);
+
+          for (let i = startRowIndex; i < rawRows.length; i++) {
             const r = rawRows[i] || [];
             const rawA = String(r[0] || '').trim();
             const rawB = String(r[1] || '').trim();
 
-            // Detect section headers (IKA, LKA, SKA, GT)
-            if (rawA.includes("IKA (SEP'26)") || rawA === 'IKA') {
+            // Detect section headers (IKA, LKA, SKA, GT) regardless of month/year suffix e.g. "IKA (NOV'26)"
+            if (/^IKA(\s*\(.*\))?$/i.test(rawA)) {
               currentSection = 'IKA';
               sectionsSet.add('IKA');
               currentCustomer = '';
               continue;
             }
-            if (rawA.includes("LKA (SEP'26)") || rawA === 'LKA') {
+            if (/^LKA(\s*\(.*\))?$/i.test(rawA)) {
               currentSection = 'LKA';
               sectionsSet.add('LKA');
               currentCustomer = '';
               continue;
             }
-            if (rawA.includes("SKA (SEP'26)") || rawA === 'SKA') {
+            if (/^SKA(\s*\(.*\))?$/i.test(rawA)) {
               currentSection = 'SKA';
               sectionsSet.add('SKA');
               currentCustomer = '';

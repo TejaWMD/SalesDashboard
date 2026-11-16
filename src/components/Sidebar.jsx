@@ -249,36 +249,6 @@ function Sidebar({
           </div>
         )}
       </aside>
-
-      {/* Mobile Bottom Tab Navigation (<= 768px) */}
-      <nav className="mobile-bottom-nav" aria-label="Mobile Navigation">
-        {NAV_ITEMS.map((item) => {
-          const isActive = activeView === item.id;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              className={`mobile-bottom-nav__btn ${isActive ? 'active' : ''}`}
-              onClick={() => handleSelect(item.id)}
-              aria-label={item.label}
-            >
-              <span className="mobile-bottom-nav__icon">{item.icon}</span>
-              <span className="mobile-bottom-nav__label">{item.shortLabel}</span>
-            </button>
-          );
-        })}
-        {isAdmin && (
-          <button
-            type="button"
-            className={`mobile-bottom-nav__btn ${activeView === 'admin' ? 'active' : ''}`}
-            onClick={() => handleSelect('admin')}
-            aria-label="User Tracker"
-          >
-            <span className="mobile-bottom-nav__icon">🛡️</span>
-            <span className="mobile-bottom-nav__label">Admin</span>
-          </button>
-        )}
-      </nav>
     </>
   );
 }

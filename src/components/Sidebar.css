@@ -439,11 +439,6 @@
   transform: translateY(-1px);
 }
 
-/* Mobile Bottom Nav (Hidden on Desktop/Laptop/TV) */
-.mobile-bottom-nav {
-  display: none;
-}
-
 .app-sidebar__user-card {
   display: flex;
   align-items: center;
@@ -785,63 +780,5 @@
 
   .app-sidebar__mobile-close {
     display: inline-flex;
-  }
-
-  .mobile-bottom-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    position: fixed;
-    left: 8px;
-    right: 8px;
-    bottom: max(8px, env(safe-area-inset-bottom));
-    height: 56px;
-    padding: 4px 6px;
-    background: rgba(255, 255, 255, 0.96);
-    border: 1px solid var(--border-subtle);
-    border-radius: 16px;
-    box-shadow: 0 8px 28px rgba(7, 43, 97, 0.18);
-    backdrop-filter: blur(14px);
-    z-index: 950;
-    gap: 2px;
-  }
-
-  .mobile-bottom-nav__btn {
-    flex: 1;
-    min-width: 0;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
-    border-radius: 12px;
-    padding: 4px 2px;
-    cursor: pointer;
-    transition: all 0.18s ease;
-  }
-
-  .mobile-bottom-nav__btn.active {
-    background: linear-gradient(135deg, #072b61 0%, #0d4394 100%);
-    color: #ffffff;
-    box-shadow: 0 3px 10px rgba(7, 43, 97, 0.25);
-  }
-
-  .mobile-bottom-nav__icon {
-    font-size: 1.05rem;
-    line-height: 1;
-  }
-
-  .mobile-bottom-nav__label {
-    font-size: 0.62rem;
-    font-weight: 800;
-    letter-spacing: 0.01em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
   }
 }
