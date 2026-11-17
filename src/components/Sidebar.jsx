@@ -199,7 +199,7 @@ function Sidebar({
             <div className="app-sidebar__footer-actions">
               
 
-              {onLockDashboard && (
+              {/* {onLockDashboard && (
                 <button
                   type="button"
                   className="app-sidebar__logout-btn"
@@ -214,7 +214,7 @@ function Sidebar({
                   </svg>
                   <span>Logout</span>
                 </button>
-              )}
+              )} */}
             </div>
 
             <div
